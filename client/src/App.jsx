@@ -6,10 +6,14 @@ import SignUp from './pages/SignUp';
 import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import Header from './components/Header';
+// import { ThemeConfig } from 'flowbite-react';
 
 function App() {
   return (
     <BrowserRouter>
+    {/* <ThemeConfig dark={false} /> */}
+    <Header />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/about' element={<About />} />
