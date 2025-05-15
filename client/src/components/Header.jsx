@@ -33,7 +33,7 @@ const Header = () => {
         </Button>
 
         <Link to={'/sign-in'}>
-          <Button className='bg-gradient-to-br from-purple-600 to-blue-500'> {/* gradientDuoTone='purpleToBlue' */}
+          <Button className='hover:bg-gradient-to-br hover:from-purple-600 hover:to-blue-500' outline> {/* gradientDuoTone='purpleToBlue' */}
             Sign In
           </Button>
         </Link>
