@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.route.js'
+import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -17,3 +18,5 @@ app.use('/api/auth', authRoutes);
 app.listen(3000, () => {
     console.log('Server is running on port 3000')
 });
+
+app.use(errorHandler)
