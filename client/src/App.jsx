@@ -6,23 +6,26 @@ import SignUp from './pages/SignUp';
 import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-import Header from './components/Header';
+import Layout from './components/Layout';
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
   return (
     <BrowserRouter>
-    {/* <ThemeConfig dark={false} /> */}
-    <Header />
+      {/* <ThemeConfig dark={false} /> */}
+
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/sign-in' element={<SignIn />} />
-        <Route path='/sign-up' element={<SignUp />} />
-        <Route path='/projects' element={<Projects />} />
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='*' element={<NotFound />} />
+        <Route path='/' element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/sign-in' element={<SignIn />} />
+          <Route path='/sign-up' element={<SignUp />} />
+          <Route path='/projects' element={<Projects />} />
+          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='*' element={<NotFound />} />
+        </Route>
       </Routes>
+
     </BrowserRouter>
   )
 }
