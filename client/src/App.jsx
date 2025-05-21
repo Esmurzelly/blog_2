@@ -7,6 +7,7 @@ import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Layout from './components/Layout';
+import PrivateRoute from './components/PrivateRoute';
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
@@ -21,7 +22,9 @@ function App() {
           <Route path='/sign-in' element={<SignIn />} />
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/projects' element={<Projects />} />
-          <Route path='/dashboard' element={<Dashboard />} />
+          <Route element={<PrivateRoute />}>
+            <Route path='/dashboard' element={<Dashboard />} />
+          </Route>
           <Route path='*' element={<NotFound />} />
         </Route>
       </Routes>
