@@ -1,11 +1,16 @@
 import React from 'react'
-import { Button, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
+import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
-import { FaMoon } from 'react-icons/fa'
+import { FaMoon, FaSun } from 'react-icons/fa'
+import { useSelector, useDispatch } from 'react-redux'
+import { toggleTheme } from '../redux/theme/themeSlice'
 
 const Header = () => {
   const path = useLocation().pathname;
+  const { currentUser } = useSelector(state => state.user);
+  const { theme } = useSelector(state => state.theme);
+  const dispatch = useDispatch();
 
   return (
     <Navbar className='border-b-2'>
@@ -28,15 +33,33 @@ const Header = () => {
       </Button>
 
       <div className='flex gap-2 md:order-2'>
-        <Button className='w-12 h-10 hidden sm:inline' color={'gray'} pill>
-          <FaMoon />
+        <Button onClick={() => dispatch(toggleTheme())} className='w-12 h-10 hidden sm:inline' color={'gray'} pill>
+          {theme === 'light' ? <FaMoon /> : <FaSun />}
         </Button>
 
-        <Link to={'/sign-in'}>
-          <Button className='hover:bg-gradient-to-br hover:from-purple-600 hover:to-blue-500' outline> {/* gradientDuoTone='purpleToBlue' */}
-            Sign In
-          </Button>
-        </Link>
+        {currentUser ? (
+          <Dropdown arrowIcon={false} inline label={<Avatar img={currentUser.profilePicture} rounded className='cursor-pointer' alt='user' />}>
+            <DropdownHeader>
+              <span className="block text-white! text-sm">@{currentUser.username}</span>
+              <span className="block text-white! text-sm font-medium truncate">{currentUser.email}</span>
+            </DropdownHeader>
+
+            <Link to={'/dashboard?tab=profile'}>
+              <DropdownItem>Profile</DropdownItem>
+            </Link>
+
+            <DropdownDivider />
+
+            <DropdownItem>Sign out</DropdownItem>
+          </Dropdown>
+        ) : (
+          <Link to={'/sign-in'}>
+            <Button className='hover:bg-gradient-to-br hover:from-purple-600 hover:to-blue-500 cursor-pointer' outline> {/* gradientDuoTone='purpleToBlue' */}
+              Sign In
+            </Button>
+          </Link>
+        )}
+
 
         <NavbarToggle />
       </div>
@@ -51,11 +74,6 @@ const Header = () => {
         <NavbarLink as={'div'} active={path === '/projects'}>
           <Link to={'/projects'}>Projects</Link>
         </NavbarLink>
-
-
-        {/* <NavbarLink href='/' active={path === '/'} >Home</NavbarLink>
-        <NavbarLink href='/about' active={path === '/about'}>About</NavbarLink>
-        <NavbarLink href='/projects' active={path === '/projects'}>Projects</NavbarLink> */}
       </NavbarCollapse>
     </Navbar>
   )
