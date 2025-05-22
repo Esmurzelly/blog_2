@@ -18,7 +18,9 @@ const DashSidebar = () => {
         <Sidebar className='w-full md:w-56'>
             <SidebarItems>
                 <SidebarItemGroup >
-                    <SidebarItem href='/dashboard?tab=profile' active={tab === 'profile'} icon={HiUser} label='User' labelColor='red'>Profile</SidebarItem>
+                    <Link to={'/dashboard?tab=profile'}>
+                        <SidebarItem active={tab === 'profile'} icon={HiUser} label='User' labelColor='red' as={'div'}>Profile</SidebarItem>
+                    </Link>
                     <SidebarItem icon={HiArrowSmRight} className='cursor-pointer'>Sign Out</SidebarItem>
                 </SidebarItemGroup>
             </SidebarItems>
