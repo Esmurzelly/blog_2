@@ -1,48 +1,107 @@
 import { Button, TextInput } from 'flowbite-react';
 import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateStart, updateSuccess, updateFailure } from '../redux/user/userSlice';
+import defaultAvatar from '../assets/user.png'
+import { toast } from 'react-toastify';
 
 const DashProfile = () => {
     const { currentUser } = useSelector(state => state.user);
     const [imageFile, setImageFile] = useState(null);
+    const [formData, setFormData] = useState({});
     const filePickerRef = useRef();
+    const dispatch = useDispatch();
+
+    // const profilePicture = imageFile || `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`;
+    const profilePicture = imageFile
+        ? URL.createObjectURL(imageFile)
+        : currentUser.profilePicture
+            ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
+            : defaultAvatar;
+
 
     const handleChangeImage = e => {
         const file = e.target.files[0];
-        setImageFile(file);
-
-        const reader = new FileReader();
-
-        if (file) {
-            reader.readAsDataURL(file);
-        }
-
-        reader.onload = (readerEvent) => {
-            if (file.type.includes("image")) {
-                setImageFile(readerEvent.target.result)
-            }
+        if (file && file.type.includes('image')) {
+            setImageFile(file);
         }
     };
+
+    const handleChange = e => {
+        setFormData({ ...formData, [e.target.id]: e.target.value })
+    }
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // if (Object.keys(formData).length === 0) return;
+
+        try {
+            dispatch(updateStart());
+            const res = await fetch(`/api/user/update/${currentUser._id}`, {
+                method: "PUT",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                dispatch(updateFailure(data.message));
+                toast.error(data.message);
+                return;
+            } else {
+                dispatch(updateSuccess(data));
+                toast.success("You have updated your data successfuly");
+            }
+
+            if (imageFile) {
+                const imageFormData = new FormData();
+                imageFormData.append('file', imageFile);
+
+                const imageRes = await fetch(`/api/user/avatar`, {
+                    method: "POST",
+                    body: imageFormData
+                });
+
+                const imageData = await imageRes.json();
+
+                if (!imageRes.ok) {
+                    dispatch(updateFailure(imageData.message));
+                    toast.error(data.message);
+                    return;
+                }
+
+                dispatch(updateSuccess(imageData));
+                toast.success("You have updated your data successfuly");
+                setImageFile(null);
+            }
+        } catch (error) {
+            dispatch(updateFailure(error.message))
+            toast.error(error.message);
+        }
+    }
 
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>
             <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-            <form className='flex flex-col gap-4'>
+            <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                 <input type="file" accept='image/*' hidden onChange={handleChangeImage} ref={filePickerRef} />
                 <div
                     className="w-32 h-32 self-center cursor-pointer shadow-md rounded-full overflow-hidden"
                     onClick={() => filePickerRef.current.click()}
                 >
                     <img
-                        src={imageFile || currentUser.profilePicture}
+                        src={profilePicture}
                         alt="profile_picture"
                         className='rounded-full w-full h-full object-cover border-8 border-[lightgray]'
                     />
                 </div>
 
-                <TextInput className='w-full' type='text' id='username' placeholder='username' defaultValue={currentUser.username} autoComplete='username' />
-                <TextInput className='w-full' type='email' id='email' placeholder='email' defaultValue={currentUser.email} autoComplete='email' />
-                <TextInput className='w-full' type='password' id='password' placeholder='password' autoComplete='current-password' />
+                <TextInput onChange={handleChange} className='w-full' type='text' id='username' placeholder='username' defaultValue={currentUser.username} autoComplete='username' />
+                <TextInput onChange={handleChange} className='w-full' type='email' id='email' placeholder='email' defaultValue={currentUser.email} autoComplete='email' />
+                <TextInput onChange={handleChange} className='w-full' type='password' id='password' placeholder='password' autoComplete='current-password' />
 
                 <Button type='submit' className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer'>Update</Button>
             </form>

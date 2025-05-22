@@ -1,37 +1,75 @@
 import bcrypt from "bcryptjs";
 import { createError } from "../utils/error.js"
 import User from "../models/user.model.js";
+import { v4 as uuidv4 } from 'uuid';
+
 
 export const updateUser = async (req, res, next) => {
-    if (req.user.id !== req.params.userId) return next(createError(403, 'You are not allowed to update this user!'));
-
-    if (req.body.password) {
-        if (req.body.password.length < 6) {
-            return next(createError(400, 'Password must be at least 6 characters!'));
-        }
-    }
-    req.body.password = bcrypt.hashSync(req.body.password, 10);
-
-    if (req.body.username) {
-        if (req.body.username.length <= 7 || req.body.username.length >= 20) return next(createError(400, 'Username must be between 7 and 20 characters!'))
-        if (req.body.username.includes(" ")) return next(createError(400, 'Username cannot contain spaces!'));
-        if (req.body.username !== req.body.username.toLowerCase()) return next(createError(400, 'Username must be lower case!'));
-        if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) return next(createError(400, 'Username can only contain letter and numbers!'));
+    if (req.user.id !== req.params.userId) {
+        return next(createError(403, 'You are not allowed to update this user!'));
     }
 
     try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.userId, {
-            $set: {
-                username: req.body.username,
-                email: req.body.email,
-                profilePicture: req.body.profilePicture,
-                password: req.body.password,
-            },
-        }, { new: true });
+        const updateFields = {};
+
+        if (req.body.password) {
+            if (req.body.password.length < 6) {
+                return next(createError(400, 'Password must be at least 6 characters!'));
+            }
+            updateFields.password = bcrypt.hashSync(req.body.password, 10);
+        }
+
+        if (req.body.username) {
+            if (req.body.username.length <= 7 || req.body.username.length >= 20) {
+                return next(createError(400, 'Username must be between 7 and 20 characters!'));
+            }
+            if (req.body.username.includes(" ")) {
+                return next(createError(400, 'Username cannot contain spaces!'));
+            }
+            if (req.body.username !== req.body.username.toLowerCase()) {
+                return next(createError(400, 'Username must be lower case!'));
+            }
+            if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) {
+                return next(createError(400, 'Username can only contain letters and numbers!'));
+            }
+            updateFields.username = req.body.username;
+        }
+
+
+        if (req.body.email) updateFields.email = req.body.email;
+        if (req.body.profilePicture) updateFields.profilePicture = req.body.profilePicture;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.userId,
+            { $set: updateFields },
+            { new: true }
+        );
 
         const { password, ...rest } = updatedUser._doc;
-        console.log(rest);
         res.status(200).json(rest);
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const uploadAvatar = async (req, res, next) => {
+    const IMAGE_STORAGE = process.env.IMAGE_STORAGE;
+
+    try {
+        const file = req.files.file;
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const avatarName = uuidv4() + '.jpg';
+        file.mv(`${IMAGE_STORAGE}` + avatarName);
+        user.profilePicture = avatarName;
+        
+        await user.save();
+        const { password, ...rest } = user._doc;
+        return res.json(rest);
     } catch (error) {
         next(error)
     }

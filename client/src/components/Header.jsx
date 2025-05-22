@@ -5,12 +5,17 @@ import { AiOutlineSearch } from 'react-icons/ai'
 import { FaMoon, FaSun } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleTheme } from '../redux/theme/themeSlice'
+import defaultAvatar from '../assets/user.png'
 
 const Header = () => {
   const path = useLocation().pathname;
   const { currentUser } = useSelector(state => state.user);
   const { theme } = useSelector(state => state.theme);
   const dispatch = useDispatch();
+
+  const profilePicture = currentUser.profilePicture
+      ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
+      : defaultAvatar;
 
   return (
     <Navbar className='border-b-2'>
@@ -38,7 +43,7 @@ const Header = () => {
         </Button>
 
         {currentUser ? (
-          <Dropdown arrowIcon={false} inline label={<Avatar img={currentUser.profilePicture} rounded className='cursor-pointer' alt='user' />}>
+          <Dropdown arrowIcon={false} inline label={<Avatar img={profilePicture} rounded className='cursor-pointer' alt='user' />}>
             <DropdownHeader>
               <span className="block text-white! text-sm">@{currentUser.username}</span>
               <span className="block text-white! text-sm font-medium truncate">{currentUser.email}</span>
@@ -63,7 +68,7 @@ const Header = () => {
 
         <NavbarToggle />
       </div>
-      
+
       <NavbarCollapse>
         <NavbarLink as={'div'} active={path === '/'} >
           <Link to={'/'}>Home</Link>

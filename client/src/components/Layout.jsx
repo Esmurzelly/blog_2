@@ -2,17 +2,19 @@ import React from 'react'
 import Header from './Header'
 import FooterComponent from './Footer'
 import { Outlet } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify';
 
 const Layout = () => {
   return (
     <div className='flex flex-col min-h-screen'>
-        <Header />
+      <Header />
 
-        <main className='flex-1'>
-            <Outlet />
-        </main>
+      <main className='flex-1'>
+        <Outlet />
+        <ToastContainer />
+      </main>
 
-        <FooterComponent />
+      <FooterComponent />
     </div>
   )
 }
