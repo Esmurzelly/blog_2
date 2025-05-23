@@ -3,11 +3,13 @@ import { TextInput, Select, FileInput, Button } from 'flowbite-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
   const [value, setValue] = useState('');
   const [image, setImage] = useState(null);
   const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
 
   const handleChangeImage = e => {
     const file = e.target.files[0];
@@ -48,7 +50,7 @@ const CreatePost = () => {
 
       if (res.ok) {
         toast.success("Post is published")
-        console.log('after ok', data);
+        navigate(`/post/${data.slug}`);
       }
     } catch (error) {
       toast.error(error)
