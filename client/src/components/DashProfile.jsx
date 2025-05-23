@@ -1,14 +1,16 @@
-import { Button, TextInput } from 'flowbite-react';
+import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStart, updateSuccess, updateFailure } from '../redux/user/userSlice';
+import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 const DashProfile = () => {
     const { currentUser } = useSelector(state => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [formData, setFormData] = useState({});
+    const [showModal, setShowModal] = useState(false);
     const filePickerRef = useRef();
     const dispatch = useDispatch();
 
@@ -16,7 +18,8 @@ const DashProfile = () => {
     const profilePicture = imageFile
         ? URL.createObjectURL(imageFile)
         : currentUser.profilePicture
-            ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
+            ? currentUser.profilePicture.includes("googleusercontent.com") || currentUser.profilePicture.includes("pixabay.com") ? currentUser?.profilePicture
+                : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
             : defaultAvatar;
 
 
@@ -81,6 +84,28 @@ const DashProfile = () => {
             dispatch(updateFailure(error.message))
             toast.error(error.message);
         }
+    };
+
+    const handleDeleteUser = async () => {
+        setShowModal(false);
+
+        try {
+            const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+                method: "DELETE"
+            });
+
+            const data = res.json();
+
+            if (!res.ok) {
+                dispatch(deleteUserFailure(data.message));
+            } else {
+                dispatch(deleteUserSuccess(data));
+                toast.success("You have deleted your account successfuly");
+            }
+        } catch (error) {
+            dispatch(deleteUserFailure(error.message))
+            toast.error(error.message);
+        }
     }
 
     return (
@@ -107,9 +132,28 @@ const DashProfile = () => {
             </form>
 
             <div className="text-red-500 flex justify-between items-center mt-5">
-                <div className="cursor-pointer">Delete account</div>
+                <div onClick={() => setShowModal(true)} className="cursor-pointer">Delete account</div>
                 <div className="cursor-pointer">Sign Out</div>
             </div>
+
+            <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>
+                <ModalHeader />
+                <ModalBody>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
+                        <h3 className='mb-5 text-lg text-gray-500! dark:text-gray-400'>Are you sure you want to delete your account?</h3>
+
+                        <div className="flex justify-between items-center gap-4">
+                            <Button className='text-xl text-red-500' color={'failure'} onClick={handleDeleteUser}>
+                                Yes, I am sure
+                            </Button>
+                            <Button className='text-xl text-white' color={'failure'} onClick={() => setShowModal(false)}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                </ModalBody>
+            </Modal>
         </div>
     )
 }

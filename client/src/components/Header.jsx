@@ -13,7 +13,7 @@ const Header = () => {
   const { theme } = useSelector(state => state.theme);
   const dispatch = useDispatch();
 
-  const profilePicture = currentUser.profilePicture
+  const profilePicture = currentUser?.profilePicture
       ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
       : defaultAvatar;
 
