@@ -6,6 +6,7 @@ import { FaMoon, FaSun } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleTheme } from '../redux/theme/themeSlice'
 import defaultAvatar from '../assets/user.png'
+import { signOutSuccess } from '../redux/user/userSlice'
 
 const Header = () => {
   const path = useLocation().pathname;
@@ -14,8 +15,28 @@ const Header = () => {
   const dispatch = useDispatch();
 
   const profilePicture = currentUser?.profilePicture
-      ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
-      : defaultAvatar;
+    ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
+    : defaultAvatar;
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch('api/user/signout', {
+        method: "POST"
+      });
+
+      const data = res.json();
+
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signOutSuccess());
+        toast.success("You was signed out successfuly");
+      }
+    } catch (error) {
+      console.log(error.message)
+      toast.error(error.message)
+    }
+  }
 
   return (
     <Navbar className='border-b-2'>
@@ -55,7 +76,7 @@ const Header = () => {
 
             <DropdownDivider />
 
-            <DropdownItem>Sign out</DropdownItem>
+            <DropdownItem onClick={handleSignout}>Sign out</DropdownItem>
           </Dropdown>
         ) : (
           <Link to={'/sign-in'}>

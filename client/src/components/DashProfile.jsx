@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess } from '../redux/user/userSlice';
+import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
@@ -106,6 +106,26 @@ const DashProfile = () => {
             dispatch(deleteUserFailure(error.message))
             toast.error(error.message);
         }
+    };
+
+    const handleSignout = async () => {
+        try {
+            const res = await fetch('api/user/signout', {
+                method: "POST"
+            });
+
+            const data = res.json();
+
+            if(!res.ok) {
+                console.log(data.message);
+            } else {
+                dispatch(signOutSuccess());
+                toast.success("You was signed out successfuly");
+            }
+        } catch (error) {
+            console.log(error.message)
+            toast.error(error.message)
+        }
     }
 
     return (
@@ -133,7 +153,7 @@ const DashProfile = () => {
 
             <div className="text-red-500 flex justify-between items-center mt-5">
                 <div onClick={() => setShowModal(true)} className="cursor-pointer">Delete account</div>
-                <div className="cursor-pointer">Sign Out</div>
+                <div onClick={handleSignout} className="cursor-pointer">Sign Out</div>
             </div>
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>
