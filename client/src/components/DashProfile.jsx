@@ -15,7 +15,6 @@ const DashProfile = () => {
     const filePickerRef = useRef();
     const dispatch = useDispatch();
 
-    // const profilePicture = imageFile || `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`;
     const profilePicture = imageFile
         ? URL.createObjectURL(imageFile)
         : currentUser.profilePicture

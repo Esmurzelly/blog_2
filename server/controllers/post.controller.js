@@ -7,7 +7,7 @@ export const create = async (req, res, next) => {
     try {
         const image = req?.files?.image;
         const POST_IMAGE_STORAGE = process.env.POST_IMAGE_STORAGE;
-        
+
         if (!req.user.isAdmin) return next(createError(403, 'You are not allowed to create a post'));
         if (!req.body.title || !req.body.content) next(createError(400, 'Please provide all required fields'));
 
@@ -31,7 +31,7 @@ export const create = async (req, res, next) => {
 
             await newPostWithImage.save();
 
-            res.json(newPostWithImage);
+            res.status(201).json(newPostWithImage);
         } else {
             const newPost = new Post({
                 ...req.body,
