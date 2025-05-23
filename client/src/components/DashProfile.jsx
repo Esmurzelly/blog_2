@@ -5,9 +5,10 @@ import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUse
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 const DashProfile = () => {
-    const { currentUser } = useSelector(state => state.user);
+    const { currentUser, loading } = useSelector(state => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [formData, setFormData] = useState({});
     const [showModal, setShowModal] = useState(false);
@@ -116,7 +117,7 @@ const DashProfile = () => {
 
             const data = res.json();
 
-            if(!res.ok) {
+            if (!res.ok) {
                 console.log(data.message);
             } else {
                 dispatch(signOutSuccess());
@@ -148,7 +149,18 @@ const DashProfile = () => {
                 <TextInput onChange={handleChange} className='w-full' type='email' id='email' placeholder='email' defaultValue={currentUser.email} autoComplete='email' />
                 <TextInput onChange={handleChange} className='w-full' type='password' id='password' placeholder='password' autoComplete='current-password' />
 
-                <Button type='submit' className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer'>Update</Button>
+                <Button disabled={loading} type='submit' className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer'>
+                    {loading ? "Loading..." : "Update"}
+                </Button>
+
+                {currentUser.isAdmin && <Link to={'/create-post'}>
+                    <Button
+                        type='button'
+                        className='w-full bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'
+                    >
+                        Create post
+                    </Button></Link>}
+
             </form>
 
             <div className="text-red-500 flex justify-between items-center mt-5">

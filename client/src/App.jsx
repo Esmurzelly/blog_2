@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
+import AdminPrivateRoute from './components/AdminPrivateRoute'
+import CreatePost from './pages/CreatePost';
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
@@ -23,6 +25,9 @@ function App() {
           <Route path='/projects' element={<Projects />} />
           <Route element={<PrivateRoute />}>
             <Route path='/dashboard' element={<Dashboard />} />
+          </Route>
+          <Route element={<AdminPrivateRoute />}>
+            <Route path='/create-post' element={<CreatePost />} />
           </Route>
           <Route path='*' element={<NotFound />} />
         </Route>
