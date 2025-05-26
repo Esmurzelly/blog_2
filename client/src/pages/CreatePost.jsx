@@ -24,8 +24,6 @@ const CreatePost = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
   };
 
-  console.log('formData', formData);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
