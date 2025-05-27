@@ -10,6 +10,7 @@ import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 import AdminPrivateRoute from './components/AdminPrivateRoute'
 import CreatePost from './pages/CreatePost';
+import UpdatePost from './pages/UpdatePost';
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           </Route>
           <Route element={<AdminPrivateRoute />}>
             <Route path='/create-post' element={<CreatePost />} />
+            <Route path='/update-post/:postId' element={<UpdatePost />} />
           </Route>
           <Route path='*' element={<NotFound />} />
         </Route>
