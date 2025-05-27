@@ -104,22 +104,32 @@ export const deletePost = async (req, res, next) => {
 }
 
 export const updatePost = async (req, res, next) => {
+    const POST_IMAGE_STORAGE = process.env.POST_IMAGE_STORAGE;
+    const file = req?.files?.image;
+
     if (!req.user.isAdmin || req.user.id !== req.params.userId) {
         return next(createError(403, 'You are not allowed to update this post'));
     }
 
     try {
+        const updatedFields = {
+            title: req.body.title,
+            content: req.body.content,
+            category: req.body.category,
+        };
+
+        if (file) {
+            const imageName = uuidv4() + '.jpg';
+            file.mv(`${POST_IMAGE_STORAGE}` + imageName);
+            updatedFields.image = imageName;
+        }
+
         const updatedPost = await Post.findByIdAndUpdate(
             req.params.postId,
-            {
-                $set: {
-                    title: req.body.title,
-                    content: req.body.content,
-                    category: req.body.category,
-                    image: req.body.image,
-                }
-            }, { new: true }
-        )
+            { $set: updatedFields },
+            { new: true }
+        );
+
         res.status(200).json(updatedPost);
     } catch (error) {
         next(error)
