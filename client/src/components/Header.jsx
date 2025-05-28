@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { toggleTheme } from '../redux/theme/themeSlice'
 import defaultAvatar from '../assets/user.png'
 import { signOutSuccess } from '../redux/user/userSlice'
+import { toast } from 'react-toastify'
 
 const Header = () => {
   const path = useLocation().pathname;
