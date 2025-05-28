@@ -76,7 +76,10 @@ export const uploadAvatar = async (req, res, next) => {
 }
 
 export const deleteUser = async (req, res, next) => {
-    if (req.user.id !== req.params.userId) return next(createError(403, 'You are not allowed to delete this user'));
+    if (req.user.id !== req.params.userId && !req.user.isAdmin) return next(createError(403, 'You are not allowed to delete this user'));
+
+    console.log('req.user.id', req.user.id);
+    console.log('req.params.userId', req.params.userId);
 
     try {
         await User.findByIdAndDelete(req.params.userId);

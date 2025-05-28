@@ -53,25 +53,26 @@ const DashUsers = () => {
     }, [currentUser]);
 
     const handleDeletePost = async () => {
-        // setShowModal(false);
+        try {
+            const res = await fetch(`/api/user/delete/${userIdDelete}`, {
+                method: "DELETE",
+            });
+            console.log('res from func', res)
 
-        // try {
-        //   const res = await fetch(`/api/post/deletepost/${userIdDelete}/${currentUser._id}`, {
-        //     method: "DELETE",
-        //   });
+            const data = await res.json();
+            console.log('data from func', data)
 
-        //   const data = await res.json();
-
-        //   if(!res.ok) {
-        //     toast.error("You can't get the posts", data.message);
-        //   } else {
-        //     setUsersList((prev) => prev.filter((post) => post._id !== userIdDelete));
-        //     toast.success("The post has been deleted");
-        //   };
-        // } catch (error) {
-        //   console.log(error.message);
-        //   toast.error("You can't delete the posts");
-        // }
+            if (!res.ok) {
+                toast.error("You can't delete the user toast", data.message);
+            } else {
+                setUsersList((prev) => prev.filter((user) => user._id !== userIdDelete));
+                setShowModal(false);
+                toast.success("The post has been deleted");
+            };
+        } catch (error) {
+            console.log(error.message);
+            toast.error("You can't delete the user toast 2");
+        }
     }
 
     return (

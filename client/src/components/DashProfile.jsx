@@ -94,7 +94,7 @@ const DashProfile = () => {
                 method: "DELETE"
             });
 
-            const data = res.json();
+            const data = await res.json();
 
             if (!res.ok) {
                 dispatch(deleteUserFailure(data.message));
