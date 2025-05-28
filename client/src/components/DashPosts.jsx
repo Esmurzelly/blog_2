@@ -96,9 +96,9 @@ const DashPosts = () => {
 
                   <TableCell>
                     <Link to={`/post/${post.slug}`}>
-                      <img src={post.image.startsWith('http')
+                      <img className='w-20 h-10 object-cover bg-gray-500' src={post.image.startsWith('http')
                         ? post.image
-                        : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post.image}`} alt={post.title} className='w-20 h-10 object-cover bg-gray-500' />
+                        : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post.image}`} alt={post.title} />
                     </Link>
                   </TableCell>
 
