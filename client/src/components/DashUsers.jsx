@@ -71,7 +71,7 @@ const DashUsers = () => {
             };
         } catch (error) {
             console.log(error.message);
-            toast.error("You can't delete the user toast 2");
+            toast.error("You can't delete the user");
         }
     }
 

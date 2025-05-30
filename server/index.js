@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.route.js'
 import userRoutes from './routes/user.route.js'
 import postRoutes from './routes/post.route.js'
+import commentRoutes from './routes/comment.route.js'
 import { errorHandler } from './middleware/errorHandler.js';
 import cookiePaser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
@@ -30,6 +31,7 @@ app.use("/static", express.static(path.join(__dirname, "static")));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
+app.use('/api/comment', commentRoutes);
 
 app.use(errorHandler)
 

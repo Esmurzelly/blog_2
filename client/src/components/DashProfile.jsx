@@ -18,7 +18,7 @@ const DashProfile = () => {
     const profilePicture = imageFile
         ? URL.createObjectURL(imageFile)
         : currentUser.profilePicture
-            ? currentUser.profilePicture.includes("googleusercontent.com") || currentUser.profilePicture.includes("pixabay.com") ? currentUser?.profilePicture
+            ? currentUser?.profilePicture.startsWith('https') ? currentUser?.profilePicture
                 : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
             : defaultAvatar;
 
