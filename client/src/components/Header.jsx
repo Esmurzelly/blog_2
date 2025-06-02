@@ -25,7 +25,10 @@ const Header = () => {
         method: "POST"
       });
 
-      const data = res.json();
+      console.log('res header', res);
+
+      const data = await res.json();
+      console.log('data header', data);
 
       if (!res.ok) {
         console.log(data.message);

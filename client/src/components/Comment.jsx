@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import defaultAvatar from '../assets/user.png'
 import moment from 'moment';
+import { RiThumbUpLine } from "react-icons/ri";
 
-const Comment = ({ comment }) => {
+const Comment = ({ comment, onLike }) => {
     const [user, setUser] = useState({});
+    const { currentUser } = useSelector(state => state.user);
 
     const profilePicture = user?.profilePicture
         ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${user.profilePicture}`
         : user?.profilePicture?.startsWith('https')
             ? user?.profilePicture
             : defaultAvatar;
+
     useEffect(() => {
         const getUser = async () => {
             try {
@@ -44,6 +48,22 @@ const Comment = ({ comment }) => {
                     </span>
                 </div>
                 <p className='text-gray-500 pb-2'>{comment.content}</p>
+
+                <div className="flex items-center gap-2 pt-2 text-xs border-t dark:border-gray-700 max-w-fit">
+                    <button
+                        type='button'
+                        onClick={() => onLike(comment._id)}
+                        className={`hover:text-blue-500 cursor-pointer 
+                            ${currentUser && comment.likes.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'}`
+                        }
+                    >
+                        <RiThumbUpLine className='text-sm' />
+                    </button>
+
+                    <p className='text-gray-400'>{
+                        comment.numberOfLikes > 0 && comment.numberOfLikes + " " + (comment.numberOfLikes === 1 ? "like" : "likes")
+                    }</p>
+                </div>
             </div>
         </div>
     )

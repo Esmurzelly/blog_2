@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import defaultAvatar from '../assets/user.png'
 import { Button, Textarea } from 'flowbite-react';
 import { toast } from 'react-toastify';
@@ -10,6 +10,7 @@ const CommentSection = ({ postId }) => {
     const { currentUser } = useSelector(state => state.user);
     const [comment, setComment] = useState('')
     const [commentsList, setCommentsList] = useState([]);
+    const navigate = useNavigate();
 
     const profilePicture = currentUser?.profilePicture
         ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
@@ -58,12 +59,42 @@ const CommentSection = ({ postId }) => {
                 }
             } catch (error) {
                 toast.error(error.message);
-                console.log(error.message)
+                console.log(error.message);
             }
         }
 
         getComments();
     }, [postId]);
+
+    const handleLike = async (commentId) => {
+        try {
+            if (!currentUser) {
+                navigate('/sign-in');
+                return;
+            }
+
+            const res = await fetch(`/api/comment/likeComment/${commentId}`, {
+                method: "PUT",
+            });
+            
+            if(res.ok) {
+                const data = await res.json();
+                setCommentsList(commentsList.map((commentItem) => {
+                    commentItem._id === commentId ? {
+                        ...commentsList,
+                        likes: data.likes,
+                        numberOfLikes: data.numberOfLikes.length,
+                    } : commentsList
+                }));
+            }
+
+        } catch (error) {
+            toast.error(error.message);
+            console.log(error.message);
+        }
+    }
+
+    if(!commentsList || !currentUser) return <div>Loading...</div>
 
     console.log(commentsList)
 
@@ -113,8 +144,8 @@ const CommentSection = ({ postId }) => {
                         </div>
                     </div>
 
-                    {commentsList.map((commentItem) => (
-                        <Comment comment={commentItem} key={commentItem._id} />
+                    {commentsList && commentsList.map((commentItem) => (
+                        <Comment comment={commentItem} key={commentItem._id} onLike={handleLike} />
                     ))}
                 </>
             )}

@@ -35,12 +35,13 @@ const PostPage = () => {
         fetchPost();
     }, [postSlug]);
 
-    if (loading)
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <Spinner size='xl' />
             </div>
         )
+    }
 
     return (
         <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
