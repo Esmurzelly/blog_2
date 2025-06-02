@@ -76,16 +76,18 @@ const CommentSection = ({ postId }) => {
             const res = await fetch(`/api/comment/likeComment/${commentId}`, {
                 method: "PUT",
             });
-            
-            if(res.ok) {
+
+            if (res.ok) {
                 const data = await res.json();
-                setCommentsList(commentsList.map((commentItem) => {
-                    commentItem._id === commentId ? {
-                        ...commentsList,
-                        likes: data.likes,
-                        numberOfLikes: data.numberOfLikes.length,
-                    } : commentsList
-                }));
+                setCommentsList((prevComments) =>
+                    prevComments.map((commentItem) =>
+                        commentItem._id === commentId ? {
+                            ...commentItem,
+                            likes: data.likes,
+                            numberOfLikes: data.numberOfLikes,
+                        } : commentItem
+                    )
+                )
             }
 
         } catch (error) {
@@ -94,7 +96,7 @@ const CommentSection = ({ postId }) => {
         }
     }
 
-    if(!commentsList || !currentUser) return <div>Loading...</div>
+    if (!commentsList || !currentUser) return <div>Loading...</div>
 
     console.log(commentsList)
 
