@@ -96,6 +96,14 @@ const CommentSection = ({ postId }) => {
         }
     }
 
+    const handleEdit = async (comment, editedComment) => {
+        setCommentsList(
+            commentsList.map((c) =>
+                c._id === comment._id ? { ...c, content: editedComment } : c
+            )
+        )
+    }
+
     if (!commentsList || !currentUser) return <div>Loading...</div>
 
     console.log(commentsList)
@@ -147,7 +155,7 @@ const CommentSection = ({ postId }) => {
                     </div>
 
                     {commentsList && commentsList.map((commentItem) => (
-                        <Comment comment={commentItem} key={commentItem._id} onLike={handleLike} />
+                        <Comment comment={commentItem} key={commentItem._id} onLike={handleLike} onEdit={handleEdit} />
                     ))}
                 </>
             )}
