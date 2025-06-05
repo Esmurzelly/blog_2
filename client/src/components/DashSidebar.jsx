@@ -55,8 +55,13 @@ const DashSidebar = () => {
                             <Link to={'/dashboard?tab=users'}>
                                 <SidebarItem active={tab === 'users'} icon={HiOutlineUserGroup} as={'div'}>Users</SidebarItem>
                             </Link>
+
                             <Link to={'/dashboard?tab=comments'}>
                                 <SidebarItem active={tab === 'comments'} icon={HiAnnotation} as={'div'}>Comments</SidebarItem>
+                            </Link>
+
+                            <Link to={'/dashboard?tab=dash'}>
+                                <SidebarItem active={tab === 'dash'} icon={HiAnnotation} as={'div'}>Dashboard</SidebarItem>
                             </Link>
                         </>
                     )}
