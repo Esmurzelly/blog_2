@@ -12,6 +12,7 @@ import AdminPrivateRoute from './components/AdminPrivateRoute'
 import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost';
 import PostPage from './pages/PostPage';
+import Search from './pages/Search';
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path='/sign-in' element={<SignIn />} />
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/projects' element={<Projects />} />
+          <Route path='/search' element={<Search />} />
           <Route path='/post/:postSlug' element={<PostPage />} />
           <Route element={<PrivateRoute />}>
             <Route path='/dashboard' element={<Dashboard />} />

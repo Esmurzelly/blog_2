@@ -7,7 +7,7 @@ const PostCard = ({ post }) => {
             <Link to={`/post/${post.slug}`}>
                 <img
                     className='h-[260px] w-full  object-cover group-hover:h-[200px] transition-all duration-300 z-20'
-                    src={post?.image.includes('http') ? post?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post?.image}`}
+                    src={post?.image && post?.image.includes('http') ? post?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post?.image}`}
                     alt="image"
                 />
             </Link>

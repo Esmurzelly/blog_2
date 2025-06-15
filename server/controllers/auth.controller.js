@@ -63,7 +63,9 @@ export const google = async (req, res, next) => {
                 { id: user._id, isAdmin: user.isAdmin },
                 process.env.JWT_SECRET
             );
+
             const { password, ...rest } = user._doc;
+            
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
             }).json(rest);
@@ -77,13 +79,16 @@ export const google = async (req, res, next) => {
                 password: hashedPassword,
                 profilePicture: googlePhotoUrl
             });
+
             await newUser.save();
 
             const token = jwt.sign(
                 { id: newUser._id, isAdmin: user.isAdmin },
                 process.env.JWT_SECRET
             );
+
             const { password, ...rest } = newUser._doc;
+            
             res.status(200).cookie('access_token', token, {
                 httpOnly: true
             }).json(rest)
