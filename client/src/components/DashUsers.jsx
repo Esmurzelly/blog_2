@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaCheck, FaTimes } from "react-icons/fa";
+import Loader from './Loader';
 
 const DashUsers = () => {
     const { currentUser } = useSelector(state => state.user);
@@ -130,7 +131,7 @@ const DashUsers = () => {
                     )}
                 </>
             ) : (
-                <p>You don't have users</p>
+                <Loader />
             )}
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

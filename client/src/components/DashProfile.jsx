@@ -6,6 +6,7 @@ import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
+import Loader from './Loader';
 
 const DashProfile = () => {
     const { currentUser, loading } = useSelector(state => state.user);
@@ -127,6 +128,8 @@ const DashProfile = () => {
             toast.error(error.message)
         }
     }
+
+    if(loading) return <Loader />
 
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { Button } from "flowbite-react";
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import PostCard from '../components/PostCard';
+import Loader from '../components/Loader';
 
 
 const Home = () => {
@@ -26,12 +26,12 @@ const Home = () => {
   }, []);
 
   if (!posts) {
-    return <h1>Loader...</h1>
+    return <Loader />
   }
 
   return (
     <div>
-      <div className='flex flex-col gap-6 p-10  px-3 max-w-6xl mx-auto '>
+      <div className='flex flex-col gap-6 p-10 px-3 max-w-6xl mx-auto '>
         <h1 className='text-3xl font-bold lg:text-6xl pt-10'>Welcome to my Blog</h1>
         <p className='text-gray-500 text-xs sm:text-sm'>
           Welcome to my blog! Here you'll find a wide range of articles,

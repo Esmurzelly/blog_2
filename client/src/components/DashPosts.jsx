@@ -4,6 +4,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Loader from './Loader';
 
 const DashPosts = () => {
   const { currentUser } = useSelector(state => state.user);
@@ -134,7 +135,7 @@ const DashPosts = () => {
           )}
         </>
       ) : (
-        <p>You don't have posts</p>
+        <Loader />
       )}
 
       <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

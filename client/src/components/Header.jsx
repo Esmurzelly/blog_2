@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
@@ -22,8 +22,6 @@ const Header = () => {
     ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
     : defaultAvatar;
 
-    console.log('searchTerm', searchTerm);
-
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get('searchTerm');
@@ -39,10 +37,7 @@ const Header = () => {
         method: "POST"
       });
 
-      console.log('res header', res);
-
       const data = await res.json();
-      console.log('data header', data);
 
       if (!res.ok) {
         console.log(data.message);
@@ -51,7 +46,6 @@ const Header = () => {
         toast.success("You was signed out successfuly");
       }
     } catch (error) {
-      console.log(error.message)
       toast.error(error.message)
     }
   }
@@ -127,7 +121,7 @@ const Header = () => {
           <Link to={'/about'}>About</Link>
         </NavbarLink>
         <NavbarLink as={'div'} active={path === '/projects'}>
-          <Link to={'/projects'}>Projects</Link>
+          <Link to={'/search'}>Projects</Link>
         </NavbarLink>
       </NavbarCollapse>
     </Navbar>

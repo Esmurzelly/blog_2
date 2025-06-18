@@ -1,10 +1,9 @@
+import { useState, useEffect } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import React, { useState, useEffect } from 'react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaCheck, FaTimes } from "react-icons/fa";
+import Loader from './Loader';
 
 const DashCommets = () => {
     const { currentUser } = useSelector(state => state.user);
@@ -45,7 +44,7 @@ const DashCommets = () => {
                 }
             } catch (error) {
                 console.log(error.message);
-                toast.error("You can't get the comments list");
+                toast.error("You can't get the comments list"); // it calls anyway
             }
         };
 
@@ -130,7 +129,7 @@ const DashCommets = () => {
                     )}
                 </>
             ) : (
-                <p>You don't have comments</p>
+                <Loader />
             )}
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

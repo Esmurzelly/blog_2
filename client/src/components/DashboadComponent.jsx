@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import defaultAvatar from '../assets/user.png'
+import Loader from './Loader';
 
 const DashboadComponent = () => {
     const [users, setUsers] = useState([]);
@@ -72,6 +73,19 @@ const DashboadComponent = () => {
             fetchPosts();
         }
     }, [currentUser]);
+
+    if (!users ||
+        !comments ||
+        !posts ||
+        !totalUsers ||
+        !totalPosts ||
+        !totalComments ||
+        !lastMonthUsers ||
+        !lastMonthPosts ||
+        !lastMonthComments ||
+        !currentUser
+    ) return <Loader />
+
     return (
         <div className='p-3 md:mx-auto'>
             <div className="flex-wrap flex gap-4 justify-center">
@@ -131,7 +145,7 @@ const DashboadComponent = () => {
                     </div>
                 </div>
             </div>
-            
+
             <div className='grid grid-cols-1 xl:grid-cols-4 gap-4 py-3 mx-auto justify-center'>
                 <div className='flex flex-col xl:col-span-1 w-full shadow-md p-2 rounded-md dark:bg-gray-800'>
                     <div className='flex justify-between  p-3 text-sm font-semibold'>

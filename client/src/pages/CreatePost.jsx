@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
-  const [value, setValue] = useState('');
   const [image, setImage] = useState(null);
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
@@ -16,7 +15,6 @@ const CreatePost = () => {
 
     if (file && file.type.includes('image')) {
       setImage(file);
-      // setFormData({ ...formData, image, })
     }
   }
 

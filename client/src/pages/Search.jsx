@@ -7,7 +7,8 @@ const Search = () => {
     const [sidebarData, setSidebarData] = useState({
         searchTerm: '',
         sort: 'desc',
-        category: 'uncategorized'
+        category: ''
+        // category: 'uncategorized'
     });
 
     console.log('sidebarData', sidebarData);

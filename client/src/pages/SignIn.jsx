@@ -4,13 +4,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import OAuth from '../components/OAuth'
+import Loader from '../components/Loader'
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector(state => state.user);
   const dispatch = useDispatch();
-  // const [errorMessage, setErrorMessage] = useState(null);
-  // const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = e => {
@@ -25,9 +24,6 @@ const SignIn = () => {
     }
 
     try {
-      // setLoading(true);
-      // setErrorMessage(null);
-
       dispatch(signInStart());
 
       const res = await fetch('/api/auth/signin', {
@@ -39,13 +35,8 @@ const SignIn = () => {
       const data = await res.json();
 
       if (data.success === false) {
-        // setLoading(false)
-        // return setErrorMessage(data.message);
-
         dispatch(signInFailure(data.message));
       }
-
-      // setLoading(false);
 
       if (res.ok) {
         dispatch(signInSuccess(data));
@@ -53,9 +44,6 @@ const SignIn = () => {
       }
 
     } catch (error) {
-      // setErrorMessage(error);
-      // setLoading(false);
-
       dispatch(signInFailure(data.message));
     }
   }

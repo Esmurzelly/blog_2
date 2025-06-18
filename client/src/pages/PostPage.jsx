@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
+import Loader from '../components/Loader';
 
 const PostPage = () => {
     const { postSlug } = useParams();
@@ -54,13 +55,7 @@ const PostPage = () => {
         }
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Spinner size='xl' />
-            </div>
-        )
-    }
+    if (loading) return <Loader />
 
     return (
         <main className='p-3 flex flex-col w-full mx-auto min-h-screen'> {/* max-w-6xl mx */}

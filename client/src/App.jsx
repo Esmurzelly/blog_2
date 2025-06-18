@@ -1,18 +1,22 @@
+import { lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home'
-import About from './pages/About'
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
-import Projects from './pages/Projects';
-import Dashboard from './pages/Dashboard';
-import NotFound from './pages/NotFound';
+
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 import AdminPrivateRoute from './components/AdminPrivateRoute'
-import CreatePost from './pages/CreatePost';
-import UpdatePost from './pages/UpdatePost';
-import PostPage from './pages/PostPage';
-import Search from './pages/Search';
+
+const Home = lazy(() => import(/* webpackChunkName: "Home" */ './pages/Home'));
+const About = lazy(() => import(/* webpackChunkName: "About" */ './pages/About'));
+const SignIn = lazy(() => import(/* webpackChunkName: "SignIn" */ './pages/SignIn'));
+const SignUp = lazy(() => import(/* webpackChunkName: "SignUp" */ './pages/SignUp'));
+const Projects = lazy(() => import(/* webpackChunkName: "Projects" */ './pages/Projects'));
+const Dashboard = lazy(() => import(/* webpackChunkName: "Dashboard" */ './pages/Dashboard'));
+const NotFound = lazy(() => import(/* webpackChunkName: "NotFound" */ './pages/NotFound'));
+const CreatePost = lazy(() => import(/* webpackChunkName: "CreatePost" */ './pages/CreatePost'));
+const UpdatePost = lazy(() => import(/* webpackChunkName: "UpdatePost" */ './pages/UpdatePost'));
+const PostPage = lazy(() => import(/* webpackChunkName: "PostPage" */ './pages/PostPage'));
+const Search = lazy(() => import(/* webpackChunkName: "Search" */ './pages/Search'));
+
 // import { ThemeConfig } from 'flowbite-react';
 
 function App() {
