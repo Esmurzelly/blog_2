@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'react'
 import { Button, Select, TextInput } from 'flowbite-react';
-import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 
@@ -73,6 +73,7 @@ const Search = () => {
             const order = e.target.value || 'desc';
             setSidebarData({ ...sidebarData, sort: order });
         }
+        
         if (e.target.id === 'category') {
             const category = e.target.value || '';
             setSidebarData({ ...sidebarData, category });
