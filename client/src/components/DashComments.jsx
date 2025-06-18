@@ -40,7 +40,7 @@ const DashCommets = () => {
                     setCommentsList(data.comments);
                     toast.success("You got the posts successfuly");
 
-                    if (data.users.length < 9) setShowMore(false);
+                    if (data.comments.length < 9) setShowMore(false);
                 }
             } catch (error) {
                 console.log(error.message);
@@ -96,15 +96,15 @@ const DashCommets = () => {
                                     <TableCell>
                                         <p className='font-medium text-gray-900 dark:text-white'>{commentItem.content}</p>
                                     </TableCell>
-                                    
+
                                     <TableCell>
                                         <p className='font-medium text-gray-900 dark:text-white'>{commentItem.numberOfLikes}</p>
                                     </TableCell>
-                                    
+
                                     <TableCell>
                                         <p className='font-medium text-gray-900 dark:text-white'>{commentItem.postId}</p>
                                     </TableCell>
-                                    
+
                                     <TableCell>
                                         <p className='font-medium text-gray-900 dark:text-white'>{commentItem.userId}</p>
                                     </TableCell>

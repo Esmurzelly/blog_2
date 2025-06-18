@@ -26,9 +26,7 @@ const Header = () => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get('searchTerm');
 
-    if(searchTermFromUrl) setSearchTerm(searchTermFromUrl);
-
-
+    if (searchTermFromUrl) setSearchTerm(searchTermFromUrl);
   }, [location.search]);
 
   const handleSignout = async () => {
@@ -52,7 +50,7 @@ const Header = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('searchTerm', searchTerm);
     const searchQuery = urlParams.toString();
@@ -77,9 +75,13 @@ const Header = () => {
         />
       </form>
 
-      <Button className='w-12 h-10 lg:hidden' color='gray' pill>
-        <AiOutlineSearch />
-      </Button>
+      <Link to={'/search'}>
+        <Button className='w-12 h-10 lg:hidden' color='gray' pill>
+          <AiOutlineSearch />
+        </Button>
+      </Link>
+
+
 
       <div className='flex gap-2 md:order-2'>
         <Button onClick={() => dispatch(toggleTheme())} className='w-12 h-10 hidden sm:inline' color={'gray'} pill>

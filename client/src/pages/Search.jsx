@@ -8,7 +8,6 @@ const Search = () => {
         searchTerm: '',
         sort: 'desc',
         category: ''
-        // category: 'uncategorized'
     });
 
     console.log('sidebarData', sidebarData);
@@ -22,17 +21,18 @@ const Search = () => {
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
+
         const searchTermFromUrl = urlParams.get('searchTerm');
         const sortFromUrl = urlParams.get('sort');
         const categoryFromUrl = urlParams.get('category');
 
         if (searchTermFromUrl || sortFromUrl || categoryFromUrl) {
-            setSidebarData({
-                ...sidebarData,
-                searchTerm: searchTermFromUrl,
+            setSidebarData(prev => ({
+                ...prev,
+                searchTerm: searchTermFromUrl || '',
                 sort: sortFromUrl || '',
                 category: categoryFromUrl || '',
-            });
+            }));
         };
 
         const fetchPosts = async () => {
@@ -59,18 +59,22 @@ const Search = () => {
         }
 
         fetchPosts();
+
+        console.log('urlParams', urlParams);
+
     }, [location.search])
 
     console.log('posts', posts);
 
     const handleChange = e => {
         if (e.target.id === 'searchTerm') setSidebarData({ ...sidebarData, searchTerm: e.target.value });
+
         if (e.target.id === 'sort') {
             const order = e.target.value || 'desc';
             setSidebarData({ ...sidebarData, sort: order });
         }
         if (e.target.id === 'category') {
-            const category = e.target.value || 'uncategorized';
+            const category = e.target.value || '';
             setSidebarData({ ...sidebarData, category });
         }
     }
@@ -81,9 +85,12 @@ const Search = () => {
         const urlParams = new URLSearchParams(location.search);
 
         urlParams.set('searchTerm', sidebarData.searchTerm);
-        if(sidebarData.sort && sidebarData.sort.length > 1) urlParams.set('sort', sidebarData.sort);
-        if(sidebarData.category && sidebarData.category.length > 1) urlParams.set('category', sidebarData.category);
-        
+        urlParams.set('sort', sidebarData.sort);
+        if (sidebarData.category) {
+            urlParams.set('category', sidebarData.category);
+        } else {
+            urlParams.delete('category')
+        }
 
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
@@ -141,6 +148,7 @@ const Search = () => {
                     <div className='flex items-center gap-2'>
                         <label className='font-semibold'>Category:</label>
                         <Select value={sidebarData.category} id='category' onChange={handleChange}>
+                            <option value=''>All Categories</option>
                             <option value='uncategorized'>Uncategorized</option>
                             <option value='reactjs'>React.js</option>
                             <option value='nextjs'>Next.js</option>
