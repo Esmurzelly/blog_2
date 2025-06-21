@@ -1,13 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
+import { registerUser } from '../redux/user/userSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { status, checkIsAuth, loading } = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (status) toast(status);
+    if(checkIsAuth) navigate('/')
+  }, [status, checkIsAuth, navigate]);
 
   const handleChange = e => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -21,29 +31,29 @@ const SignUp = () => {
     }
 
     try {
-      setLoading(true);
       setErrorMessage(null);
 
-      const res = await fetch('/api/auth/signup', {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // const res = await fetch('/api/auth/signup', {
+      //   method: "POST",
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData),
+      // });
 
-      const data = await res.json();
+      // const data = await res.json();
 
-      if (data.success === false) {
-        setLoading(false)
-        return setErrorMessage(data.message);
-      }
+      // if (data.success === false) {
+      //   return setErrorMessage(data.message);
+      // }
 
-      setLoading(false);
 
-      if(res.ok) navigate('/sign-in')
+      // if (res.ok) navigate('/sign-in')
 
+      console.log('formData from handleSubmit', formData);
+      dispatch(registerUser(formData));
+      navigate('/');
     } catch (error) {
-      setErrorMessage(error);
-      setLoading(false);
+      console.log(error);
+      toast(error)
     }
   }
 

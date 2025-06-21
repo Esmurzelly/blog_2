@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
+import { signInStart, signInSuccess, signInFailure, signInUser } from '../redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import OAuth from '../components/OAuth'
 import Loader from '../components/Loader'
+import { toast } from 'react-toastify'
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const { loading, error: errorMessage } = useSelector(state => state.user);
+  const { loading, status: errorMessage } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -24,27 +25,36 @@ const SignIn = () => {
     }
 
     try {
-      dispatch(signInStart());
+      // dispatch(signInStart());
 
-      const res = await fetch('/api/auth/signin', {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // const res = await fetch('/api/auth/signin', {
+      //   method: "POST",
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData),
+      // });
 
-      const data = await res.json();
+      // const data = await res.json();
 
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+      // if (data.success === false) {
+      //   dispatch(signInFailure(data.message));
+      // }
+
+      // if (res.ok) {
+      //   dispatch(signInSuccess(data));
+      //   navigate('/');
+      // }
+
+      const response = await dispatch(signInUser(formData));
+
+      if (response.payload.success === false) {
+        toast.error(response.payload.message);
+        return;
       }
 
-      if (res.ok) {
-        dispatch(signInSuccess(data));
-        navigate('/');
-      }
-
+      navigate('/');
     } catch (error) {
-      dispatch(signInFailure(data.message));
+      // dispatch(signInFailure(data.message));
+      console.log(error)
     }
   }
 
@@ -97,11 +107,11 @@ const SignIn = () => {
           </div>
         </div>
 
-        {
+        {/* {
           errorMessage && (
             <Alert className='mt-5' color='failure'>{errorMessage}</Alert>
           )
-        }
+        } */}
       </div>
     </div>
   )

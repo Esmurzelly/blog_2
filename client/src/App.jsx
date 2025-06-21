@@ -9,7 +9,6 @@ const Home = lazy(() => import(/* webpackChunkName: "Home" */ './pages/Home'));
 const About = lazy(() => import(/* webpackChunkName: "About" */ './pages/About'));
 const SignIn = lazy(() => import(/* webpackChunkName: "SignIn" */ './pages/SignIn'));
 const SignUp = lazy(() => import(/* webpackChunkName: "SignUp" */ './pages/SignUp'));
-const Projects = lazy(() => import(/* webpackChunkName: "Projects" */ './pages/Projects'));
 const Dashboard = lazy(() => import(/* webpackChunkName: "Dashboard" */ './pages/Dashboard'));
 const NotFound = lazy(() => import(/* webpackChunkName: "NotFound" */ './pages/NotFound'));
 const CreatePost = lazy(() => import(/* webpackChunkName: "CreatePost" */ './pages/CreatePost'));
@@ -29,7 +28,6 @@ function App() {
           <Route path='/about' element={<About />} />
           <Route path='/sign-in' element={<SignIn />} />
           <Route path='/sign-up' element={<SignUp />} />
-          <Route path='/projects' element={<Projects />} />
           <Route path='/search' element={<Search />} />
           <Route path='/post/:postSlug' element={<PostPage />} />
           <Route element={<PrivateRoute />}>

@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess } from '../redux/user/userSlice';
+import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess, updateUser, updateUserPhoto, deleteUser } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
@@ -42,47 +42,63 @@ const DashProfile = () => {
         // if (Object.keys(formData).length === 0) return;
 
         try {
-            dispatch(updateStart());
-            const res = await fetch(`/api/user/update/${currentUser._id}`, {
-                method: "PUT",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
+            // dispatch(updateStart());
+            // const res = await fetch(`/api/user/update/${currentUser._id}`, {
+            //     method: "PUT",
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(formData)
+            // });
 
-            const data = await res.json();
+            // const data = await res.json();
 
-            if (!res.ok) {
-                dispatch(updateFailure(data.message));
-                toast.error(data.message);
+            // if (!res.ok) {
+            //     dispatch(updateFailure(data.message));
+            //     toast.error(data.message);
+            //     return;
+            // } else {
+            //     dispatch(updateSuccess(data));
+            //     toast.success("You have updated your data successfuly");
+            // }
+
+            const response = await dispatch(updateUser({ formData, currentUserId: currentUser._id }));
+
+            if (response.payload.success === false) {
+                toast.error(response.payload.message);
                 return;
-            } else {
-                dispatch(updateSuccess(data));
-                toast.success("You have updated your data successfuly");
             }
 
             if (imageFile) {
                 const imageFormData = new FormData();
                 imageFormData.append('file', imageFile);
 
-                const imageRes = await fetch(`/api/user/avatar`, {
-                    method: "POST",
-                    body: imageFormData
-                });
+                const response = await dispatch(updateUserPhoto({ imageFormData }));
 
-                const imageData = await imageRes.json();
-
-                if (!imageRes.ok) {
-                    dispatch(updateFailure(imageData.message));
-                    toast.error(data.message);
+                if (response.payload.success === false) {
+                    toast.error(response.payload.message);
                     return;
                 }
 
-                dispatch(updateSuccess(imageData));
-                toast.success("You have updated your data successfuly");
+                // const imageRes = await fetch(`/api/user/avatar`, {
+                //     method: "POST",
+                //     body: imageFormData
+                // });
+
+                // const imageData = await imageRes.json();
+
+                // if (!imageRes.ok) {
+                //     dispatch(updateFailure(imageData.message));
+                //     toast.error(data.message);
+                //     return;
+                // }
+
+                // dispatch(updateSuccess(imageData));
+                // toast.success("You have updated your data successfuly");
                 setImageFile(null);
             }
+            
+            toast.success('You have updated your data successfuly')
         } catch (error) {
-            dispatch(updateFailure(error.message))
+            // dispatch(updateFailure(error.message))
             toast.error(error.message);
         }
     };
@@ -91,20 +107,32 @@ const DashProfile = () => {
         setShowModal(false);
 
         try {
-            const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-                method: "DELETE"
-            });
+            const response = await dispatch(deleteUser({ currentUserId: currentUser._id }));
 
-            const data = await res.json();
+            console.log('response from deleteUser', response)
 
-            if (!res.ok) {
-                dispatch(deleteUserFailure(data.message));
-            } else {
-                dispatch(deleteUserSuccess(data));
-                toast.success("You have deleted your account successfuly");
+            if (response.payload.success === false) {
+                toast.error(response.payload.message);
+                return;
             }
+
+
+            // const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+            //     method: "DELETE"
+            // });
+
+            // const data = await res.json();
+
+            // if (!res.ok) {
+            //     dispatch(deleteUserFailure(data.message));
+            // } else {
+            //     dispatch(deleteUserSuccess(data));
+            //     toast.success("You have deleted your account successfuly");
+            // }
+
+            toast.success("You have deleted your account successfuly");
         } catch (error) {
-            dispatch(deleteUserFailure(error.message))
+            // dispatch(deleteUserFailure(error.message))
             toast.error(error.message);
         }
     };
@@ -129,7 +157,7 @@ const DashProfile = () => {
         }
     }
 
-    if(loading) return <Loader />
+    if (loading) return <Loader />
 
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>
