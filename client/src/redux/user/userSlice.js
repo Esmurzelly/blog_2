@@ -24,10 +24,6 @@ export const registerUser = createAsyncThunk(
                 return rejectWithValue(data);
             }
 
-            if (data.token) {
-                window.localStorage.setItem("access_token", data.token);
-            };
-
             return data
         } catch (error) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
@@ -47,13 +43,11 @@ export const signInUser = createAsyncThunk(
 
             const data = await res.json();
 
+            console.log('data overall', data);
+
             if (!res.ok || data.success === false) {
                 return rejectWithValue(data);
             }
-
-            if (data.token) {
-                window.localStorage.setItem("access_token", data.token);
-            };
 
             return data;
         } catch (error) {
@@ -77,10 +71,6 @@ export const signInGoogle = createAsyncThunk(
             if (!res.ok || data.success === false) {
                 return rejectWithValue(data);
             }
-
-            if (data.token) {
-                window.localStorage.setItem("access_token", data.token);
-            };
 
             return data;
         } catch (error) {

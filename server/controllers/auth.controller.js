@@ -22,11 +22,19 @@ export const signup = async (req, res, next) => {
 
     try {
         await newUser.save();
-        res.json({
+
+        res.status(201).cookie('access_token', token, {
+            httpOnly: true
+        }).json({
             newUser,
-            token,
             message: "Registration is successful"
         });
+
+        // res.json({
+        //     newUser,
+        //     token,
+        //     message: "Registration is successful"
+        // });
     } catch (error) {
         next(error)
     }
