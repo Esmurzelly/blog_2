@@ -35,6 +35,7 @@ const CreatePost = () => {
       const res = await fetch('/api/post/create', {
         method: "POST",
         body: form,
+        credentials: "include"
       });
 
       const data = await res.json();

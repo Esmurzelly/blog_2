@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import authRoutes from './routes/auth.route.js'
 import userRoutes from './routes/user.route.js'
 import postRoutes from './routes/post.route.js'
@@ -14,6 +15,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+}
+
 const app = express();
 dotenv.config();
 
@@ -21,7 +28,7 @@ mongoose.connect(
     process.env.MONGO_URI
 ).then(() => console.log("db is connected")).catch((err) => console.log('Error connection db', err))
 
-
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookiePaser());
 app.use(fileUpload());

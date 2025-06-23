@@ -150,7 +150,7 @@ export const deleteUser = createAsyncThunk(
             if (!res.ok || data.success === false) {
                 return rejectWithValue(data);
             }
-            
+
             return data; // ?
         } catch (error) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })

@@ -8,7 +8,6 @@ export const verifyUser = (req, res, next) => {
     
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if(err) return next(createError(401, "Unauthorized"));
-        
         req.user = user;
         next();
     });
