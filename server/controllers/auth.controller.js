@@ -24,7 +24,9 @@ export const signup = async (req, res, next) => {
         await newUser.save();
 
         res.status(201).cookie('access_token', token, {
-            httpOnly: true
+            httpOnly: true,
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            maxAge: 24 * 60 * 60 * 1000,
         }).json({
             newUser,
             message: "Registration is successful"
@@ -63,7 +65,9 @@ export const signin = async (req, res, next) => {
         const { password: pass, ...rest } = validUser._doc;
 
         res.status(200).cookie('access_token', token, {
-            httpOnly: true
+            httpOnly: true,
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            maxAge: 24 * 60 * 60 * 1000,
         }).json(rest);
     } catch (error) {
         next(error)
@@ -86,6 +90,8 @@ export const google = async (req, res, next) => {
 
             res.status(200).cookie('access_token', token, {
                 httpOnly: true,
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                maxAge: 24 * 60 * 60 * 1000,
             }).json(rest);
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
@@ -101,14 +107,16 @@ export const google = async (req, res, next) => {
             await newUser.save();
 
             const token = jwt.sign(
-                { id: newUser._id, isAdmin: user.isAdmin },
+                { id: newUser._id, isAdmin: newUser.isAdmin },
                 process.env.JWT_SECRET
             );
 
             const { password, ...rest } = newUser._doc;
 
             res.status(200).cookie('access_token', token, {
-                httpOnly: true
+                httpOnly: true,
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                maxAge: 24 * 60 * 60 * 1000,
             }).json(rest)
         }
     } catch (error) {

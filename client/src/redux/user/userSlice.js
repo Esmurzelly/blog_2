@@ -16,6 +16,7 @@ export const registerUser = createAsyncThunk(
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password }),
+                credentials: 'include',
             });
 
             const data = await res.json();
@@ -39,6 +40,7 @@ export const signInUser = createAsyncThunk(
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
+                credentials: 'include',
             });
 
             const data = await res.json();
@@ -63,7 +65,8 @@ export const signInGoogle = createAsyncThunk(
             const res = await fetch('/api/auth/google', {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, googlePhotoUrl })
+                body: JSON.stringify({ name, email, googlePhotoUrl }),
+                credentials: 'include',
             });
 
             const data = await res.json();
@@ -129,7 +132,8 @@ export const deleteUser = createAsyncThunk(
     async ({ currentUserId }, { rejectWithValue }) => {
         try {
             const res = await fetch(`/api/user/delete/${currentUserId}`, {
-                method: "DELETE"
+                method: "DELETE",
+                credentials: 'include',
             });
 
             console.log('res from redux Delete', res)
