@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 
 const initialState = {
     currentUser: null,
-    // token: null,
     status: null,
     loading: false,
 };
@@ -177,53 +176,10 @@ const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        // signInStart: (state) => {
-        //     state.loading = true;
-        //     state.status = null;
-        // },
-        // signInSuccess: (state, action) => {
-        //     state.currentUser = action.payload;
-        //     state.loading = false;
-        //     state.status = null;
-        // },
-        // signInFailure: (state, action) => {
-        //     state.loading = false;
-        //     state.status = action.payload;
-        // },
-
-        // updateStart: (state) => {
-        //     state.loading = true;
-        //     state.status = null;
-        // },
-        // updateSuccess: (state, action) => {
-        //     state.currentUser = action.payload;
-        //     state.loading = false;
-        //     state.status = null;
-        // },
-        // updateFailure: (state, action) => {
-        //     state.loading = false;
-        //     state.status = action.payload;
-        // },
-
-        // deleteUserStart: (state) => {
-        //     state.loading = true;
-        //     state.status = null;
-        // },
-        // deleteUserSuccess: (state, action) => {
-        //     state.currentUser = null;
-        //     state.loading = false;
-        //     state.status = null;
-        // },
-        // deleteUserFailure: (state, action) => {
-        //     state.loading = false;
-        //     state.status = action.payload;
-        // },
-
         signOutSuccess: (state) => {
             state.currentUser = null;
             state.loading = false;
             state.status = null;
-            // state.token = null;
         }
     },
     extraReducers: (builder) => {
@@ -236,7 +192,6 @@ const userSlice = createSlice({
 
                 state.currentUser = action.payload.newUser;
                 state.status = action.payload?.message;
-                // state.token = action.payload.token;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
@@ -251,7 +206,6 @@ const userSlice = createSlice({
 
                 state.currentUser = action.payload;
                 state.status = action.payload?.message;
-                // state.token = action.payload.token;
             })
             .addCase(signInUser.rejected, (state, action) => {
                 state.loading = false;
@@ -265,7 +219,6 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.currentUser = action.payload;
                 state.status = action.payload?.message || "Signed in successfully";
-                // state.token = action.payload.token;
             })
             .addCase(signInGoogle.rejected, (state, action) => {
                 state.loading = false;
@@ -326,19 +279,8 @@ const userSlice = createSlice({
     }
 });
 
-// export const checkIsAuth = state => Boolean(state.user.token);
+export const checkIsAuth = state => Boolean(state.user.currentUser);
 
-export const {
-    signInStart,
-    signInSuccess,
-    signInFailure,
-    updateStart,
-    updateSuccess,
-    updateFailure,
-    deleteUserStart,
-    deleteUserSuccess,
-    deleteUserFailure,
-    signOutSuccess
-} = userSlice.actions;
+export const { signOutSuccess } = userSlice.actions;
 
 export default userSlice.reducer;

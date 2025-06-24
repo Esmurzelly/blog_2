@@ -31,23 +31,8 @@ const Header = () => {
 
   const handleSignout = async () => {
     try {
-      // const res = await fetch('api/user/signout', {
-      //   method: "POST"
-      // });
-
-      // const data = await res.json();
-
-      // if (!res.ok) {
-      //   console.log(data.message);
-      // } else {
-      //   dispatch(signOutSuccess());
-      //   toast.success("You was signed out successfuly");
-      // }
-
       const response = await dispatch(signOutUser());
       dispatch(signOutSuccess());
-
-      console.log('response from deleteUser', response)
 
       if (response.payload.success === false) {
         toast.error(response.payload.message);

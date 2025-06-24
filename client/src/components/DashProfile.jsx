@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
-import React, { useEffect, useRef, useState } from 'react'
+import React, {  useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
+import { signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
@@ -40,27 +40,7 @@ const DashProfile = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // if (Object.keys(formData).length === 0) return;
-
         try {
-            // dispatch(updateStart());
-            // const res = await fetch(`/api/user/update/${currentUser._id}`, {
-            //     method: "PUT",
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(formData)
-            // });
-
-            // const data = await res.json();
-
-            // if (!res.ok) {
-            //     dispatch(updateFailure(data.message));
-            //     toast.error(data.message);
-            //     return;
-            // } else {
-            //     dispatch(updateSuccess(data));
-            //     toast.success("You have updated your data successfuly");
-            // }
-
             const response = await dispatch(updateUser({ formData, currentUserId: currentUser._id }));
 
             if (response.payload.success === false) {
@@ -79,27 +59,11 @@ const DashProfile = () => {
                     return;
                 }
 
-                // const imageRes = await fetch(`/api/user/avatar`, {
-                //     method: "POST",
-                //     body: imageFormData
-                // });
-
-                // const imageData = await imageRes.json();
-
-                // if (!imageRes.ok) {
-                //     dispatch(updateFailure(imageData.message));
-                //     toast.error(data.message);
-                //     return;
-                // }
-
-                // dispatch(updateSuccess(imageData));
-                // toast.success("You have updated your data successfuly");
                 setImageFile(null);
             }
 
             toast.success('You have updated your data successfuly')
         } catch (error) {
-            // dispatch(updateFailure(error.message))
             toast.error(error.message);
         }
     };
@@ -117,42 +81,14 @@ const DashProfile = () => {
                 return;
             }
 
-
-            // const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-            //     method: "DELETE"
-            // });
-
-            // const data = await res.json();
-
-            // if (!res.ok) {
-            //     dispatch(deleteUserFailure(data.message));
-            // } else {
-            //     dispatch(deleteUserSuccess(data));
-            //     toast.success("You have deleted your account successfuly");
-            // }
-
             toast.success("You have deleted your account successfuly");
         } catch (error) {
-            // dispatch(deleteUserFailure(error.message))
             toast.error(error.message);
         }
     };
 
     const handleSignout = async () => {
         try {
-            // const res = await fetch('api/user/signout', {
-            //     method: "POST"
-            // });
-
-            // const data = res.json();
-
-            // if (!res.ok) {
-            //     console.log(data.message);
-            // } else {
-            //     dispatch(signOutSuccess());
-            //     toast.success("You was signed out successfuly");
-            // }
-
             const response = await dispatch(signOutUser());
             dispatch(signOutSuccess());
 
