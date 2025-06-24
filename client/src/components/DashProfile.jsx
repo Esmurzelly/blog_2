@@ -1,11 +1,11 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess, updateUser, updateUserPhoto, deleteUser } from '../redux/user/userSlice';
+import { updateStart, updateSuccess, updateFailure, deleteUserFailure, deleteUserSuccess, signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 
 const DashProfile = () => {
@@ -15,6 +15,7 @@ const DashProfile = () => {
     const [showModal, setShowModal] = useState(false);
     const filePickerRef = useRef();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const profilePicture = imageFile
         ? URL.createObjectURL(imageFile)
@@ -95,7 +96,7 @@ const DashProfile = () => {
                 // toast.success("You have updated your data successfuly");
                 setImageFile(null);
             }
-            
+
             toast.success('You have updated your data successfuly')
         } catch (error) {
             // dispatch(updateFailure(error.message))
@@ -139,18 +140,29 @@ const DashProfile = () => {
 
     const handleSignout = async () => {
         try {
-            const res = await fetch('api/user/signout', {
-                method: "POST"
-            });
+            // const res = await fetch('api/user/signout', {
+            //     method: "POST"
+            // });
 
-            const data = res.json();
+            // const data = res.json();
 
-            if (!res.ok) {
-                console.log(data.message);
-            } else {
-                dispatch(signOutSuccess());
-                toast.success("You was signed out successfuly");
+            // if (!res.ok) {
+            //     console.log(data.message);
+            // } else {
+            //     dispatch(signOutSuccess());
+            //     toast.success("You was signed out successfuly");
+            // }
+
+            const response = await dispatch(signOutUser());
+            dispatch(signOutSuccess());
+
+            if (response.payload.success === false) {
+                toast.error(response.payload.message);
+                return;
             }
+
+            toast.success("You have signed out successfuly");
+            navigate('/sign-in')
         } catch (error) {
             console.log(error.message)
             toast.error(error.message)

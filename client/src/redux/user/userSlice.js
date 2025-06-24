@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 const initialState = {
     currentUser: null,
-    token: null,
+    // token: null,
     status: null,
     loading: false,
 };
@@ -136,16 +136,37 @@ export const deleteUser = createAsyncThunk(
                 credentials: 'include',
             });
 
-            console.log('res from redux Delete', res)
-
             const data = await res.json();
-            console.log('data from redux Delete', data)
 
             if (!res.ok || data.success === false) {
                 return rejectWithValue(data);
             }
 
             return data; // ?
+        } catch (error) {
+            return rejectWithValue({ message: error.message || 'Something went wrong' })
+        }
+    }
+);
+
+export const signOutUser = createAsyncThunk(
+    'user/signOutUser',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await fetch('api/user/signout', {
+                method: "POST",
+                credentials: 'include',
+            });
+            console.log('res from redux signOut', res)
+
+            const data = res.json();
+            console.log('data from redux signOut', data)
+
+            if (!res.ok) {
+                console.log(data.message);
+            }
+
+            return data;
         } catch (error) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
@@ -202,7 +223,7 @@ const userSlice = createSlice({
             state.currentUser = null;
             state.loading = false;
             state.status = null;
-            state.token = null;
+            // state.token = null;
         }
     },
     extraReducers: (builder) => {
@@ -215,7 +236,7 @@ const userSlice = createSlice({
 
                 state.currentUser = action.payload.newUser;
                 state.status = action.payload?.message;
-                state.token = action.payload.token;
+                // state.token = action.payload.token;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
@@ -230,7 +251,7 @@ const userSlice = createSlice({
 
                 state.currentUser = action.payload;
                 state.status = action.payload?.message;
-                state.token = action.payload.token;
+                // state.token = action.payload.token;
             })
             .addCase(signInUser.rejected, (state, action) => {
                 state.loading = false;
@@ -244,7 +265,7 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.currentUser = action.payload;
                 state.status = action.payload?.message || "Signed in successfully";
-                state.token = action.payload.token;
+                // state.token = action.payload.token;
             })
             .addCase(signInGoogle.rejected, (state, action) => {
                 state.loading = false;
@@ -289,10 +310,23 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.status = action.payload?.message || "Something went wrong";
             })
+            
+            .addCase(signOutUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(signOutUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentUser = null;
+                state.status = action.payload?.message || "User's photo is updated successfuly";
+            })
+            .addCase(signOutUser.rejected, (state, action) => {
+                state.loading = false;
+                state.status = action.payload?.message || "Something went wrong";
+            })
     }
 });
 
-export const checkIsAuth = state => Boolean(state.user.token);
+// export const checkIsAuth = state => Boolean(state.user.token);
 
 export const {
     signInStart,

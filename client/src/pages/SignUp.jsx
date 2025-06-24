@@ -48,7 +48,6 @@ const SignUp = () => {
 
       // if (res.ok) navigate('/sign-in')
 
-      console.log('formData from handleSubmit', formData);
       dispatch(registerUser(formData));
       navigate('/');
     } catch (error) {

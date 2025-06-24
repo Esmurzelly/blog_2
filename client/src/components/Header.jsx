@@ -6,7 +6,7 @@ import { FaMoon, FaSun } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleTheme } from '../redux/theme/themeSlice'
 import defaultAvatar from '../assets/user.png'
-import { signOutSuccess } from '../redux/user/userSlice'
+import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
 import { toast } from 'react-toastify'
 
 const Header = () => {
@@ -31,18 +31,31 @@ const Header = () => {
 
   const handleSignout = async () => {
     try {
-      const res = await fetch('api/user/signout', {
-        method: "POST"
-      });
+      // const res = await fetch('api/user/signout', {
+      //   method: "POST"
+      // });
 
-      const data = await res.json();
+      // const data = await res.json();
 
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signOutSuccess());
-        toast.success("You was signed out successfuly");
+      // if (!res.ok) {
+      //   console.log(data.message);
+      // } else {
+      //   dispatch(signOutSuccess());
+      //   toast.success("You was signed out successfuly");
+      // }
+
+      const response = await dispatch(signOutUser());
+      dispatch(signOutSuccess());
+
+      console.log('response from deleteUser', response)
+
+      if (response.payload.success === false) {
+        toast.error(response.payload.message);
+        return;
       }
+
+      toast.success("You have signed out successfuly");
+      navigate('/sign-in')
     } catch (error) {
       toast.error(error.message)
     }
