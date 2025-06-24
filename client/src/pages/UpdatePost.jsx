@@ -4,15 +4,17 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import defaultAvatar from '../assets/user.png'
-import { useSelector } from 'react-redux';
 import Loader from '../components/Loader';
+import { updatePost } from '../redux/posts/postSlice';
 
 const UpdatePost = () => {
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({});
     const { postId } = useParams();
     const { currentUser } = useSelector(state => state.user);
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
@@ -44,10 +46,6 @@ const UpdatePost = () => {
 
         if (file && file.type.includes('image')) {
             setImage(file);
-
-            // setFormData({ ...formData, image })
-
-            console.log('formData.image from handleChange', formData.image);
         }
     }
 
@@ -70,22 +68,10 @@ const UpdatePost = () => {
                 form.append('image', formData.image);
             }
 
-            const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
-                method: "PUT",
-                body: form,
-            });
+            const response = await dispatch(updatePost({form, formDataId: formData._id, currentUserId: currentUser._id}));
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                toast.error(`error - ${data.message}`);
-                return;
-            };
-
-            if (res.ok) {
-                toast.success("Post is updated")
-                navigate(`/post/${data.slug}`);
-            }
+            toast.success("Post is updated")
+            navigate(`/post/${data.slug}`);
         } catch (error) {
             toast.error(error)
         }

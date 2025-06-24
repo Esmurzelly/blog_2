@@ -5,44 +5,53 @@ import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from './Loader';
+import { useDispatch } from 'react-redux';
+import { deletePost, getPosts } from '../redux/posts/postSlice';
 
 const DashPosts = () => {
   const { currentUser } = useSelector(state => state.user);
+  const { posts, totalPosts } = useSelector(state => state.posts);
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdDelete, setPostIdDelete] = useState('');
+  const dispatch = useDispatch();
+  const [startIndex, setStartIndex] = useState(9);
+
 
   const handleShowMore = async () => {
-    const startIndex = userPosts.length; // 9
+    if (startIndex >= totalPosts) return;
 
-    try {
-      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`);
-      const data = await res.json()
+    console.log('startIndex', startIndex);
+    console.log('totalPosts', totalPosts);
 
-      if (res.ok) {
-        setUserPosts((prev) => [...prev, ...data.posts]);
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('startIndex', startIndex);
 
-        if (data.posts.length < 9) setShowMore(false);
-      }
-    } catch (error) {
-      console.log(error.message);
-      toast.error("You can't get more posts");
+    const searchQuery = urlParams.toString();
+    console.log('searchQuery', searchQuery);
+
+    const response = await dispatch(getPosts({ searchQuery }));
+
+    console.log('response from handleShow func', response);
+
+    const newPosts = response.payload.posts || [];
+    setStartIndex(prev => prev + 9);
+
+    if (startIndex + newPosts.length >= totalPosts) {
+      setShowMore(false)
+    } else {
+      setShowMore(true)
     }
   }
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
-        const data = await res.json();
+        const urlParams = new URLSearchParams(location.search);
+        const searchQuery = urlParams.toString();
 
-        if (res.ok) {
-          setUserPosts(data.posts);
-          // toast.success("You got the posts successfuly");
-
-          if (data.posts.length < 9) setShowMore(false);
-        }
+        const response = await dispatch(getPosts({ searchQuery }));
       } catch (error) {
         console.log(error.message);
         toast.error("You can't get the posts");
@@ -56,18 +65,9 @@ const DashPosts = () => {
     setShowModal(false);
 
     try {
-      const res = await fetch(`/api/post/deletepost/${postIdDelete}/${currentUser._id}`, {
-        method: "DELETE",
-      });
+      const response = await dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }))
 
-      const data = await res.json();
-
-      if(!res.ok) {
-        toast.error("You can't get the posts", data.message);
-      } else {
-        setUserPosts((prev) => prev.filter((post) => post._id !== postIdDelete));
-        toast.success("The post has been deleted");
-      };
+      toast.success("You deleted the posts successfuly");
     } catch (error) {
       console.log(error.message);
       toast.error("You can't delete the posts");
@@ -76,7 +76,7 @@ const DashPosts = () => {
 
   return (
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      {currentUser.isAdmin && userPosts.length > 0 ? (
+      {currentUser.isAdmin && posts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md border'>
             <TableHead>
@@ -90,7 +90,7 @@ const DashPosts = () => {
               </TableHeadCell>
             </TableHead>
 
-            {userPosts.map((post) => (
+            {posts.map((post) => (
               <TableBody className='divide-y'>
                 <TableRow className='bg-white dark:border-gray-700 dark:bg-gray-800'>
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>

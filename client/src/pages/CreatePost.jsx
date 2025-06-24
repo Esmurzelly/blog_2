@@ -4,11 +4,14 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { createPost } from '../redux/posts/postSlice';
+import { useDispatch } from 'react-redux';
 
 const CreatePost = () => {
   const [image, setImage] = useState(null);
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChangeImage = e => {
     const file = e.target.files[0];
@@ -32,22 +35,12 @@ const CreatePost = () => {
       form.append('content', formData.content);
       if (image) form.append('image', image);
 
-      const res = await fetch('/api/post/create', {
-        method: "POST",
-        body: form,
-        credentials: "include"
-      });
+      const response = await dispatch(createPost({ form }));
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(`error - ${data.message}`);
-        return;
-      };
-
-      if (res.ok) {
-        toast.success("Post is published")
-        navigate(`/post/${data.slug}`);
+      if (response.payload && response.payload.slug) {
+        navigate(`/post/${response.payload.slug}`);
+      } else {
+        toast.error('Post created but slug missing.');
       }
     } catch (error) {
       toast.error(error)

@@ -1,38 +1,27 @@
-import { Button, Spinner } from 'flowbite-react';
-import React, { useEffect, useState } from 'react'
+import { Button } from 'flowbite-react';
+import React, { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
 import Loader from '../components/Loader';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrentPost, getPosts } from '../redux/posts/postSlice';
 
 const PostPage = () => {
     const { postSlug } = useParams();
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-    const [post, setPost] = useState(null);
-    const [recentPosts, setRecentPosts] = useState(null);
+    const dispatch = useDispatch();
+
+    const { currentPost, posts, loading, status } = useSelector(state => state.posts);
 
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                setLoading(true);
-                const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
-                const data = await res.json();
-                if (!res.ok) {
-                    setError(true);
-                    setLoading(false);
-                    return;
-                }
-                if (res.ok) {
-                    setPost(data.posts[0]);
-                    setLoading(false);
-                    setError(false);
-                }
+                const response = await dispatch(getCurrentPost({ postSlug }))
             } catch (error) {
-                setError(true);
-                setLoading(false);
+                toast.error(error || status);
+                console.log(error || status)
             }
         };
         fetchPost();
@@ -41,12 +30,8 @@ const PostPage = () => {
     useEffect(() => {
         try {
             const fetchRecentPosts = async () => {
-                const res = await fetch(`/api/post/getposts?limit=3`);
-                const data = await res.json();
-
-                if (res.ok) {
-                    setRecentPosts(data.posts);
-                }
+                const searchQuery = 'limit=3';
+                const response = await dispatch(getPosts({ searchQuery }));
             }
             fetchRecentPosts();
         } catch (error) {
@@ -59,36 +44,36 @@ const PostPage = () => {
 
     return (
         <main className='p-3 flex flex-col w-full mx-auto min-h-screen'> {/* max-w-6xl mx */}
-            <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl font-semibold'>{post && post.title}</h1>
+            <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl font-semibold'>{currentPost && currentPost.title}</h1>
 
-            <Link to={`/search?category=${post?.category}`} className='self-center mt-5'>
-                <Button color={'gray'} pill size='xs'>{post && post.category}</Button>
+            <Link to={`/search?category=${currentPost?.category}`} className='self-center mt-5'>
+                <Button color={'gray'} pill size='xs'>{currentPost && currentPost.category}</Button>
             </Link>
 
             <img
-                src={post?.image.includes('http') ? post?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post?.image}`}
-                alt={post && post?.title}
+                src={currentPost?.image.includes('http') ? currentPost?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${currentPost?.image}`}
+                alt={currentPost && currentPost?.title}
                 className='mt-10 p-3 max-h-[600px] w-full mx-auto object-cover'
             />
 
             <div className="flex items-center justify-between p-3 border-b border-slate-500 text-xs mx-auto w-full max-w-2xl">
-                <span>{post && new Date(post?.createdAt).toLocaleDateString()}</span>
-                <span className='italic'>{post && (post?.content.length / 1000).toFixed(0)} mins read</span>
+                <span>{currentPost && new Date(currentPost?.createdAt).toLocaleDateString()}</span>
+                <span className='italic'>{currentPost && (currentPost?.content.length / 1000).toFixed(0)} mins read</span>
             </div>
 
-            <div className="p-3 max-w-2xl mx-auto w-full post-content" dangerouslySetInnerHTML={{ __html: post && post.content }}></div>
+            <div className="p-3 max-w-2xl mx-auto w-full post-content" dangerouslySetInnerHTML={{ __html: currentPost && currentPost.content }}></div>
 
             <div className="max-w-4xl mx-auto w-full">
                 <CallToAction />
             </div>
 
-            <CommentSection postId={post._id} />
+            <CommentSection postId={currentPost?._id} />
 
             <div className='flex flex-col justify-center items-center mb-5'>
                 <h1 className='text-xl mt-5'>Recent articles</h1>
                 <div className='flex flex-wrap gap-5 mt-5 justify-center'>
-                    {recentPosts &&
-                        recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+                    {posts &&
+                        posts.map((post) => <PostCard key={post._id} post={post} />)}
                 </div>
             </div>
         </main>
