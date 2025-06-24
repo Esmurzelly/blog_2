@@ -31,12 +31,6 @@ export const signup = async (req, res, next) => {
             newUser,
             message: "Registration is successful"
         });
-
-        // res.json({
-        //     newUser,
-        //     token,
-        //     message: "Registration is successful"
-        // });
     } catch (error) {
         next(error)
     }

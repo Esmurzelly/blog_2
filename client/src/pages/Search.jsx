@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
+import { useDispatch, useSelector } from 'react-redux';
+import { getPosts } from '../redux/posts/postSlice';
 
 const Search = () => {
     const [sidebarData, setSidebarData] = useState({
@@ -10,14 +12,14 @@ const Search = () => {
         category: ''
     });
 
-    console.log('sidebarData', sidebarData);
-
-    const [posts, setPosts] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const { posts, totalPosts, loading } = useSelector(state => state.posts)
     const [showMore, setShowMore] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [startIndex, setStartIndex] = useState(9);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -36,35 +38,21 @@ const Search = () => {
         };
 
         const fetchPosts = async () => {
-            setLoading(true);
             const searchQuery = urlParams.toString();
-            const res = await fetch(`/api/post/getposts?${searchQuery}`);
+            urlParams.set('startIndex', 0);
 
-            if (!res.ok) {
-                setLoading(false);
-                return;
-            }
+            const response = await dispatch(getPosts({ searchQuery }));
+            setStartIndex(9);
 
-            if (res.ok) {
-                const data = await res.json();
-                setPosts(data.posts);
-                setLoading(false);
-
-                if (data.posts.length === 9) {
-                    setShowMore(true);
-                } else {
-                    setShowMore(false);
-                }
+            if (response.payload.posts.length >= totalPosts) {
+                setShowMore(false);
+            } else {
+                setShowMore(true);
             }
         }
 
         fetchPosts();
-
-        console.log('urlParams', urlParams);
-
     }, [location.search])
-
-    console.log('posts', posts);
 
     const handleChange = e => {
         if (e.target.id === 'searchTerm') setSidebarData({ ...sidebarData, searchTerm: e.target.value });
@@ -73,7 +61,7 @@ const Search = () => {
             const order = e.target.value || 'desc';
             setSidebarData({ ...sidebarData, sort: order });
         }
-        
+
         if (e.target.id === 'category') {
             const category = e.target.value || '';
             setSidebarData({ ...sidebarData, category });
@@ -87,6 +75,7 @@ const Search = () => {
 
         urlParams.set('searchTerm', sidebarData.searchTerm);
         urlParams.set('sort', sidebarData.sort);
+
         if (sidebarData.category) {
             urlParams.set('category', sidebarData.category);
         } else {
@@ -97,29 +86,35 @@ const Search = () => {
         navigate(`/search?${searchQuery}`);
     }
 
+    const handleClearFilter = e => {
+        e.preventDefault();
+
+        setSidebarData({
+            searchTerm: '',
+            sort: 'desc',
+            category: ''
+        });
+
+        navigate('/search');
+    }
+
     const handleShowMore = async () => {
-        const numberOfPosts = posts.length;
-        const startIndex = numberOfPosts;
+        if (startIndex >= totalPosts) return;
 
         const urlParams = new URLSearchParams(location.search);
         urlParams.set('startIndex', startIndex);
 
         const searchQuery = urlParams.toString();
-        const res = await fetch(`/api/post/getposts?${searchQuery}`);
 
-        if (!res.ok) {
-            return;
-        }
+        const response = await dispatch(getPosts({ searchQuery }));
 
-        if (res.ok) {
-            const data = await res.json();
-            setPosts([...posts, ...data.posts]);
+        const newPosts = response.payload.posts || [];
+        setStartIndex(prev => prev + 9);
 
-            if (data.posts.length === 9) {
-                setShowMore(true)
-            } else {
-                setShowMore(false)
-            }
+        if (startIndex + newPosts.length >= totalPosts) {
+            setShowMore(false)
+        } else {
+            setShowMore(true)
         }
     };
 
@@ -159,6 +154,10 @@ const Search = () => {
 
                     <Button type='button' onClick={handleSubmit}>
                         Apply Filters
+                    </Button>
+
+                    <Button type='button' className='bg-red-700!' onClick={handleClearFilter}>
+                        Clear Filters
                     </Button>
                 </form>
             </div>

@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 
 const initialState = {
     currentUser: null,
@@ -94,7 +93,6 @@ export const updateUser = createAsyncThunk(
             const data = await res.json();
 
             if (!res.ok || data.success === false) {
-                toast.error(data.message);
                 return rejectWithValue(data);
             }
             return data;
