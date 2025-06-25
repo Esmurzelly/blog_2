@@ -1,5 +1,5 @@
+import { useState, useEffect } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import React, { useState, useEffect } from 'react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
@@ -11,29 +11,22 @@ import { deletePost, getPosts } from '../redux/posts/postSlice';
 const DashPosts = () => {
   const { currentUser } = useSelector(state => state.user);
   const { posts, totalPosts } = useSelector(state => state.posts);
-  const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdDelete, setPostIdDelete] = useState('');
-  const dispatch = useDispatch();
   const [startIndex, setStartIndex] = useState(9);
+  const dispatch = useDispatch();
 
 
   const handleShowMore = async () => {
     if (startIndex >= totalPosts) return;
 
-    console.log('startIndex', startIndex);
-    console.log('totalPosts', totalPosts);
-
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('startIndex', startIndex);
 
     const searchQuery = urlParams.toString();
-    console.log('searchQuery', searchQuery);
 
     const response = await dispatch(getPosts({ searchQuery }));
-
-    console.log('response from handleShow func', response);
 
     const newPosts = response.payload.posts || [];
     setStartIndex(prev => prev + 9);
@@ -51,10 +44,10 @@ const DashPosts = () => {
         const urlParams = new URLSearchParams(location.search);
         const searchQuery = urlParams.toString();
 
-        const response = await dispatch(getPosts({ searchQuery }));
+        dispatch(getPosts({ searchQuery }));
       } catch (error) {
         console.log(error.message);
-        toast.error("You can't get the posts");
+        toast.error("You can't get the posts", error.message);
       }
     };
 
@@ -65,7 +58,7 @@ const DashPosts = () => {
     setShowModal(false);
 
     try {
-      const response = await dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }))
+      dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }))
 
       toast.success("You deleted the posts successfuly");
     } catch (error) {
@@ -128,11 +121,14 @@ const DashPosts = () => {
             ))}
           </Table>
 
-          {showMore && (
-            <button onClick={handleShowMore} className='w-full text-teal-500 self-center text-sm py-7'>
-              Show More
-            </button>
-          )}
+          <div className="flex justify-center mt-4">
+            {showMore && (
+              <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
+                Show More
+              </button>
+            )}
+
+          </div>
         </>
       ) : (
         <Loader />

@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react'
 import { AiFillGoogleCircle } from 'react-icons/ai'
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from '../firebase'
-import { signInSuccess, signInGoogle } from '../redux/user/userSlice';
+import { signInGoogle } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -24,21 +24,6 @@ const OAuth = () => {
                 email: resultsFromGoogle.user.email,
                 googlePhotoUrl: resultsFromGoogle.user.photoURL,
             }
-
-            // const res = await fetch('/api/auth/google', {
-            //     method: "POST",
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         name: resultsFromGoogle.user.displayName,
-            //         email: resultsFromGoogle.user.email,
-            //         googlePhotoUrl: resultsFromGoogle.user.photoURL,
-            //     })
-            // });
-
-            // if (res.ok) {
-            //     const data = await res.json();
-            //     dispatch(signInSuccess(data));
-            // }
 
             const response = await dispatch(signInGoogle(resultsFromGoogleObj))
 

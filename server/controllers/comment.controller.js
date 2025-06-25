@@ -15,7 +15,10 @@ export const createComment = async (req, res, next) => {
 
         await newComment.save();
 
-        res.status(200).json(newComment);
+        res.status(200).json({
+            newComment,
+            message: "You created the comment successfuly"
+        });
     } catch (error) {
         next(error)
     }
@@ -24,7 +27,10 @@ export const createComment = async (req, res, next) => {
 export const getPostComments = async (req, res, next) => {
     try {
         const comments = await Comment.find({ postId: req.params.postId }).sort({ createdAt: -1 });
-        res.status(200).json(comments);
+        res.status(200).json({
+            comments,
+            message: "You got the posts successfuly"
+        });
     } catch (error) {
         next(error)
     }
@@ -47,7 +53,10 @@ export const likeComment = async (req, res, next) => {
         }
 
         await comment.save();
-        res.status(200).json(comment);
+        res.status(200).json({
+            comment,
+            numberOfLikes: comment.numberOfLikes
+        });
     } catch (error) {
         next(error)
     }
@@ -81,7 +90,10 @@ export const deleteComment = async (req, res, next) => {
         if (comment.userId !== req.user.id && !req.user.isAdmin) return next(403, "You are not allowed to delete this comment");
 
         await Comment.findByIdAndDelete(req.params.commentId);
-        res.status(200).json('Comment has been deleted');
+        res.status(200).json({
+            commentId : req.params.commentId,
+            message: 'Comment has been deleted'
+        });
     } catch (error) {
         next(error)
     }

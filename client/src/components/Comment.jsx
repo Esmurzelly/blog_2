@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { editComment } from '../redux/comments/commentSlice';
+import { getUser } from '../redux/user/userSlice';
 import { toast } from 'react-toastify';
 import defaultAvatar from '../assets/user.png'
 import moment from 'moment';
 import { RiThumbUpLine } from "react-icons/ri";
 import { Button, Textarea } from 'flowbite-react';
 
-const Comment = ({ comment, onLike, onEdit, onDelete }) => {
+const Comment = ({ comment, onLike, onDelete }) => {
     const [user, setUser] = useState({});
     const { currentUser } = useSelector(state => state.user);
+    const dispatch = useDispatch();
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
 
@@ -19,22 +22,20 @@ const Comment = ({ comment, onLike, onEdit, onDelete }) => {
             : defaultAvatar;
 
     useEffect(() => {
-        const getUser = async () => {
+        const getCurrentUser = async () => { // lots of requests
             try {
-                const res = await fetch(`/api/user/getuser/${comment.userId}`);
-                const data = await res.json();
+                const response = await dispatch(getUser({ commentUserId: comment.userId })).unwrap();
+                setUser(response.user)
 
-                if (res.ok) {
-                    setUser(data);
-                }
+                console.log('response from getCurUs client', response);
             } catch (error) {
                 console.log(error.message);
                 toast.error(error.message);
             }
         }
 
-        getUser();
-    }, [comment]);
+        getCurrentUser();
+    }, []);
 
     const handleEdit = async () => {
         setIsEditing(true);
@@ -43,20 +44,8 @@ const Comment = ({ comment, onLike, onEdit, onDelete }) => {
 
     const handleSave = async () => {
         try {
-            const res = await fetch(`/api/comment/editComment/${comment._id}`, {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content: editedContent
-                })
-            });
-
-            if (res.ok) {
-                setIsEditing(false);
-                onEdit(comment, editedContent);
-            }
+            const response = await dispatch(editComment({ commentId: comment._id, editedContent }));
+            setIsEditing(false);
         } catch (error) {
             console.log(error.message);
             toast.error(error.message);

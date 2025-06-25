@@ -1,29 +1,35 @@
 import { useState, useEffect } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify';
 import Loader from './Loader';
+import { getComments, deleteComments } from '../redux/comments/commentSlice';
 
 const DashCommets = () => {
     const { currentUser } = useSelector(state => state.user);
-    const [commentsList, setCommentsList] = useState([]);
+    const { comments, totalComments } = useSelector(state => state.comment)
+    const dispatch = useDispatch();
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [commentIdDelete, setCommentIdDelete] = useState('');
+    const [startIndex, setStartIndex] = useState(9);
 
     const handleShowMore = async () => {
-        const startIndex = commentsList.length;
+        if (startIndex > totalComments) return;
 
         try {
-            const res = await fetch(`/api/user/getusers?startIndex=${startIndex}`);
-            const data = await res.json()
+            const response = await dispatch(getComments({ startIndex, limit: 9 })).unwrap();
 
-            if (res.ok) {
-                setCommentsList((prev) => [...prev, ...data.users]);
+            const newComments = response.comments || [];
+            console.log('newComments', newComments, newComments.length)
+            setStartIndex(prev => prev + 9);
 
-                if (data.users.length < 9) setShowMore(false);
-            }
+            if (startIndex + newComments.length >= totalComments) {
+                setShowMore(false);
+            } else {
+                setShowMore(true);
+            };
         } catch (error) {
             console.log(error.message);
             toast.error("You can't get more posts");
@@ -33,18 +39,12 @@ const DashCommets = () => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const res = await fetch(`/api/comment/getcomments`);
-                const data = await res.json();
-
-                if (res.ok) {
-                    setCommentsList(data.comments);
-                    toast.success("You got the posts successfuly");
-
-                    if (data.comments.length < 9) setShowMore(false);
-                }
+                const response = await dispatch(getComments({ startIndex: 0, limit: 9 })).unwrap();
+                if (response.comments.length < 9) setShowMore(false);
+                toast.success("You got the comments successfuly");
             } catch (error) {
                 console.log(error.message);
-                toast.error("You can't get the comments list"); // it calls anyway
+                toast.error("You can't get the comments list");
             }
         };
 
@@ -53,30 +53,32 @@ const DashCommets = () => {
 
     const handleDeleteComments = async () => {
         try {
-            const res = await fetch(`/api/comment/deleteComment/${commentIdDelete}`, {
-                method: "DELETE",
-            });
-            console.log('res from func', res)
+            const response = await dispatch(deleteComments({ commentIdDelete })).unwrap();
 
-            const data = await res.json();
-            console.log('data from func', data)
+            // types of checking the error
+            // if (response.type === 'comment/deleteComments/rejected') {
+            //     toast.error(response.payload?.message || 'Failed to delete comment');
+            //     return;
+            // }
 
-            if (!res.ok) {
-                toast.error("You can't delete the user toast", data.message);
-            } else {
-                setCommentsList((prev) => prev.filter((user) => user._id !== commentIdDelete));
-                setShowModal(false);
-                toast.success("The post has been deleted");
-            };
+            // if (deleteComments.rejected.match(response)) {
+            //     toast.error(response.payload?.message || 'Failed to delete comment');
+            //     return;
+            // }
+
+            toast.success(response.message);
+            setShowModal(false);
         } catch (error) {
-            console.log(error.message);
-            toast.error("You can't delete the user");
+            console.log(error)
+            toast.error("You can't delete the comment");
         }
     }
 
+    if (!comments || comments.length === 0) return <h1>No Comments</h1>
+
     return (
         <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-            {currentUser.isAdmin && commentsList.length > 0 ? (
+            {currentUser.isAdmin && comments.length > 0 ? (
                 <>
                     <Table hoverable className='shadow-md border'>
                         <TableHead>
@@ -88,7 +90,7 @@ const DashCommets = () => {
                             <TableHeadCell>Delete</TableHeadCell>
                         </TableHead>
 
-                        {commentsList.map((commentItem) => (
+                        {comments.map((commentItem) => (
                             <TableBody className='divide-y' key={commentItem._id}>
                                 <TableRow className='bg-white dark:border-gray-700 dark:bg-gray-800'>
                                     <TableCell>{new Date(commentItem.updatedAt).toLocaleDateString()}</TableCell>
@@ -122,11 +124,13 @@ const DashCommets = () => {
                         ))}
                     </Table>
 
-                    {showMore && (
-                        <button onClick={handleShowMore} className='w-full text-teal-500 self-center text-sm py-7'>
-                            Show More
-                        </button>
-                    )}
+                    <div className="flex justify-center mt-4">
+                        {showMore && (
+                            <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
+                                Show More
+                            </button>
+                        )}
+                    </div>
                 </>
             ) : (
                 <Loader />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInStart, signInSuccess, signInFailure, signInUser } from '../redux/user/userSlice'
+import { signInUser } from '../redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import OAuth from '../components/OAuth'
 import Loader from '../components/Loader'
@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const { loading, status: errorMessage } = useSelector(state => state.user);
+  const { loading, status } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -21,29 +21,10 @@ const SignIn = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure("Sing in failed. Please fill all fields."));
+      toast.error("Sing in failed. Please fill all fields.");
     }
 
     try {
-      // dispatch(signInStart());
-
-      // const res = await fetch('/api/auth/signin', {
-      //   method: "POST",
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-
-      // const data = await res.json();
-
-      // if (data.success === false) {
-      //   dispatch(signInFailure(data.message));
-      // }
-
-      // if (res.ok) {
-      //   dispatch(signInSuccess(data));
-      //   navigate('/');
-      // }
-
       const response = await dispatch(signInUser(formData));
 
       if (response.payload.success === false) {
@@ -53,7 +34,6 @@ const SignIn = () => {
 
       navigate('/');
     } catch (error) {
-      // dispatch(signInFailure(data.message));
       console.log(error)
     }
   }
@@ -106,12 +86,6 @@ const SignIn = () => {
             <Link to={'/sign-up'} className='text-blue-500'>Sign Up</Link>
           </div>
         </div>
-
-        {/* {
-          errorMessage && (
-            <Alert className='mt-5' color='failure'>{errorMessage}</Alert>
-          )
-        } */}
       </div>
     </div>
   )

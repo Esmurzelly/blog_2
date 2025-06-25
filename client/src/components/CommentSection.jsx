@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import defaultAvatar from '../assets/user.png'
 import { Button, Modal, ModalBody, ModalHeader, Textarea } from 'flowbite-react';
 import { toast } from 'react-toastify';
 import Comment from './Comment';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
 
 const CommentSection = ({ postId }) => {
     const { currentUser } = useSelector(state => state.user);
+    const { comments, status } = useSelector(state => state.comment);
     const [comment, setComment] = useState('')
-    const [commentsList, setCommentsList] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [commentToDelete, setCommentToDelete] = useState(null);
+    const [commentIdDelete, setCommentIdDelete] = useState(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const profilePicture = currentUser?.profilePicture
         ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
@@ -27,46 +29,28 @@ const CommentSection = ({ postId }) => {
         if (comment.length > 200) return;
 
         try {
-            const res = await fetch('/api/comment/create', {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content: comment,
-                    postId,
-                    userId: currentUser._id
-                })
-            })
-
-            const data = await res.json();
-
-            if (res.ok) {
-                setComment('');
-                setCommentsList([data, ...commentsList])
-            }
+            const response = await dispatch(createComment({ contentComment: comment, postId, currentUserId: currentUser._id })).unwrap();
+            toast.success("You created the comment successfuly");
+            setComment('')
         } catch (error) {
             console.log(error.message);
-            toast.error(error.message);
+            toast.error(status);
         }
     };
 
     useEffect(() => {
-        const getComments = async () => {
+        const fetchComments = async () => {
             try {
-                const res = await fetch(`/api/comment/getPostComments/${postId}`);
-
-                if (res.ok) {
-                    const data = await res.json();
-                    setCommentsList(data);
-                }
+                const response = await dispatch(getPostComments({ postId })).unwrap();
+                if (response.comments.length < 9) setShowMore(false);
+                toast.success("You got the comments successfuly");
             } catch (error) {
                 toast.error(error.message);
                 console.log(error.message);
             }
         }
 
-        getComments();
+        fetchComments();
     }, [postId]);
 
     const handleLike = async (commentId) => {
@@ -76,36 +60,12 @@ const CommentSection = ({ postId }) => {
                 return;
             }
 
-            const res = await fetch(`/api/comment/likeComment/${commentId}`, {
-                method: "PUT",
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setCommentsList((prevComments) =>
-                    prevComments.map((commentItem) =>
-                        commentItem._id === commentId ? {
-                            ...commentItem,
-                            likes: data.likes,
-                            numberOfLikes: data.numberOfLikes,
-                        } : commentItem
-                    )
-                )
-            }
-
+            const response = await dispatch(addLikeComment({ commentId })).unwrap();
         } catch (error) {
             toast.error(error.message);
             console.log(error.message);
         }
     }
-
-    const handleEdit = async (comment, editedComment) => {
-        setCommentsList(
-            commentsList.map((c) =>
-                c._id === comment._id ? { ...c, content: editedComment } : c
-            )
-        )
-    };
 
     const handleDelete = async (commentId) => {
         setShowModal(false)
@@ -116,24 +76,18 @@ const CommentSection = ({ postId }) => {
                 return;
             }
 
-            const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
-                method: "DELETE",
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setCommentsList(commentsList.filter((comment) => comment._id !== commentId));
-                toast.success(data);
-            }
+            const response = await dispatch(deleteComments({ commentIdDelete: commentId })).unwrap();
+            console.log('response from handleDelete', response);
+            toast.success(response.message);
+            setShowModal()
         } catch (error) {
             toast.error(error.message);
             console.log(error.message);
         }
     }
 
-    if (!commentsList || !currentUser) return <div>Loading...</div>
+    if (!comments || !currentUser) return <div>Loading...</div>
 
-    console.log(commentsList)
 
     return (
         <div className='max-w-2xl mx-auto w-full p-3'>
@@ -170,26 +124,25 @@ const CommentSection = ({ postId }) => {
                 </form>
             )}
 
-            {commentsList.length === 0 ? (
+            {comments.length === 0 ? (
                 <p className='text-sm my-5'>No comments yet</p>
             ) : (
                 <>
                     <div className='text-sm my-5 flex items-center gap-1'>
                         <p>Comments</p>
                         <div className="border border-gray-400 py-1 px-2 rounded-sm">
-                            <p>{commentsList.length}</p>
+                            <p>{comments.length}</p>
                         </div>
                     </div>
 
-                    {commentsList && commentsList.map((commentItem) => (
+                    {comments && comments.map((commentItem) => (
                         <Comment
                             key={commentItem._id}
                             comment={commentItem}
                             onLike={handleLike}
-                            onEdit={handleEdit}
                             onDelete={(commentId) => {
                                 setShowModal(true)
-                                setCommentToDelete(commentId)
+                                setCommentIdDelete(commentId)
                             }}
                         />
                     ))}
@@ -204,7 +157,7 @@ const CommentSection = ({ postId }) => {
                         <h3 className='mb-5 text-lg text-gray-500! dark:text-gray-400'>Are you sure you want to delete the comment?</h3>
 
                         <div className="flex justify-between items-center gap-4">
-                            <Button className='text-xl text-red-500' color={'failure'} onClick={() => handleDelete(commentToDelete)}>
+                            <Button className='text-xl text-red-500' color={'failure'} onClick={() => handleDelete(commentIdDelete)}>
                                 Yes, I am sure
                             </Button>
                             <Button className='text-xl text-white' color={'failure'} onClick={() => setShowModal(false)}>

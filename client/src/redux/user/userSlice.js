@@ -80,6 +80,26 @@ export const signInGoogle = createAsyncThunk(
     }
 );
 
+export const getUser = createAsyncThunk(
+    'user/getUser',
+    async ({ commentUserId }, { rejectWithValue }) => {
+        try {
+            const res = await fetch(`/api/user/getuser/${commentUserId}`);
+
+            if (!res.ok) {
+                return rejectWithValue(res.status);
+            }
+
+            const data = await res.json();
+
+            return data;
+        } catch (error) {
+            return rejectWithValue({ message: error.message || 'Something went wrong' })
+
+        }
+    }
+)
+
 export const updateUser = createAsyncThunk(
     'user/updateUser',
     async ({ formData, currentUserId }, { rejectWithValue }) => {
@@ -146,6 +166,8 @@ export const deleteUser = createAsyncThunk(
     }
 );
 
+
+
 export const signOutUser = createAsyncThunk(
     'user/signOutUser',
     async (_, { rejectWithValue }) => {
@@ -154,10 +176,8 @@ export const signOutUser = createAsyncThunk(
                 method: "POST",
                 credentials: 'include',
             });
-            console.log('res from redux signOut', res)
 
             const data = res.json();
-            console.log('data from redux signOut', data)
 
             if (!res.ok) {
                 console.log(data.message);
@@ -223,6 +243,19 @@ const userSlice = createSlice({
                 state.status = action.payload?.message || "Sign in failed";
             })
 
+            .addCase(getUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentUser = action.payload.user;
+                // state.status = action.payload?.message || "Signed in successfully";
+            })
+            .addCase(getUser.rejected, (state, action) => {
+                state.loading = false;
+                state.status = action.payload?.message || "Sign in failed";
+            })
+
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
             })
@@ -255,20 +288,20 @@ const userSlice = createSlice({
             .addCase(deleteUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.currentUser = null;
-                state.status = action.payload?.message || "User's photo is updated successfuly";
+                state.status = action.payload?.message || "User is deleted successfuly";
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;
                 state.status = action.payload?.message || "Something went wrong";
             })
-            
+
             .addCase(signOutUser.pending, (state) => {
                 state.loading = true;
             })
             .addCase(signOutUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.currentUser = null;
-                state.status = action.payload?.message || "User's photo is updated successfuly";
+                state.status = action.payload?.message || "You signed out successfuly";
             })
             .addCase(signOutUser.rejected, (state, action) => {
                 state.loading = false;

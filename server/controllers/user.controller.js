@@ -149,7 +149,9 @@ export const getUser = async (req, res, next) => {
         if(!user) return next(createError(404, 'User not found'));
 
         const { password, ...rest } = user._doc;
-        res.status(200).json(rest);
+        res.status(200).json({
+            user: rest
+        });
     } catch (error) {
         next(error)
     }
