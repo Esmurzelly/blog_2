@@ -2,6 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
     currentUser: null,
+    users: [],
+    totalUsers: 0,
+    lastMonthUsers: 0,
     status: null,
     loading: false,
 };
@@ -98,6 +101,25 @@ export const getUser = createAsyncThunk(
 
         }
     }
+);
+
+export const getUsers = createAsyncThunk(
+    'user/getUsers',
+    async ({ startIndex = 0, limit = 9 }, { rejectWithValue }) => {
+        try {
+            const res = await fetch(`/api/user/getusers?startIndex=${startIndex}&limit=${limit}`);
+
+            if (!res.ok) {
+                return rejectWithValue(res.status);
+            }
+
+            const data = await res.json();
+
+            return data;
+        } catch (error) {
+            return rejectWithValue({ message: error.message || 'Something went wrong' })
+        }
+    }
 )
 
 export const updateUser = createAsyncThunk(
@@ -165,8 +187,6 @@ export const deleteUser = createAsyncThunk(
         }
     }
 );
-
-
 
 export const signOutUser = createAsyncThunk(
     'user/signOutUser',
@@ -256,6 +276,22 @@ const userSlice = createSlice({
                 state.status = action.payload?.message || "Sign in failed";
             })
 
+            .addCase(getUsers.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getUsers.fulfilled, (state, action) => {
+                state.loading = false;
+                state.users = action.payload.users;
+
+                state.totalUsers = action.payload.totalUsers;
+                state.lastMonthUsers = action.payload.lastMonthUsers;
+                // state.status = action.payload?.message || "Signed in successfully";
+            })
+            .addCase(getUsers.rejected, (state, action) => {
+                state.loading = false;
+                state.status = action.payload?.message || "Sign in failed";
+            })
+
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
             })
@@ -287,7 +323,14 @@ const userSlice = createSlice({
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.currentUser = null;
+                
+                const deletedUserId = action.payload.deletedUserId;
+
+                if(state.currentUser._id === deletedUserId)  {
+                    state.currentUser = null;
+                } else {
+                    state.users = state.users.filter(user => user._id !== deletedUserId)
+                }
                 state.status = action.payload?.message || "User is deleted successfuly";
             })
             .addCase(deleteUser.rejected, (state, action) => {

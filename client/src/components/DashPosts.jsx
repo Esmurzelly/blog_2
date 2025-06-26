@@ -89,7 +89,7 @@ const DashPosts = () => {
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
 
                   <TableCell>
-                    <Link to={`/post/${post.slug}`}>
+                    <Link to={`/post/${post._id}`}>
                       <img className='w-20 h-10 object-cover bg-gray-500' src={post.image.startsWith('http')
                         ? post.image
                         : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post.image}`} alt={post.title} />
@@ -97,7 +97,7 @@ const DashPosts = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Link className='font-medium text-gray-900 dark:text-white' to={`/post/${post.slug}`}>{post.title}</Link>
+                    <Link className='font-medium text-gray-900 dark:text-white' to={`/post/${post._id}`}>{post.title}</Link>
                   </TableCell>
 
                   <TableCell>{post.category}</TableCell>

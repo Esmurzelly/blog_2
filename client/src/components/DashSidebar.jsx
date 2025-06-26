@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from 'flowbite-react'
 import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiAnnotation } from 'react-icons/hi'
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { signOutSuccess } from '../redux/user/userSlice';
+import { signOutSuccess, signOutUser } from '../redux/user/userSlice';
 import { toast } from 'react-toastify';
 
 const DashSidebar = () => {
@@ -11,21 +11,20 @@ const DashSidebar = () => {
     const location = useLocation();
     const [tab, setTab] = useState('');
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleSignout = async () => {
         try {
-            const res = await fetch('api/user/signout', {
-                method: "POST"
-            });
+            const response = await dispatch(signOutUser());
+            dispatch(signOutSuccess());
 
-            const data = res.json();
-
-            if (!res.ok) {
-                console.log(data.message);
-            } else {
-                dispatch(signOutSuccess());
-                toast.success("You was signed out successfuly");
+            if (response.payload.success === false) {
+                toast.error(response.payload.message);
+                return;
             }
+
+            toast.success("You have signed out successfuly");
+            navigate('/sign-in')
         } catch (error) {
             console.log(error.message)
             toast.error(error.message)

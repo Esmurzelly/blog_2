@@ -31,9 +31,9 @@ export const getPosts = createAsyncThunk(
 
 export const getCurrentPost = createAsyncThunk(
     'posts/getCurrentPost',
-    async ({ postSlug }, { rejectWithValue }) => {
+    async ({ postId }, { rejectWithValue }) => {
         try {
-            const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+            const res = await fetch(`/api/post/getposts?postId=${postId}`);
 
             const data = await res.json();
 

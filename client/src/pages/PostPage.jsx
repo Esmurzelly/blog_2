@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentPost, getPosts } from '../redux/posts/postSlice';
 
 const PostPage = () => {
-    const { postSlug } = useParams();
+    const { postId } = useParams();
     const dispatch = useDispatch();
 
     const { currentPost, posts, loading, status } = useSelector(state => state.posts);
@@ -18,14 +18,14 @@ const PostPage = () => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const response = await dispatch(getCurrentPost({ postSlug }))
+                const response = await dispatch(getCurrentPost({ postId }));
             } catch (error) {
                 toast.error(error || status);
                 console.log(error || status)
             }
         };
         fetchPost();
-    }, [postSlug]);
+    }, [postId]);
 
     useEffect(() => {
         try {

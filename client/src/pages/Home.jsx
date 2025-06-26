@@ -4,28 +4,27 @@ import { Link } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import PostCard from '../components/PostCard';
 import Loader from '../components/Loader';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { getPosts } from '../redux/posts/postSlice';
 
 const Home = () => {
-  const [posts, setPosts] = useState(null);
+  const { posts, loading } = useSelector(state => state.posts);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await fetch('/api/post/getposts');
+      const urlParams = new URLSearchParams(location.search);
 
-      if (!res.ok) {
-        toast.error('Posts fetching is failed');
-        return;
-      }
+      const searchQuery = urlParams.toString();
+      urlParams.set('startIndex', 0);
 
-      const data = await res.json();
-      setPosts(data.posts);
+      const response = await dispatch(getPosts({ searchQuery }));
     }
 
     fetchPosts();
   }, []);
 
-  if (!posts) {
+  if (!posts || loading) {
     return <Loader />
   }
 

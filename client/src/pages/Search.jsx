@@ -12,7 +12,7 @@ const Search = () => {
         category: ''
     });
 
-    const { posts, totalPosts, loading } = useSelector(state => state.posts)
+    const { posts, totalPosts, loading } = useSelector(state => state.posts);
     const [showMore, setShowMore] = useState(false);
 
     const location = useLocation();

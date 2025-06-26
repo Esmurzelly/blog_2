@@ -7,34 +7,27 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import defaultAvatar from '../assets/user.png'
 import Loader from '../components/Loader';
-import { updatePost } from '../redux/posts/postSlice';
+import { updatePost, getCurrentPost } from '../redux/posts/postSlice';
 
 const UpdatePost = () => {
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({});
     const { postId } = useParams();
     const { currentUser } = useSelector(state => state.user);
+    const { currentPost } = useSelector(state => state.posts);
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
-    const fetchPost = async () => {
-        const res = await fetch(`/api/post/getposts?postId=${postId}`);
-
-        if (!res.ok) {
-            toast.error('error in fetching');
-        }
-
-        if (res.ok) {
-            toast.success('You got the post successfuly');
-        }
-
-        const data = await res.json();
-        setFormData({ ...formData, ...data.posts[0] });
-    };
-
     useEffect(() => {
         try {
+            const fetchPost = async () => {
+                const response = await dispatch(getCurrentPost({ postId })).unwrap(); // ?
+
+                setFormData({ ...formData, ...response.posts[0] })
+                toast.success('You got the post successfuly');
+            };
+
             fetchPost();
         } catch (error) {
             toast.error(error.message);
@@ -68,16 +61,17 @@ const UpdatePost = () => {
                 form.append('image', formData.image);
             }
 
-            const response = await dispatch(updatePost({form, formDataId: formData._id, currentUserId: currentUser._id}));
+            const response = await dispatch(updatePost({ form, formDataId: formData._id, currentUserId: currentUser._id }));
 
             toast.success("Post is updated")
-            navigate(`/post/${data.slug}`);
+            navigate(`/post/${formData._id}`);
         } catch (error) {
             toast.error(error)
         }
     }
 
     if (!formData.image) return <Loader />
+    if (!currentPost) return <h1>Post not found</h1>
 
     return (
         <div className='p-3 max-w-3xl mx-auto'>

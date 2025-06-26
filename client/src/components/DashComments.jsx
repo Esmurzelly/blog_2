@@ -22,7 +22,6 @@ const DashCommets = () => {
             const response = await dispatch(getComments({ startIndex, limit: 9 })).unwrap();
 
             const newComments = response.comments || [];
-            console.log('newComments', newComments, newComments.length)
             setStartIndex(prev => prev + 9);
 
             if (startIndex + newComments.length >= totalComments) {

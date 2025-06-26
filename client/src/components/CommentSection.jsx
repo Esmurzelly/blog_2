@@ -42,7 +42,7 @@ const CommentSection = ({ postId }) => {
         const fetchComments = async () => {
             try {
                 const response = await dispatch(getPostComments({ postId })).unwrap();
-                if (response.comments.length < 9) setShowMore(false);
+                if (response.comments.length === 0) return;
                 toast.success("You got the comments successfuly");
             } catch (error) {
                 toast.error(error.message);
@@ -77,7 +77,6 @@ const CommentSection = ({ postId }) => {
             }
 
             const response = await dispatch(deleteComments({ commentIdDelete: commentId })).unwrap();
-            console.log('response from handleDelete', response);
             toast.success(response.message);
             setShowModal()
         } catch (error) {

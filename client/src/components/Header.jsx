@@ -4,7 +4,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
 import { FaMoon, FaSun } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
-import { toggleTheme } from '../redux/theme/themeSlice'
 import defaultAvatar from '../assets/user.png'
 import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
 import { toast } from 'react-toastify'
@@ -14,7 +13,6 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useSelector(state => state.user);
-  const { theme } = useSelector(state => state.theme);
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -82,10 +80,6 @@ const Header = () => {
 
 
       <div className='flex gap-2 md:order-2'>
-        <Button onClick={() => dispatch(toggleTheme())} className='w-12 h-10 hidden sm:inline' color={'gray'} pill>
-          {theme === 'light' ? <FaMoon /> : <FaSun />}
-        </Button>
-
         {currentUser ? (
           <Dropdown arrowIcon={false} inline label={<Avatar img={profilePicture} rounded className='cursor-pointer' alt='user' />}>
             <DropdownHeader>

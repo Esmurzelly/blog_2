@@ -1,67 +1,53 @@
 import { Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import React, { useEffect, useState } from 'react'
 import { HiAnnotation, HiArrowNarrowUp, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import defaultAvatar from '../assets/user.png'
 import Loader from './Loader';
+import { getUsers } from '../redux/user/userSlice';
+import { getComments } from '../redux/comments/commentSlice';
+import { getPosts } from '../redux/posts/postSlice';
 
 const DashboadComponent = () => {
-    const [users, setUsers] = useState([]);
-    const [comments, setComments] = useState([]);
-    const [posts, setPosts] = useState([]);
-    const [totalUsers, setTotalUsers] = useState(0);
-    const [totalPosts, setTotalPosts] = useState(0);
-    const [totalComments, setTotalComments] = useState(0);
-    const [lastMonthUsers, setLastMonthUsers] = useState(0);
-    const [lastMonthPosts, setLastMonthPosts] = useState(0);
-    const [lastMonthComments, setLastMonthComments] = useState(0);
+    // const [comments, setComments] = useState([]);
+    // const [posts, setPosts] = useState([]);
+    // const [totalPosts, setTotalPosts] = useState(0);
+    // const [totalComments, setTotalComments] = useState(0);
+    // const [lastMonthPosts, setLastMonthPosts] = useState(0);
+    // const [lastMonthComments, setLastMonthComments] = useState(0);
 
-    const { currentUser } = useSelector(state => state.user);
+    const dispatch = useDispatch();
+
+    const { currentUser, users, totalUsers, lastMonthUsers, loading: userLoading } = useSelector(state => state.user);
+    const { comments, totalComments, lastMonthComments, loading: commentLoading } = useSelector(state => state.comment);
+    const { posts, totalPosts, lastMonthPosts, loading: postsLoading } = useSelector(state => state.posts);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await fetch('/api/user/getusers?limit=5');
-                const data = await res.json();
-
-                if (res.ok) {
-                    setUsers(data.users);
-                    setTotalUsers(data.totalUsers);
-                    setLastMonthUsers(data.lastMonthUsers);
-                }
+                const response = await dispatch(getUsers({ startIndex: 0 }));
             } catch (error) {
                 toast.error("Can't find users");
             }
-
         }
 
         const fetchComments = async () => {
             try {
-                const res = await fetch('/api/comment/getcomments?limit=5');
-                const data = await res.json();
-
-                if (res.ok) {
-                    setComments(data.comments);
-                    setTotalComments(data.totalComments);
-                    setLastMonthComments(data.lastMonthComments);
-                }
+                const response = await dispatch(getComments({ startIndex: 0 }));
             } catch (error) {
                 toast.error("Can't find comments");
             }
         }
 
         const fetchPosts = async () => {
-            try {
-                const res = await fetch('/api/post/getposts?limit=5');
-                const data = await res.json();
+            const urlParams = new URLSearchParams(location.search);
+            const searchQuery = urlParams.toString();
+            urlParams.set('startIndex', 0);
 
-                if (res.ok) {
-                    setPosts(data.posts);
-                    setTotalPosts(data.totalPost);
-                    setLastMonthPosts(data.lastMonthPosts);
-                }
+            try {
+                const response = await dispatch(getPosts({ searchQuery }));
             } catch (error) {
                 toast.error("Can't find posts");
             }
