@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -18,60 +19,47 @@ const DashPosts = () => {
   const [startIndex, setStartIndex] = useState(0);
   const dispatch = useDispatch();
 
-  const handleShowMore = async () => {
-    const newIndex = startIndex + 9;
-    if (startIndex >= totalPosts) return;
+  const [pageNumber, setPageNumber] = useState(1);
+  const POSTS_PER_PAGE = 9;
 
-    const urlParams = new URLSearchParams(location.search);
-    urlParams.set('startIndex', newIndex);
-
-    const searchQuery = urlParams.toString();
-
-    const response = await dispatch(getPosts({ searchQuery }));
-
-    const newPosts = response.payload.posts || [];
-    setStartIndex(newIndex);
-
-    setShowMore(newIndex + newPosts.length < totalPosts);
-    setShowLess(newIndex > 0);
-  }
-
-  const handleShowBack = async () => {
-    const newIndex = Math.max(startIndex - 9, 0);
+  const fetchPostsByPage = async (page) => {
+    const newStartIndex = (page - 1) * POSTS_PER_PAGE;
 
     try {
       const urlParams = new URLSearchParams(location.search);
-      urlParams.set('startIndex', newIndex);
-
+      urlParams.set('startIndex', newStartIndex);
       const searchQuery = urlParams.toString();
 
-      const response = await dispatch(getPosts({ searchQuery })).unwrap();
-      const newPosts = response.posts || [];
+      const response = await dispatch(getPosts({ searchQuery }));
 
-      setStartIndex(newIndex);
-
-      setShowMore(newIndex + newPosts.length < totalPosts);
-      setShowLess(newIndex > 0);
+      setStartIndex(newStartIndex);
+      setPageNumber(page);
+      setShowMore(page < Math.ceil(totalPosts / POSTS_PER_PAGE));
+      setShowLess(page > 1);
     } catch (error) {
       console.log(error.message);
-      toast.error("You can't get more users");
+      toast.error("Unable to load users");
     }
-  }
+  };
+
+  const handleShowMore = () => {
+    fetchPostsByPage(pageNumber + 1);
+  };
+
+  const handleShowBack = () => {
+    fetchPostsByPage(pageNumber - 1);
+  };
+
+  const handleGoToStart = () => {
+    fetchPostsByPage(1);
+  };
+
+  const handleGoToEnd = () => {
+    fetchPostsByPage(Math.ceil(totalPosts / POSTS_PER_PAGE));
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const urlParams = new URLSearchParams(location.search);
-        const searchQuery = urlParams.toString();
-
-        dispatch(getPosts({ searchQuery }));
-      } catch (error) {
-        console.log(error.message);
-        toast.error("You can't get the posts", error.message);
-      }
-    };
-
-    if (currentUser.isAdmin) fetchPosts();
+    if (currentUser.isAdmin) fetchPostsByPage(1);
   }, [currentUser]);
 
   const handleDeletePost = async () => {
@@ -141,18 +129,29 @@ const DashPosts = () => {
             ))}
           </Table>
 
-          <div className="flex justify-center mt-4">
-            {showMore && (
-              <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                Show More
-              </button>
-            )}
+          <div className="flex justify-center items-center mt-4 gap-2">
+            <div className="mr-3 flex items-center">
+              <FaAnglesLeft className='w-6 cursor-pointer' onClick={handleGoToStart} />
+              <FaAngleLeft className='w-6 cursor-pointer' onClick={handleShowBack} />
+            </div>
 
-            {showLess && (
-              <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                Back
+            {[...Array(Math.ceil(totalPosts / POSTS_PER_PAGE)).keys()].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => fetchPostsByPage(i + 1)}
+                className={`cursor-pointer text-sm px-3 py-1 rounded transition ${pageNumber === i + 1
+                  ? 'bg-teal-500 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+              >
+                {i + 1}
               </button>
-            )}
+            ))}
+
+            <div className="ml-3 flex items-center">
+              <FaAngleRight className='w-6 cursor-pointer' onClick={handleShowMore} />
+              <FaAnglesRight className='w-6 cursor-pointer' onClick={handleGoToEnd} />
+            </div>
           </div>
         </>
       ) : (

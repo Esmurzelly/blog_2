@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify';
 import Loader from './Loader';
 import { getComments, deleteComments } from '../redux/comments/commentSlice';
+import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 
 const DashCommets = () => {
     const { currentUser } = useSelector(state => state.user);
@@ -16,54 +17,44 @@ const DashCommets = () => {
     const [commentIdDelete, setCommentIdDelete] = useState('');
     const [startIndex, setStartIndex] = useState(9);
 
-    const handleShowMore = async () => {
-        const newIndex = startIndex + 9;
-        if (startIndex > totalComments) return;
+    const [pageNumber, setPageNumber] = useState(1);
+    const COMMENTS_PER_PAGE = 9;
+
+    const fetchCommentsByPage = async (page) => {
+        const newStartIndex = (page - 1) * COMMENTS_PER_PAGE;
 
         try {
-            const response = await dispatch(getComments({ startIndex: newIndex, limit: 9 })).unwrap();
-
+            const response = await dispatch(getComments({ startIndex: newStartIndex, limit: COMMENTS_PER_PAGE })).unwrap();
             const newComments = response.comments || [];
-            setStartIndex(newIndex);
 
-            setShowMore(newIndex + newComments.length < totalComments);
-            setShowLess(newIndex > 0);
+            setStartIndex(newStartIndex);
+            setPageNumber(page);
+            setShowMore(page < Math.ceil(totalComments / COMMENTS_PER_PAGE));
+            setShowLess(page > 1);
         } catch (error) {
             console.log(error.message);
-            toast.error("You can't get more posts");
+            toast.error("Unable to load users");
         }
     };
 
-    const handleShowBack = async () => {
-        const newIndex = Math.max(startIndex - 9, 0);
+    const handleShowMore = () => {
+        fetchCommentsByPage(pageNumber + 1);
+    };
 
-        try {
-            const response = await dispatch(getComments({ startIndex: newIndex, limit: 9 })).unwrap();
+    const handleShowBack = () => {
+        fetchCommentsByPage(pageNumber - 1);
+    };
 
-            const newComments = response.users || [];
-            setStartIndex(newIndex);
+    const handleGoToStart = () => {
+        fetchCommentsByPage(1);
+    };
 
-            setShowMore(newIndex + newComments.length < totalComments);
-            setShowLess(newIndex > 0);
-        } catch (error) {
-            console.log(error.message);
-            toast.error("You can't get more users");
-        }
-    }
+    const handleGoToEnd = () => {
+        fetchCommentsByPage(Math.ceil(totalComments / COMMENTS_PER_PAGE));
+    };
 
     useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                const response = await dispatch(getComments({ startIndex: 0, limit: 9 })).unwrap();
-                if (response.comments.length < 9) setShowMore(false);
-                toast.success("You got the comments successfuly");
-            } catch (error) {
-                console.log(error.message);
-                toast.error("You can't get the comments list");
-            }
-        };
-
-        if (currentUser.isAdmin) fetchComments();
+        if (currentUser.isAdmin) fetchCommentsByPage(1);
     }, [currentUser]);
 
     const handleDeleteComments = async () => {
@@ -139,18 +130,29 @@ const DashCommets = () => {
                         ))}
                     </Table>
 
-                    <div className="flex justify-center mt-4">
-                        {showMore && (
-                            <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                                Show More
-                            </button>
-                        )}
+                    <div className="flex justify-center items-center mt-4 gap-2">
+                        <div className="mr-3 flex items-center">
+                            <FaAnglesLeft className='w-6 cursor-pointer' onClick={handleGoToStart} />
+                            <FaAngleLeft className='w-6 cursor-pointer' onClick={handleShowBack} />
+                        </div>
 
-                        {showLess && (
-                            <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                                Back
+                        {[...Array(Math.ceil(totalComments / COMMENTS_PER_PAGE)).keys()].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => fetchCommentsByPage(i + 1)}
+                                className={`cursor-pointer text-sm px-3 py-1 rounded transition ${pageNumber === i + 1
+                                    ? 'bg-teal-500 text-white'
+                                    : 'bg-gray-100 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {i + 1}
                             </button>
-                        )}
+                        ))}
+
+                        <div className="ml-3 flex items-center">
+                            <FaAngleRight className='w-6 cursor-pointer' onClick={handleShowMore} />
+                            <FaAnglesRight className='w-6 cursor-pointer' onClick={handleGoToEnd} />
+                        </div>
                     </div>
                 </>
             ) : (

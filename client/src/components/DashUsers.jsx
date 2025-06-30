@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Loader from './Loader';
 import { getUsers, deleteUser } from '../redux/user/userSlice';
+import { FaAnglesLeft, FaAnglesRight, FaAngleRight, FaAngleLeft } from 'react-icons/fa6';
 
 const DashUsers = () => {
     const { currentUser, users, totalUsers } = useSelector(state => state.user);
@@ -16,55 +17,45 @@ const DashUsers = () => {
     const dispatch = useDispatch();
     const [startIndex, setStartIndex] = useState(0);
 
-    const handleShowMore = async () => {
-        const newIndex = startIndex + 9;
-        if (startIndex > totalUsers) return;
+    const [pageNumber, setPageNumber] = useState(1);
+    const USERS_PER_PAGE = 9;
+
+    const fetchUsersByPage = async (page) => {
+        const newStartIndex = (page - 1) * USERS_PER_PAGE;
 
         try {
-            const response = await dispatch(getUsers({ startIndex: newIndex, limit: 9 })).unwrap();
-
+            const response = await dispatch(getUsers({ startIndex: newStartIndex, limit: USERS_PER_PAGE })).unwrap();
             const newUsers = response.users || [];
-            setStartIndex(newIndex);
 
-            setShowMore(newIndex + newUsers.length < totalUsers);
-            setShowLess(newIndex > 0);
+            setStartIndex(newStartIndex);
+            setPageNumber(page);
+            setShowMore(page < Math.ceil(totalUsers / USERS_PER_PAGE));
+            setShowLess(page > 1);
         } catch (error) {
             console.log(error.message);
-            toast.error("You can't get more users");
+            toast.error("Unable to load users");
         }
-    }
+    };
 
-    const handleShowBack = async () => {
-        const newIndex = Math.max(startIndex - 9, 0);
+    const handleShowMore = () => {
+        fetchUsersByPage(pageNumber + 1);
+    };
 
-        try {
-            const response = await dispatch(getUsers({ startIndex: newIndex, limit: 9 })).unwrap();
-            
-            const newUsers = response.users || [];
-            setStartIndex(newIndex);
+    const handleShowBack = () => {
+        fetchUsersByPage(pageNumber - 1);
+    };
 
-            setShowMore(newIndex + newUsers.length < totalUsers);
-            setShowLess(newIndex > 0);
-        } catch (error) {
-            console.log(error.message);
-            toast.error("You can't get more users");
-        }
-    }
+    const handleGoToStart = () => {
+        fetchUsersByPage(1);
+    };
+
+    const handleGoToEnd = () => {
+        fetchUsersByPage(Math.ceil(totalUsers / USERS_PER_PAGE));
+    };
+
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await dispatch(getUsers({ startIndex: 0, limit: 9 })).unwrap();
-
-                toast.success("You got the users successfuly");
-                if (response.users.length < 9) setShowMore(false);
-            } catch (error) {
-                console.log(error.message);
-                toast.error("You can't get the users list");
-            }
-        };
-
-        if (currentUser.isAdmin) fetchUsers();
+        if (currentUser.isAdmin) fetchUsersByPage(1);
     }, [currentUser]);
 
     const handleDeleteUser = async () => {
@@ -129,18 +120,29 @@ const DashUsers = () => {
                         ))}
                     </Table>
 
-                    <div className="flex justify-center mt-4">
-                        {showMore && (
-                            <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                                Show More
-                            </button>
-                        )}
+                    <div className="flex justify-center items-center mt-4 gap-2">
+                        <div className="mr-3 flex items-center">
+                            <FaAnglesLeft className='w-6 cursor-pointer' onClick={handleGoToStart} />
+                            <FaAngleLeft className='w-6 cursor-pointer' onClick={handleShowBack} />
+                        </div>
 
-                        {showLess && (
-                            <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
-                                Back
+                        {[...Array(Math.ceil(totalUsers / USERS_PER_PAGE)).keys()].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => fetchUsersByPage(i + 1)}
+                                className={`cursor-pointer text-sm px-3 py-1 rounded transition ${pageNumber === i + 1
+                                    ? 'bg-teal-500 text-white'
+                                    : 'bg-gray-100 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {i + 1}
                             </button>
-                        )}
+                        ))}
+
+                        <div className="ml-3 flex items-center">
+                            <FaAngleRight className='w-6 cursor-pointer' onClick={handleShowMore} />
+                            <FaAnglesRight className='w-6 cursor-pointer' onClick={handleGoToEnd} />
+                        </div>
                     </div>
                 </>
             ) : (
