@@ -4,7 +4,7 @@
 
 @plugin 'tailwind-scrollbar';
 
-p,
+/* p,
 span,
 h1,
 h2,
@@ -14,7 +14,7 @@ h5,
 h6, 
 a {
     color: black;
-}
+} */
 
 body {
     height: 100vh;

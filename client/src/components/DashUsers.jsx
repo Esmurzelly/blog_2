@@ -10,28 +10,44 @@ import { getUsers, deleteUser } from '../redux/user/userSlice';
 const DashUsers = () => {
     const { currentUser, users, totalUsers } = useSelector(state => state.user);
     const [showMore, setShowMore] = useState(true);
+    const [showLess, setShowLess] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [userIdDelete, setUserIdDelete] = useState('');
     const dispatch = useDispatch();
-    const [startIndex, setStartIndex] = useState(9);
+    const [startIndex, setStartIndex] = useState(0);
 
     const handleShowMore = async () => {
+        const newIndex = startIndex + 9;
         if (startIndex > totalUsers) return;
 
         try {
-            const response = await dispatch(getUsers({ startIndex, limit: 9 })).unwrap();
+            const response = await dispatch(getUsers({ startIndex: newIndex, limit: 9 })).unwrap();
 
             const newUsers = response.users || [];
-            setStartIndex(prev => prev + 9);
+            setStartIndex(newIndex);
 
-            if (startIndex + newUsers.length >= totalUsers) {
-                setShowMore(false);
-            } else {
-                setShowMore(true);
-            };
+            setShowMore(newIndex + newUsers.length < totalUsers);
+            setShowLess(newIndex > 0);
         } catch (error) {
             console.log(error.message);
-            toast.error("You can't get more posts");
+            toast.error("You can't get more users");
+        }
+    }
+
+    const handleShowBack = async () => {
+        const newIndex = Math.max(startIndex - 9, 0);
+
+        try {
+            const response = await dispatch(getUsers({ startIndex: newIndex, limit: 9 })).unwrap();
+            
+            const newUsers = response.users || [];
+            setStartIndex(newIndex);
+
+            setShowMore(newIndex + newUsers.length < totalUsers);
+            setShowLess(newIndex > 0);
+        } catch (error) {
+            console.log(error.message);
+            toast.error("You can't get more users");
         }
     }
 
@@ -53,7 +69,7 @@ const DashUsers = () => {
 
     const handleDeleteUser = async () => {
         try {
-            const response = await dispatch(deleteUser({ currentUserId: userIdDelete }));
+            dispatch(deleteUser({ currentUserId: userIdDelete }));
 
             setShowModal(false);
             toast.success("The user has been deleted");
@@ -117,6 +133,12 @@ const DashUsers = () => {
                         {showMore && (
                             <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
                                 Show More
+                            </button>
+                        )}
+
+                        {showLess && (
+                            <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
+                                Back
                             </button>
                         )}
                     </div>

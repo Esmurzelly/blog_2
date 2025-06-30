@@ -24,6 +24,8 @@ const Search = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
 
+        console.log('urlParams', urlParams)
+
         const searchTermFromUrl = urlParams.get('searchTerm');
         const sortFromUrl = urlParams.get('sort');
         const categoryFromUrl = urlParams.get('category');
@@ -152,11 +154,11 @@ const Search = () => {
                         </Select>
                     </div>
 
-                    <Button type='button' onClick={handleSubmit}>
+                    <Button type='button' className='cursor-pointer' onClick={handleSubmit}>
                         Apply Filters
                     </Button>
 
-                    <Button type='button' className='bg-red-700!' onClick={handleClearFilter}>
+                    <Button type='button' className='bg-red-700! cursor-pointer' onClick={handleClearFilter}>
                         Clear Filters
                     </Button>
                 </form>
@@ -174,9 +176,11 @@ const Search = () => {
                     {loading && <p className='text-xl text-gray-500'>Loading...</p>}
 
                     {!loading && posts && posts.map((postItem) => <PostCard key={postItem._id} post={postItem} />)}
+                </div>
 
+                <div className="flex justify-center mt-4">
                     {showMore && (
-                        <button onClick={handleShowMore} className='text-teal-500 text-lg hover:underline p-7 w-full'>
+                        <button onClick={handleShowMore} className='mx-auto text-teal-500 text-lg text-center outline hover:bg-teal-500 hover:text-white transition-all duration-300 m-7 p-4 cursor-pointer'>
                             Show More
                         </button>
                     )}

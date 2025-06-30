@@ -11,18 +11,11 @@ import { getComments } from '../redux/comments/commentSlice';
 import { getPosts } from '../redux/posts/postSlice';
 
 const DashboadComponent = () => {
-    // const [comments, setComments] = useState([]);
-    // const [posts, setPosts] = useState([]);
-    // const [totalPosts, setTotalPosts] = useState(0);
-    // const [totalComments, setTotalComments] = useState(0);
-    // const [lastMonthPosts, setLastMonthPosts] = useState(0);
-    // const [lastMonthComments, setLastMonthComments] = useState(0);
-
-    const dispatch = useDispatch();
-
     const { currentUser, users, totalUsers, lastMonthUsers, loading: userLoading } = useSelector(state => state.user);
     const { comments, totalComments, lastMonthComments, loading: commentLoading } = useSelector(state => state.comment);
     const { posts, totalPosts, lastMonthPosts, loading: postsLoading } = useSelector(state => state.posts);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchUsers = async () => {

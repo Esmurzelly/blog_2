@@ -16,12 +16,9 @@ const UpdatePost = lazy(() => import(/* webpackChunkName: "UpdatePost" */ './pag
 const PostPage = lazy(() => import(/* webpackChunkName: "PostPage" */ './pages/PostPage'));
 const Search = lazy(() => import(/* webpackChunkName: "Search" */ './pages/Search'));
 
-// import { ThemeConfig } from 'flowbite-react';
-
 function App() {
   return (
     <BrowserRouter>
-      {/* <ThemeConfig dark={false} /> */}
       <Routes>
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />

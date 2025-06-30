@@ -12,29 +12,49 @@ const DashPosts = () => {
   const { currentUser } = useSelector(state => state.user);
   const { posts, totalPosts } = useSelector(state => state.posts);
   const [showMore, setShowMore] = useState(true);
+  const [showLess, setShowLess] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [postIdDelete, setPostIdDelete] = useState('');
-  const [startIndex, setStartIndex] = useState(9);
+  const [startIndex, setStartIndex] = useState(0);
   const dispatch = useDispatch();
 
-
   const handleShowMore = async () => {
+    const newIndex = startIndex + 9;
     if (startIndex >= totalPosts) return;
 
     const urlParams = new URLSearchParams(location.search);
-    urlParams.set('startIndex', startIndex);
+    urlParams.set('startIndex', newIndex);
 
     const searchQuery = urlParams.toString();
 
     const response = await dispatch(getPosts({ searchQuery }));
 
     const newPosts = response.payload.posts || [];
-    setStartIndex(prev => prev + 9);
+    setStartIndex(newIndex);
 
-    if (startIndex + newPosts.length >= totalPosts) {
-      setShowMore(false)
-    } else {
-      setShowMore(true)
+    setShowMore(newIndex + newPosts.length < totalPosts);
+    setShowLess(newIndex > 0);
+  }
+
+  const handleShowBack = async () => {
+    const newIndex = Math.max(startIndex - 9, 0);
+
+    try {
+      const urlParams = new URLSearchParams(location.search);
+      urlParams.set('startIndex', newIndex);
+
+      const searchQuery = urlParams.toString();
+
+      const response = await dispatch(getPosts({ searchQuery })).unwrap();
+      const newPosts = response.posts || [];
+
+      setStartIndex(newIndex);
+
+      setShowMore(newIndex + newPosts.length < totalPosts);
+      setShowLess(newIndex > 0);
+    } catch (error) {
+      console.log(error.message);
+      toast.error("You can't get more users");
     }
   }
 
@@ -128,6 +148,11 @@ const DashPosts = () => {
               </button>
             )}
 
+            {showLess && (
+              <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
+                Back
+              </button>
+            )}
           </div>
         </>
       ) : (

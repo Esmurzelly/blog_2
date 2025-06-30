@@ -11,27 +11,43 @@ const DashCommets = () => {
     const { comments, totalComments } = useSelector(state => state.comment)
     const dispatch = useDispatch();
     const [showMore, setShowMore] = useState(true);
+    const [showLess, setShowLess] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [commentIdDelete, setCommentIdDelete] = useState('');
     const [startIndex, setStartIndex] = useState(9);
 
     const handleShowMore = async () => {
+        const newIndex = startIndex + 9;
         if (startIndex > totalComments) return;
 
         try {
-            const response = await dispatch(getComments({ startIndex, limit: 9 })).unwrap();
+            const response = await dispatch(getComments({ startIndex: newIndex, limit: 9 })).unwrap();
 
             const newComments = response.comments || [];
-            setStartIndex(prev => prev + 9);
+            setStartIndex(newIndex);
 
-            if (startIndex + newComments.length >= totalComments) {
-                setShowMore(false);
-            } else {
-                setShowMore(true);
-            };
+            setShowMore(newIndex + newComments.length < totalComments);
+            setShowLess(newIndex > 0);
         } catch (error) {
             console.log(error.message);
             toast.error("You can't get more posts");
+        }
+    };
+
+    const handleShowBack = async () => {
+        const newIndex = Math.max(startIndex - 9, 0);
+
+        try {
+            const response = await dispatch(getComments({ startIndex: newIndex, limit: 9 })).unwrap();
+
+            const newComments = response.users || [];
+            setStartIndex(newIndex);
+
+            setShowMore(newIndex + newComments.length < totalComments);
+            setShowLess(newIndex > 0);
+        } catch (error) {
+            console.log(error.message);
+            toast.error("You can't get more users");
         }
     }
 
@@ -127,6 +143,12 @@ const DashCommets = () => {
                         {showMore && (
                             <button onClick={handleShowMore} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
                                 Show More
+                            </button>
+                        )}
+
+                        {showLess && (
+                            <button onClick={handleShowBack} className='text-teal-500 text-center text-sm p-3 cursor-pointer outline hover:bg-teal-500 hover:text-white transition-all duration-300'>
+                                Back
                             </button>
                         )}
                     </div>

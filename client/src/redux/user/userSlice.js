@@ -281,6 +281,7 @@ const userSlice = createSlice({
             })
             .addCase(getUsers.fulfilled, (state, action) => {
                 state.loading = false;
+                console.log('action.payload.users', action.payload.users);
                 state.users = action.payload.users;
 
                 state.totalUsers = action.payload.totalUsers;
