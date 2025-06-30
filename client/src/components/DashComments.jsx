@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Loader from './Loader';
 import { getComments, deleteComments } from '../redux/comments/commentSlice';
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
+import Pagination from './Pagination';
 
 const DashCommets = () => {
     const { currentUser } = useSelector(state => state.user);
@@ -130,30 +131,15 @@ const DashCommets = () => {
                         ))}
                     </Table>
 
-                    <div className="flex justify-center items-center mt-4 gap-2">
-                        <div className="mr-3 flex items-center">
-                            <FaAnglesLeft className='w-6 cursor-pointer' onClick={handleGoToStart} />
-                            <FaAngleLeft className='w-6 cursor-pointer' onClick={handleShowBack} />
-                        </div>
-
-                        {[...Array(Math.ceil(totalComments / COMMENTS_PER_PAGE)).keys()].map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => fetchCommentsByPage(i + 1)}
-                                className={`cursor-pointer text-sm px-3 py-1 rounded transition ${pageNumber === i + 1
-                                    ? 'bg-teal-500 text-white'
-                                    : 'bg-gray-100 hover:bg-gray-200'
-                                    }`}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-
-                        <div className="ml-3 flex items-center">
-                            <FaAngleRight className='w-6 cursor-pointer' onClick={handleShowMore} />
-                            <FaAnglesRight className='w-6 cursor-pointer' onClick={handleGoToEnd} />
-                        </div>
-                    </div>
+                    <Pagination
+                        pageNumber={pageNumber}
+                        totalItem={totalComments}
+                        onFetchData={fetchCommentsByPage}
+                        onStart={handleGoToStart}
+                        onEnd={handleGoToEnd}
+                        onShowMore={handleShowMore}
+                        onShowLess={handleShowBack}
+                    />
                 </>
             ) : (
                 <Loader />
