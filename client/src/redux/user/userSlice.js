@@ -281,12 +281,10 @@ const userSlice = createSlice({
             })
             .addCase(getUsers.fulfilled, (state, action) => {
                 state.loading = false;
-                console.log('action.payload.users', action.payload.users);
+                
                 state.users = action.payload.users;
-
                 state.totalUsers = action.payload.totalUsers;
                 state.lastMonthUsers = action.payload.lastMonthUsers;
-                // state.status = action.payload?.message || "Signed in successfully";
             })
             .addCase(getUsers.rejected, (state, action) => {
                 state.loading = false;

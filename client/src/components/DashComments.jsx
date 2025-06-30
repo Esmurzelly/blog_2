@@ -84,7 +84,7 @@ const DashCommets = () => {
     if (!comments || comments.length === 0) return <h1>No Comments</h1>
 
     return (
-        <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
+        <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
             {currentUser.isAdmin && comments.length > 0 ? (
                 <>
                     <Table hoverable className='shadow-md border'>
@@ -99,30 +99,30 @@ const DashCommets = () => {
 
                         {comments.map((commentItem) => (
                             <TableBody className='divide-y' key={commentItem._id}>
-                                <TableRow className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                                <TableRow className='bg-white dark:border-gray-700'>
                                     <TableCell>{new Date(commentItem.updatedAt).toLocaleDateString()}</TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{commentItem.content}</p>
+                                        <p className='font-medium text-gray-900'>{commentItem.content}</p>
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{commentItem.numberOfLikes}</p>
+                                        <p className='font-medium text-gray-900'>{commentItem.numberOfLikes}</p>
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{commentItem.postId}</p>
+                                        <p className='font-medium text-gray-900'>{commentItem.postId}</p>
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{commentItem.userId}</p>
+                                        <p className='font-medium text-gray-900'>{commentItem.userId}</p>
                                     </TableCell>
 
                                     <TableCell>
                                         <span onClick={() => {
                                             setShowModal(true);
                                             setCommentIdDelete(commentItem._id)
-                                        }} className='font-medium text-red-500 hover:underline cursor-pointer'>
+                                        }} className='font-medium text-red-500 cursor-pointer'>
                                             Delete
                                         </span>
                                     </TableCell>
@@ -149,14 +149,14 @@ const DashCommets = () => {
                 <ModalHeader />
                 <ModalBody>
                     <div className="text-center">
-                        <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-                        <h3 className='mb-5 text-lg text-gray-500! dark:text-gray-400'>Are you sure you want to delete the comment?</h3>
+                        <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 mb-4 mx-auto' />
+                        <h3 className='mb-5 text-lg text-white'>Are you sure you want to delete the comment?</h3>
 
                         <div className="flex justify-between items-center gap-4">
-                            <Button className='text-xl text-red-500' color={'failure'} onClick={handleDeleteComments}>
+                            <Button className='text-xl text-red-500 cursor-pointer' color={'failure'} onClick={handleDeleteComments}>
                                 Yes, I am sure
                             </Button>
-                            <Button className='text-xl text-white' color={'failure'} onClick={() => setShowModal(false)}>
+                            <Button className='text-xl text-white cursor-pointer' color={'failure'} onClick={() => setShowModal(false)}>
                                 Cancel
                             </Button>
                         </div>

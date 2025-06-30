@@ -4,7 +4,7 @@ import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-ic
 const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNumber, onFetchData }) => {
   const ITEMS_PER_PAGE = 9;
     return (
-        <div className="flex justify-center items-center mt-4 gap-2">
+        <div className="flex justify-center items-center mt-4 gap-2 p-10">
             <div className="mr-3 flex items-center">
                 <FaAnglesLeft className='w-6 cursor-pointer' onClick={onStart} />
                 <FaAngleLeft className='w-6 cursor-pointer' onClick={onShowLess} />

@@ -77,7 +77,7 @@ const DashPosts = () => {
   }
 
   return (
-    <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
+    <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
       {currentUser.isAdmin && posts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md border'>
@@ -94,7 +94,7 @@ const DashPosts = () => {
 
             {posts.map((post) => (
               <TableBody className='divide-y'>
-                <TableRow className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                <TableRow className='bg-white'>
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
 
                   <TableCell>
@@ -106,7 +106,7 @@ const DashPosts = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Link className='font-medium text-gray-900 dark:text-white' to={`/post/${post._id}`}>{post.title}</Link>
+                    <Link className='font-medium text-gray-900' to={`/post/${post._id}`}>{post.title}</Link>
                   </TableCell>
 
                   <TableCell>{post.category}</TableCell>
@@ -115,14 +115,14 @@ const DashPosts = () => {
                     <span onClick={() => {
                       setShowModal(true);
                       setPostIdDelete(post._id)
-                    }} className='font-medium text-red-500 hover:underline cursor-pointer'>
+                    }} className='font-medium text-red-500 cursor-pointer'>
                       Delete
                     </span>
                   </TableCell>
 
                   <TableCell>
                     <Link className='text-teal-500' to={`/update-post/${post._id}`}>
-                      <span className='hover:underline'>Edit</span>
+                      <span>Edit</span>
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -148,14 +148,14 @@ const DashPosts = () => {
         <ModalHeader />
         <ModalBody>
           <div className="text-center">
-            <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500! dark:text-gray-400'>Are you sure you want to delete your post?</h3>
+            <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 mb-4 mx-auto' />
+            <h3 className='mb-5 text-lg text-white'>Are you sure you want to delete your post?</h3>
 
             <div className="flex justify-between items-center gap-4">
-              <Button className='text-xl text-red-500' color={'failure'} onClick={handleDeletePost}>
+              <Button className='text-xl text-red-500 cursor-pointer' color={'failure'} onClick={handleDeletePost}>
                 Yes, I am sure
               </Button>
-              <Button className='text-xl text-white' color={'failure'} onClick={() => setShowModal(false)}>
+              <Button className='text-xl text-white cursor-pointer' color={'failure'} onClick={() => setShowModal(false)}>
                 Cancel
               </Button>
             </div>

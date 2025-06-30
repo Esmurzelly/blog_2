@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosts } from '../redux/posts/postSlice';
+import Pagination from '../components/Pagination';
+import { toast } from 'react-toastify';
 
 const Search = () => {
     const [sidebarData, setSidebarData] = useState({
@@ -13,7 +15,8 @@ const Search = () => {
     });
 
     const { posts, totalPosts, loading } = useSelector(state => state.posts);
-    const [showMore, setShowMore] = useState(false);
+    const [showMore, setShowMore] = useState(true);
+    const [showLess, setShowLess] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -21,10 +24,47 @@ const Search = () => {
 
     const [startIndex, setStartIndex] = useState(9);
 
+    const [pageNumber, setPageNumber] = useState(1);
+    const POSTS_PER_PAGE = 9;
+
+    const fetchPostsByPage = async (page) => {
+        const newStartIndex = (page - 1) * POSTS_PER_PAGE;
+
+        try {
+            const urlParams = new URLSearchParams(location.search);
+            urlParams.set('startIndex', newStartIndex);
+            const searchQuery = urlParams.toString();
+
+            const response = await dispatch(getPosts({ searchQuery }));
+
+            setStartIndex(newStartIndex);
+            setPageNumber(page);
+            setShowMore(page < Math.ceil(totalPosts / POSTS_PER_PAGE));
+            setShowLess(page > 1);
+        } catch (error) {
+            console.log(error.message);
+            toast.error("Unable to load users");
+        }
+    };
+
+    const handleShowMore = () => {
+        fetchPostsByPage(pageNumber + 1);
+    };
+
+    const handleShowBack = () => {
+        fetchPostsByPage(pageNumber - 1);
+    };
+
+    const handleGoToStart = () => {
+        fetchPostsByPage(1);
+    };
+
+    const handleGoToEnd = () => {
+        fetchPostsByPage(Math.ceil(totalPosts / POSTS_PER_PAGE));
+    };
+
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
-
-        console.log('urlParams', urlParams)
 
         const searchTermFromUrl = urlParams.get('searchTerm');
         const sortFromUrl = urlParams.get('sort');
@@ -39,21 +79,21 @@ const Search = () => {
             }));
         };
 
-        const fetchPosts = async () => {
-            const searchQuery = urlParams.toString();
-            urlParams.set('startIndex', 0);
+        // const fetchPosts = async () => {
+        //     const searchQuery = urlParams.toString();
+        //     urlParams.set('startIndex', 0);
 
-            const response = await dispatch(getPosts({ searchQuery }));
-            setStartIndex(9);
+        //     const response = await dispatch(getPosts({ searchQuery }));
+        //     setStartIndex(9);
 
-            if (response.payload.posts.length >= totalPosts) {
-                setShowMore(false);
-            } else {
-                setShowMore(true);
-            }
-        }
+        //     if (response.payload.posts.length >= totalPosts) {
+        //         setShowMore(false);
+        //     } else {
+        //         setShowMore(true);
+        //     }
+        // }
 
-        fetchPosts();
+        fetchPostsByPage(1);
     }, [location.search])
 
     const handleChange = e => {
@@ -100,25 +140,25 @@ const Search = () => {
         navigate('/search');
     }
 
-    const handleShowMore = async () => {
-        if (startIndex >= totalPosts) return;
+    // const handleShowMore = async () => {
+    //     if (startIndex >= totalPosts) return;
 
-        const urlParams = new URLSearchParams(location.search);
-        urlParams.set('startIndex', startIndex);
+    //     const urlParams = new URLSearchParams(location.search);
+    //     urlParams.set('startIndex', startIndex);
 
-        const searchQuery = urlParams.toString();
+    //     const searchQuery = urlParams.toString();
 
-        const response = await dispatch(getPosts({ searchQuery }));
+    //     const response = await dispatch(getPosts({ searchQuery }));
 
-        const newPosts = response.payload.posts || [];
-        setStartIndex(prev => prev + 9);
+    //     const newPosts = response.payload.posts || [];
+    //     setStartIndex(prev => prev + 9);
 
-        if (startIndex + newPosts.length >= totalPosts) {
-            setShowMore(false)
-        } else {
-            setShowMore(true)
-        }
-    };
+    //     if (startIndex + newPosts.length >= totalPosts) {
+    //         setShowMore(false)
+    //     } else {
+    //         setShowMore(true)
+    //     }
+    // };
 
     return (
         <div className='flex flex-col md:flex-row'>
@@ -178,13 +218,15 @@ const Search = () => {
                     {!loading && posts && posts.map((postItem) => <PostCard key={postItem._id} post={postItem} />)}
                 </div>
 
-                <div className="flex justify-center mt-4">
-                    {showMore && (
-                        <button onClick={handleShowMore} className='mx-auto text-teal-500 text-lg text-center outline hover:bg-teal-500 hover:text-white transition-all duration-300 m-7 p-4 cursor-pointer'>
-                            Show More
-                        </button>
-                    )}
-                </div>
+                <Pagination
+                    pageNumber={pageNumber}
+                    totalItem={totalPosts}
+                    onFetchData={fetchPostsByPage}
+                    onStart={handleGoToStart}
+                    onEnd={handleGoToEnd}
+                    onShowMore={handleShowMore}
+                    onShowLess={handleShowBack}
+                />
             </div>
         </div>
     )

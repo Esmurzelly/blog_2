@@ -74,7 +74,7 @@ const DashUsers = () => {
     if (!users) return <Loader />
 
     return (
-        <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
+        <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
             {currentUser.isAdmin && users.length > 0 ? (
                 <>
                     <Table hoverable className='shadow-md border'>
@@ -89,7 +89,7 @@ const DashUsers = () => {
 
                         {users.map((user) => (
                             <TableBody className='divide-y' key={user._id}>
-                                <TableRow className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                                <TableRow className='bg-white'>
                                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
 
                                     <TableCell>
@@ -99,11 +99,11 @@ const DashUsers = () => {
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{user.username}</p>
+                                        <p className='font-medium text-gray-900'>{user.username}</p>
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900 dark:text-white'>{user.email}</p>
+                                        <p className='font-medium text-gray-900'>{user.email}</p>
                                     </TableCell>
 
                                     <TableCell>{user.isAdmin ? <FaCheck className='text-green-600' /> : <FaTimes className='text-red-600' />}</TableCell>
@@ -139,14 +139,14 @@ const DashUsers = () => {
                 <ModalHeader />
                 <ModalBody>
                     <div className="text-center">
-                        <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-                        <h3 className='mb-5 text-lg text-gray-500! dark:text-gray-400'>Are you sure you want to delete the user?</h3>
+                        <HiOutlineExclamationCircle className='w-14 h-14 text-gray-400 mb-4 mx-auto' />
+                        <h3 className='mb-5 text-lg text-white'>Are you sure you want to delete the user?</h3>
 
                         <div className="flex justify-between items-center gap-4">
-                            <Button className='text-xl text-red-500' color={'failure'} onClick={handleDeleteUser}>
+                            <Button className='text-xl text-red-500 cursor-pointer' color={'failure'} onClick={handleDeleteUser}>
                                 Yes, I am sure
                             </Button>
-                            <Button className='text-xl text-white' color={'failure'} onClick={() => setShowModal(false)}>
+                            <Button className='text-xl text-white cursor-pointer' color={'failure'} onClick={() => setShowModal(false)}>
                                 Cancel
                             </Button>
                         </div>
