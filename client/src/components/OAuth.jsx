@@ -41,7 +41,7 @@ const OAuth = () => {
 
     return (
         <Button
-            className='bg-gradient-to-r from-pink-500 to-orange-500 text-white!'
+            className='cursor-pointer bg-gradient-to-r from-pink-500 to-orange-500 text-white!'
             type='button'
             outline
             onClick={handleGoogleClick}

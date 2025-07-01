@@ -77,7 +77,7 @@ const DashUsers = () => {
         <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
             {currentUser.isAdmin && users.length > 0 ? (
                 <>
-                    <Table hoverable className='shadow-md border'>
+                    <Table hoverable className='shadow-md'>
                         <TableHead>
                             <TableHeadCell>Date created</TableHeadCell>
                             <TableHeadCell>User image</TableHeadCell>
@@ -89,7 +89,7 @@ const DashUsers = () => {
 
                         {users.map((user) => (
                             <TableBody className='divide-y' key={user._id}>
-                                <TableRow className='bg-white'>
+                                <TableRow className='bg-white dark:bg-gray-700'>
                                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
 
                                     <TableCell>
@@ -99,11 +99,11 @@ const DashUsers = () => {
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900'>{user.username}</p>
+                                        <p className='font-medium text-gray-900 dark:text-gray-300'>{user.username}</p>
                                     </TableCell>
 
                                     <TableCell>
-                                        <p className='font-medium text-gray-900'>{user.email}</p>
+                                        <p className='font-medium text-gray-900 dark:text-gray-300'>{user.email}</p>
                                     </TableCell>
 
                                     <TableCell>{user.isAdmin ? <FaCheck className='text-green-600' /> : <FaTimes className='text-red-600' />}</TableCell>

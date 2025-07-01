@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
-import { FaMoon, FaSun } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import defaultAvatar from '../assets/user.png'
 import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
 import { toast } from 'react-toastify'
+import ChangeThemeButton from './ChangeThemeButton'
 
 const Header = () => {
   const path = useLocation().pathname;
@@ -15,10 +15,23 @@ const Header = () => {
   const { currentUser } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
+  const [theme, setTheme] = useState(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem("theme") || "light" : "light";
+  })
 
   const profilePicture = currentUser?.profilePicture
     ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
     : defaultAvatar;
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -53,9 +66,13 @@ const Header = () => {
     navigate(`/search?${searchQuery}`);
   }
 
+  const handleSwitchTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   return (
-    <Navbar>
-      <Link to={'/'} className='text-sm sm:text-xl font-semibold text-white'>
+    <Navbar className='outline dark:outline-gray-400'>
+      <Link to={'/'} className='text-sm sm:text-xl font-semibold dark:text-white'>
         <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg'>Sahand's</span>
         Blog
       </Link>
@@ -72,11 +89,14 @@ const Header = () => {
       </form>
 
       <Link to={'/search'} className='sm:hidden'>
-        <Button className='w-12 h-10' color='gray' pill>
+        <Button className='w-12 h-10 rounded-sm' color='gray'>
           <AiOutlineSearch />
         </Button>
       </Link>
 
+      <div className="md:order-1">
+        <ChangeThemeButton onHandleSwitchTheme={handleSwitchTheme} theme={theme} />
+      </div>
 
 
       <div className='flex gap-2 md:order-2'>
@@ -86,7 +106,7 @@ const Header = () => {
               <span className="block text-sm">@{currentUser.username}</span>
               <span className="block text-sm font-medium truncate">{currentUser.email}</span>
             </DropdownHeader>
-            
+
             <Link to={'/dashboard?tab=profile'}>
               <DropdownItem>Profile</DropdownItem>
             </Link>

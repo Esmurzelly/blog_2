@@ -38,7 +38,7 @@ const CreatePost = () => {
       const response = await dispatch(createPost({ form }));
 
       if (response.payload && response.payload.slug) {
-        navigate(`/post/${response.payload.slug}`);
+        navigate(`/post/${response.payload._id}`);
       } else {
         toast.error('Post created but slug missing.');
       }
@@ -58,12 +58,12 @@ const CreatePost = () => {
             <option value='javascript'>JavaScript</option>
             <option value='reactjs'>React.js</option>
             <option value='nextjs'>NextJS</option>
+            <option value='nodejs'>NodeJS</option>
           </Select>
         </div>
 
-        <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
+        <div className="border-4 border-teal-500 border-dotted p-3">
           <FileInput type='file' accept='image/*' onChange={handleChangeImage} />
-          <Button type='button' size='sm' className='p-5 bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer'>Upload Image</Button>
         </div>
         {image && <img className='w-24' src={URL.createObjectURL(image)} alt="post image" />}
 

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getPosts } from '../redux/posts/postSlice';
 import Pagination from '../components/Pagination';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 
 const Search = () => {
     const [sidebarData, setSidebarData] = useState({
@@ -35,7 +36,7 @@ const Search = () => {
             urlParams.set('startIndex', newStartIndex);
             const searchQuery = urlParams.toString();
 
-            const response = await dispatch(getPosts({ searchQuery }));
+            dispatch(getPosts({ searchQuery }));
 
             setStartIndex(newStartIndex);
             setPageNumber(page);
@@ -79,20 +80,6 @@ const Search = () => {
             }));
         };
 
-        // const fetchPosts = async () => {
-        //     const searchQuery = urlParams.toString();
-        //     urlParams.set('startIndex', 0);
-
-        //     const response = await dispatch(getPosts({ searchQuery }));
-        //     setStartIndex(9);
-
-        //     if (response.payload.posts.length >= totalPosts) {
-        //         setShowMore(false);
-        //     } else {
-        //         setShowMore(true);
-        //     }
-        // }
-
         fetchPostsByPage(1);
     }, [location.search])
 
@@ -100,8 +87,8 @@ const Search = () => {
         if (e.target.id === 'searchTerm') setSidebarData({ ...sidebarData, searchTerm: e.target.value });
 
         if (e.target.id === 'sort') {
-            const order = e.target.value || 'desc';
-            setSidebarData({ ...sidebarData, sort: order });
+            const sort = e.target.value || 'desc';
+            setSidebarData({ ...sidebarData, sort });
         }
 
         if (e.target.id === 'category') {
@@ -120,6 +107,10 @@ const Search = () => {
 
         if (sidebarData.category) {
             urlParams.set('category', sidebarData.category);
+
+            if (sidebarData.category === 'uncategorized') {
+                urlParams.set('category', 'undefined');
+            }
         } else {
             urlParams.delete('category')
         }
@@ -140,33 +131,16 @@ const Search = () => {
         navigate('/search');
     }
 
-    // const handleShowMore = async () => {
-    //     if (startIndex >= totalPosts) return;
-
-    //     const urlParams = new URLSearchParams(location.search);
-    //     urlParams.set('startIndex', startIndex);
-
-    //     const searchQuery = urlParams.toString();
-
-    //     const response = await dispatch(getPosts({ searchQuery }));
-
-    //     const newPosts = response.payload.posts || [];
-    //     setStartIndex(prev => prev + 9);
-
-    //     if (startIndex + newPosts.length >= totalPosts) {
-    //         setShowMore(false)
-    //     } else {
-    //         setShowMore(true)
-    //     }
-    // };
+    if (loading) return <Loader />
 
     return (
         <div className='flex flex-col md:flex-row'>
             <div className='p-7 border-b md:border-r md:min-h-screen border-gray-500'>
                 <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
-                    <div className='flex   items-center gap-2'>
-                        <label className='whitespace-nowrap font-semibold'>Search Term:</label>
+                    <div className='flex justify-between items-center gap-2'>
+                        <label className='whitespace-nowrap font-semibold w-1/2'>Search Term:</label>
                         <TextInput
+                            className='w-1/2'
                             placeholder='Search...'
                             id='searchTerm'
                             type='text'
@@ -175,22 +149,23 @@ const Search = () => {
                         />
                     </div>
 
-                    <div className='flex items-center gap-2'>
-                        <label className='font-semibold'>Sort:</label>
-                        <Select value={sidebarData.sort} id='sort' onChange={handleChange}>
+                    <div className='flex justify-between items-center gap-2'>
+                        <label className='font-semibold w-1/2'>Sort:</label>
+                        <Select className='w-1/2' value={sidebarData.sort} id='sort' onChange={handleChange}>
                             <option value='desc'>Latest</option>
                             <option value='asc'>Oldest</option>
                         </Select>
                     </div>
 
-                    <div className='flex items-center gap-2'>
-                        <label className='font-semibold'>Category:</label>
-                        <Select value={sidebarData.category} id='category' onChange={handleChange}>
+                    <div className='flex justify-between items-center gap-2'>
+                        <label className='font-semibold w-1/2'>Category:</label>
+                        <Select className='w-1/2' value={sidebarData.category} id='category' onChange={handleChange}>
                             <option value=''>All Categories</option>
                             <option value='uncategorized'>Uncategorized</option>
                             <option value='reactjs'>React.js</option>
                             <option value='nextjs'>Next.js</option>
                             <option value='javascript'>JavaScript</option>
+                            <option value='nodejs'>NodeJS</option>
                         </Select>
                     </div>
 
@@ -205,11 +180,11 @@ const Search = () => {
             </div>
 
             <div className='w-full'>
-                <h1 className='text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5 '>
+                <h1 className='text-3xl font-semibold sm:border-b border-gray-500 p-3'>
                     Posts results:
                 </h1>
 
-                <div className='p-7 flex flex-wrap gap-4'>
+                <div className='p-7 grid grid-cols-3 grid-rows-3 gap-5'>
                     {!loading && (posts && posts.length === 0) && (
                         <p className='text-xl text-gray-500'>No posts found.</p>
                     )}

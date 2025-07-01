@@ -71,7 +71,7 @@ const DashboadComponent = () => {
                 <div className="flex flex-col p-3 gap-4 md:w-72 w-full rounded-md shadow-md">
                     <div className="flex justify-between">
                         <div className="">
-                            <h3 className='text-gray-500 text-md uppercase'>Total Users</h3>
+                            <h3 className='dark:text-gray-300 text-md uppercase'>Total Users</h3>
                             <p className='text-2xl'>{totalUsers}</p>
                         </div>
                         <HiOutlineUserGroup className='bg-teal-600  text-white rounded-full text-5xl p-3 shadow-lg' />
@@ -89,7 +89,7 @@ const DashboadComponent = () => {
                 <div className='flex flex-col p-3 gap-4 md:w-72 w-full rounded-md shadow-md'>
                     <div className='flex justify-between'>
                         <div className="">
-                            <h3 className='text-gray-500 text-md uppercase'>
+                            <h3 className='dark:text-gray-300 text-md uppercase'>
                                 Total Comments
                             </h3>
                             <p className='text-2xl'>{totalComments}</p>
@@ -109,7 +109,7 @@ const DashboadComponent = () => {
                 <div className='flex flex-col p-3 gap-4 md:w-72 w-full rounded-md shadow-md'>
                     <div className='flex justify-between'>
                         <div className=''>
-                            <h3 className='text-gray-500 text-md uppercase'>Total Posts</h3>
+                            <h3 className='dark:text-gray-300 text-md uppercase'>Total Posts</h3>
                             <p className='text-2xl'>{totalPosts}</p>
                         </div>
                         <HiDocumentText className='bg-lime-600  text-white rounded-full text-5xl p-3 shadow-lg' />
@@ -142,7 +142,7 @@ const DashboadComponent = () => {
 
                         {users && users.map((user) => (
                             <TableBody key={user._id} className='divide-y'>
-                                <TableRow className='bg-white'>
+                                <TableRow className='bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300'>
                                     <TableCell>
                                         <img src={user.profilePicture
                                             ? user?.profilePicture.startsWith('https') ? user?.profilePicture
@@ -176,10 +176,10 @@ const DashboadComponent = () => {
 
                         {comments && comments.map((comment) => (
                             <TableBody key={comment._id} className='divide-y'>
-                                <TableRow className='bg-white dark:border-gray-700'>
+                                <TableRow className='bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300'>
                                     <TableCell>{comment.content}</TableCell>
 
-                                    <TableCell>{comment.numberOfLikes}</TableCell>
+                                    <TableCell >{comment.numberOfLikes}</TableCell>
                                 </TableRow>
                             </TableBody>
                         ))}
@@ -194,16 +194,16 @@ const DashboadComponent = () => {
                         </Button>
                     </div>
 
-                    <Table>
+                    <Table hoverable>
                         <TableHead>
-                            <TableHeadCell>Post image</TableHeadCell>
                             <TableHeadCell>Post title</TableHeadCell>
-                            <TableHeadCell>Category</TableHeadCell>
+                            <TableHeadCell>Post title</TableHeadCell>
+                            {window.innerWidth >= 768 && <TableHeadCell>Category</TableHeadCell>}
                         </TableHead>
 
                         {posts && posts.map((post) => (
                             <TableBody key={post._id} className='divide-y'>
-                                <TableRow className='bg-white'>
+                                <TableRow className='bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300'>
                                     <TableCell>
                                         <img
                                             src={post.image
@@ -214,8 +214,8 @@ const DashboadComponent = () => {
                                             className='w-10 h-10 object-cover rounded-md bg-gray-500'
                                         />
                                     </TableCell>
-                                    <TableCell>{post.title.length > 11 ? `${post.title.slice(0, 10)}...` : post.title}</TableCell>
-                                    <TableCell>{post.category}</TableCell>
+                                    <TableCell>{window.innerWidth < 768 && post.title.length > 11 ? `${post.title.slice(0, 10)}...` : post.title}</TableCell>
+                                    {window.innerWidth >= 768 && <TableCell>{post.category === 'undefined' ? 'uncategorized' : post.category}</TableCell>}
                                 </TableRow>
                             </TableBody>
                         ))}

@@ -3,18 +3,13 @@
 @source "../.flowbite-react/class-list.json";
 
 @plugin 'tailwind-scrollbar';
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* p,
-span,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6, 
-a {
-    color: black;
-} */
+@layer base {
+  *:focus {
+    @apply focus:!border-transparent focus:!ring-0 focus:!ring-offset-0;
+  }
+}
 
 body {
     height: 100vh;
@@ -50,6 +45,6 @@ body {
     text-decoration: underline;
 }
 
-.dark .post-content a {
+/* .dark .post-content a {
     color: red;
-}
+} */

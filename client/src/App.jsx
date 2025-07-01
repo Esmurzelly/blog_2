@@ -2,8 +2,7 @@ import { lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Layout from './components/Layout';
-import PrivateRoute from './components/PrivateRoute';
-import AdminPrivateRoute from './components/AdminPrivateRoute'
+import ProtectedRoute from './components/ProtectedRoute';
 
 const Home = lazy(() => import(/* webpackChunkName: "Home" */ './pages/Home'));
 const About = lazy(() => import(/* webpackChunkName: "About" */ './pages/About'));
@@ -27,10 +26,10 @@ function App() {
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/search' element={<Search />} />
           <Route path='/post/:postId' element={<PostPage />} />
-          <Route element={<PrivateRoute />}>
+          <Route element={<ProtectedRoute />}>
             <Route path='/dashboard' element={<Dashboard />} />
           </Route>
-          <Route element={<AdminPrivateRoute />}>
+          <Route element={<ProtectedRoute adminOny />}>
             <Route path='/create-post' element={<CreatePost />} />
             <Route path='/update-post/:postId' element={<UpdatePost />} />
           </Route>

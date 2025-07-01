@@ -16,7 +16,7 @@ const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNum
                     onClick={() => onFetchData(i + 1)}
                     className={`cursor-pointer text-sm px-3 py-1 rounded transition ${pageNumber === i + 1
                         ? 'bg-teal-500 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200'
+                        : 'bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-500 dark:hover:bg-gray-700'
                         }`}
                 >
                     {i + 1}

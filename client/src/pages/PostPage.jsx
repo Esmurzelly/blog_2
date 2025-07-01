@@ -18,7 +18,7 @@ const PostPage = () => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const response = await dispatch(getCurrentPost({ postId }));
+                dispatch(getCurrentPost({ postId }));
             } catch (error) {
                 toast.error(error || status);
                 console.log(error || status)
@@ -31,7 +31,7 @@ const PostPage = () => {
         try {
             const fetchRecentPosts = async () => {
                 const searchQuery = 'limit=3';
-                const response = await dispatch(getPosts({ searchQuery }));
+                dispatch(getPosts({ searchQuery }));
             }
             fetchRecentPosts();
         } catch (error) {
@@ -44,10 +44,12 @@ const PostPage = () => {
 
     return (
         <main className='p-3 flex flex-col w-full mx-auto min-h-screen'> {/* max-w-6xl mx */}
-            <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl font-semibold'>{currentPost && currentPost.title}</h1>
+            <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl wrap-break-word mx-auto lg:text-4xl font-semibold'>
+                {currentPost && currentPost.title}
+            </h1>
 
             <Link to={`/search?category=${currentPost?.category}`} className='self-center mt-5'>
-                <Button color={'gray'} pill size='xs'>{currentPost && currentPost.category}</Button>
+                <Button color={'gray'} pill size='xs'>{currentPost && (currentPost.category === 'undefined' ? 'uncategorized' : currentPost.category)}</Button>                
             </Link>
 
             <img
@@ -61,7 +63,7 @@ const PostPage = () => {
                 <span className='italic'>{currentPost && (currentPost?.content.length / 1000).toFixed(0)} mins read</span>
             </div>
 
-            <div className="p-3 max-w-2xl mx-auto w-full post-content" dangerouslySetInnerHTML={{ __html: currentPost && currentPost.content }}></div>
+            <div className="p-3 max-w-2xl mx-auto w-full post-content wrap-break-word" dangerouslySetInnerHTML={{ __html: currentPost && currentPost.content }}></div>
 
             <div className="max-w-4xl mx-auto w-full">
                 <CallToAction />

@@ -58,26 +58,26 @@ const SignUp = () => {
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div>
               <Label className="text-black" htmlFor="username">
-                <p>Your username</p>
+                <p className='mb-2'>Your username</p>
               </Label>
               <TextInput onChange={handleChange} id='username' type='text' placeholder='adam' />
             </div>
 
             <div>
               <Label className="text-black" htmlFor="email">
-                <p>Your email</p>
+                <p className='mb-2'>Your email</p>
               </Label>
               <TextInput onChange={handleChange} id='email' type='email' placeholder='adam@gmail.com' />
             </div>
 
             <div>
               <Label className="text-black" htmlFor="password">
-                <p>Your password</p>
+                <p className='mb-2'>Your password</p>
               </Label>
               <TextInput onChange={handleChange} id='password' type='password' placeholder='******' />
             </div>
 
-            <Button disabled={loading} type='submit' className='bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500'>
+            <Button disabled={loading} type='submit' className='cursor-pointer bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500'>
               {loading ? (
                 <>
                   <Spinner size='sm' color="info" aria-label="Info spinner example" />
@@ -91,7 +91,7 @@ const SignUp = () => {
 
           <div className="flex gap-2 text-sm mt-5">
             <span>Have an account?</span> {""}
-            <Link to={'/sign-in'} className='text-blue-500'>Sign In</Link>
+            <Link to={'/sign-in'} className='text-blue-500 cursor-pointer'>Sign In</Link>
           </div>
         </div>
 

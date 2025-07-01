@@ -39,7 +39,7 @@ const DashSidebar = () => {
     }, [location.search]);
 
     return (
-        <Sidebar className='w-full md:w-56'>
+        <Sidebar className='w-full md:w-56 mt-1 shadow-2xl'>
             <SidebarItems>
                 <SidebarItemGroup className='flex flex-col gap-1'>
                     <Link to={'/dashboard?tab=profile'}>

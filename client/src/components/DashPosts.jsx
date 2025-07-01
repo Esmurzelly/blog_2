@@ -80,7 +80,7 @@ const DashPosts = () => {
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
       {currentUser.isAdmin && posts.length > 0 ? (
         <>
-          <Table hoverable className='shadow-md border'>
+          <Table hoverable className='shadow-md'>
             <TableHead>
               <TableHeadCell>Date updated</TableHeadCell>
               <TableHeadCell>Post image</TableHeadCell>
@@ -94,7 +94,7 @@ const DashPosts = () => {
 
             {posts.map((post) => (
               <TableBody className='divide-y'>
-                <TableRow className='bg-white'>
+                <TableRow className='bg-white dark:bg-gray-700'>
                   <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
 
                   <TableCell>
@@ -106,10 +106,10 @@ const DashPosts = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Link className='font-medium text-gray-900' to={`/post/${post._id}`}>{post.title}</Link>
+                    <Link className='font-medium text-gray-900 dark:text-gray-300' to={`/post/${post._id}`}>{post.title}</Link>
                   </TableCell>
 
-                  <TableCell>{post.category}</TableCell>
+                  <TableCell className='dark:text-gray-300'>{post.category === 'undefined' ? 'uncategorized' : post.category}</TableCell>
 
                   <TableCell>
                     <span onClick={() => {
