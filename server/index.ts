@@ -25,7 +25,7 @@ const app = express();
 dotenv.config();
 
 mongoose.connect(
-    process.env.MONGO_URI
+    process.env.MONGO_URI as string
 ).then(() => console.log("db is connected")).catch((err) => console.log('Error connection db', err))
 
 app.use(cors(corsOptions));

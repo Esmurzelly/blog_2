@@ -1,13 +1,19 @@
 import Comment from "../models/comment.model.js";
 import { createError } from "../utils/error.js";
+import { NextFunction, Request, Response } from 'express';
+import { IComment, IUserId } from "../types.js";
 
-export const createComment = async (req, res, next) => {
+interface IRequestWithUser extends Request {
+    user: IUserId
+}
+
+export const createComment = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
         const { content, postId, userId } = req.body;
 
         if (userId !== req.user.id) return next(createError(403, 'You are not allowed to create this comment'));
 
-        const newComment = new Comment({
+        const newComment = new Comment<Partial<IComment>>({
             content,
             postId,
             userId,
@@ -91,7 +97,7 @@ export const deleteComment = async (req, res, next) => {
 
         await Comment.findByIdAndDelete(req.params.commentId);
         res.status(200).json({
-            commentId : req.params.commentId,
+            commentId: req.params.commentId,
             message: 'Comment has been deleted'
         });
     } catch (error) {

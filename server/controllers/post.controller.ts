@@ -1,9 +1,57 @@
 import Post from "../models/post.model.js";
 import { createError } from "../utils/error.js"
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
+import { NextFunction, Request, Response } from 'express';
+import { IPost, IUserId } from "../types.js";
+import { UploadedFile } from "express-fileupload";
+import { ParsedQs } from 'qs'
 
-export const create = async (req, res, next) => {
+interface IRequestWithUserAndFiles extends Request<
+    Record<string, any>, // params
+    any,                 // resBody
+    any,                 // reqBody
+    ParsedQs             // query
+> {
+    user: IUserId;
+    files?: {
+        [fieldname: string]: UploadedFile | UploadedFile[];
+    };
+}
+
+interface IGetPostsQuery extends ParsedQs {
+    startIndex?: string;
+    limit?: string;
+    sort?: string;
+    userId?: string;
+    category?: string;
+    slug?: string;
+    postId?: string;
+    searchTerm?: string;
+}
+
+interface IDeletePostParams {
+    userId: string;
+    postId: string;
+}
+
+interface IUpdatePostParams {
+    userId: string;
+    postId: string;
+}
+
+interface IUpdatePostBody {
+    title?: string;
+    content?: string;
+    category?: string;
+    image?: string; // добавляем image как опциональное поле
+}
+
+
+export const create = async (
+    req: IRequestWithUserAndFiles,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const image = req?.files?.image;
         const POST_IMAGE_STORAGE = process.env.POST_IMAGE_STORAGE;
@@ -17,17 +65,26 @@ export const create = async (req, res, next) => {
             .toLowerCase()
             .replace(/[^a-zA-Z0-9]/g, '-');
 
-        if (image && image.name) {
+        let imageFile: UploadedFile | undefined;
+
+        if (Array.isArray(image)) {
+            imageFile = image[0];
+        } else {
+            imageFile = image;
+        }
+
+        if (imageFile && imageFile.name) {
+            const postImageName = uuidv4() + '.jpg';
+            await imageFile.mv(`${POST_IMAGE_STORAGE}` + postImageName);
+
             const newPostWithImage = new Post({
                 ...req.body,
                 slug,
                 userId: req.user.id,
-                image,
+                image: postImageName,
             });
 
-            const postImageName = uuidv4() + '.jpg';
-            image.mv(`${POST_IMAGE_STORAGE}` + postImageName);
-            newPostWithImage.image = postImageName;
+            // newPostWithImage.image = postImageName;
 
             await newPostWithImage.save();
 
@@ -47,10 +104,15 @@ export const create = async (req, res, next) => {
     }
 }
 
-export const getPosts = async (req, res, next) => {
+export const getPosts = async (
+    req: Request<{}, any, any, IGetPostsQuery>,
+    res: Response,
+    next: NextFunction
+
+) => {
     try {
-        const startIndex = parseInt(req.query.startIndex) || 0;
-        const limit = parseInt(req.query.limit) || 9;
+        const startIndex = parseInt(req.query.startIndex ?? "0");
+        const limit = parseInt(req.query.limit ?? "9");
         const sortDirection = req.query.sort === 'asc' ? 1 : -1;
 
         const posts = await Post.find({
@@ -90,8 +152,12 @@ export const getPosts = async (req, res, next) => {
     }
 }
 
-export const deletePost = async (req, res, next) => {
-    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+export const deletePost = async (
+    req: Request<IDeletePostParams, any, any, ParsedQs> & { user: IUserId },
+    res: Response,
+    next: NextFunction
+) => {
+    if (!req.user.isAdmin || req.user.id.toString() !== req.params.userId) {
         return next(createError(403, 'You are not allowed to delete this post'));
     }
 
@@ -106,24 +172,41 @@ export const deletePost = async (req, res, next) => {
     }
 }
 
-export const updatePost = async (req, res, next) => {
+export const updatePost = async (
+    req: Request<
+        IUpdatePostParams,
+        any,
+        IUpdatePostBody,
+        ParsedQs
+    > & { user: IUserId; files?: { [fieldname: string]: UploadedFile | UploadedFile[] } },
+    res: Response,
+    next: NextFunction
+) => {
     const POST_IMAGE_STORAGE = process.env.POST_IMAGE_STORAGE;
     const file = req?.files?.image;
 
-    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    if (!req.user.isAdmin || req.user.id.toString() !== req.params.userId) {
         return next(createError(403, 'You are not allowed to update this post'));
     }
 
     try {
-        const updatedFields = {
+        const updatedFields: IUpdatePostBody = {
             title: req.body.title,
             content: req.body.content,
             category: req.body.category,
         };
 
-        if (file) {
+        let imageFile: UploadedFile | undefined;
+
+        if (Array.isArray(file)) {
+            imageFile = file[0];
+        } else {
+            imageFile = file;
+        }
+
+        if (imageFile) {
             const imageName = uuidv4() + '.jpg';
-            file.mv(`${POST_IMAGE_STORAGE}` + imageName);
+            await imageFile.mv(`${POST_IMAGE_STORAGE}` + imageName);
             updatedFields.image = imageName;
         }
 

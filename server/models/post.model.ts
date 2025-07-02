@@ -1,9 +1,11 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
+import { IPost } from "../types.js";
 
-const postSchema = new mongoose.Schema(
+const postSchema = new Schema<IPost>(
     {
         userId: {
-            type: String,
+            type: Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
         },
         content: {
@@ -31,6 +33,6 @@ const postSchema = new mongoose.Schema(
     }, { timestamps: true }
 );
 
-const Post = mongoose.model("Post", postSchema);
+const Post = model<IPost>("Post", postSchema);
 
 export default Post;

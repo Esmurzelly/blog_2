@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
+import { IComment } from "../types.js";
 
-const commentSchema = new mongoose.Schema({
+const commentSchema = new Schema<IComment>({
     content: {
         type: String,
         required: true,
@@ -14,7 +15,7 @@ const commentSchema = new mongoose.Schema({
         required: true,
     },
     likes: { // which user likes the current comment
-        type: Array,
+        type: [String],
         default: [],
     },
     numberOfLikes: {
@@ -23,6 +24,6 @@ const commentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-const Comment = mongoose.model('Comment', commentSchema);
+const Comment = model<IComment>('Comment', commentSchema);
 
 export default Comment;

@@ -2,8 +2,11 @@ import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { createError } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from 'express';
+import { IUser, IUserLoginRequest, IUserRegisterRequest } from '../types.js';
 
-export const signup = async (req, res, next) => {
+
+export const signup = async (req: Request<IUserRegisterRequest>, res: Response, next: NextFunction) => {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password || username === '' || email === '' || password === '') {
@@ -12,11 +15,11 @@ export const signup = async (req, res, next) => {
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User<Partial<IUser>>({ username, email, password: hashedPassword });
 
     const token = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET as string,
         { expiresIn: "1d" }
     );
 
@@ -36,7 +39,7 @@ export const signup = async (req, res, next) => {
     }
 }
 
-export const signin = async (req, res, next) => {
+export const signin = async (req: Request<IUserLoginRequest>, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     if (!email || !password || email === '' || password === '') {
@@ -52,10 +55,11 @@ export const signin = async (req, res, next) => {
 
         const token = jwt.sign(
             { id: validUser._id, isAdmin: validUser.isAdmin },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET as string,
             { expiresIn: "1d" }
         );
-
+        
+        // @ts-ignore
         const { password: pass, ...rest } = validUser._doc;
 
         res.status(200).cookie('access_token', token, {
@@ -77,9 +81,10 @@ export const google = async (req, res, next) => {
         if (user) {
             const token = jwt.sign(
                 { id: user._id, isAdmin: user.isAdmin },
-                process.env.JWT_SECRET
+                process.env.JWT_SECRET as string
             );
-
+            
+            // @ts-ignore
             const { password, ...rest } = user._doc;
 
             res.status(200).cookie('access_token', token, {
@@ -102,9 +107,10 @@ export const google = async (req, res, next) => {
 
             const token = jwt.sign(
                 { id: newUser._id, isAdmin: newUser.isAdmin },
-                process.env.JWT_SECRET
+                process.env.JWT_SECRET as string
             );
 
+            // @ts-ignore
             const { password, ...rest } = newUser._doc;
 
             res.status(200).cookie('access_token', token, {
