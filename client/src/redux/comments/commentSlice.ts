@@ -1,15 +1,67 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+interface IComment {
+    _id?: string;
+    content: string;
+    postId: string | number;
+    userId: string | number;
+    likes: Array<string>;
+    numberOfLikes: number;
+}
+
+interface CommentState {
+    comments: IComment[];
+    totalComments: number;
+    lastMonthComments: number;
+    status: string | null;
+    loading: boolean;
+}
+
+
+interface CreateCommentArgs {
+    contentComment: string;
+    postId: string | number;
+    currentUserId: string | number;
+}
+interface CreateCommentResponse {
+    newComment: IComment;
+    message: string;
+}
+
+interface GetCommentsResponse {
+    comments: IComment[],
+    totalComments: number,
+    lastMonthComments: number,
+}
+
+interface GetCommentsArgs {
+    startIndex: string | number;
+    limit: string | number;
+}
+
+interface GetPostCommentsResponse {
+    comments: IComment[]
+}
+
+interface EditCommentArgs {
+    commentId: string | number;
+    editedContent: string
+}
+
+interface RejectError {
+  message: string;
+}
+
+const initialState: CommentState = {
     comments: [],
-    // currentComment: null,
     totalComments: 0,
     lastMonthComments: 0,
     status: null,
     loading: false,
 }
 
-export const createComment = createAsyncThunk(
+export const createComment = createAsyncThunk<CreateCommentResponse, CreateCommentArgs>(
     'comment/createComment',
     async ({ contentComment, postId, currentUserId }, { rejectWithValue }) => {
         try {
@@ -26,56 +78,56 @@ export const createComment = createAsyncThunk(
             })
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const getComments = createAsyncThunk(
+export const getComments = createAsyncThunk<GetCommentsResponse, GetCommentsArgs>(
     'comment/getComments',
     async ({ startIndex = 0, limit = 9 }, { rejectWithValue }) => {
         try {
             const res = await fetch(`/api/comment/getcomments?startIndex=${startIndex}&limit=${limit}`);
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 )
 
-export const getPostComments = createAsyncThunk(
+export const getPostComments = createAsyncThunk<IComment, { postId: string | number }>(
     'comment/getPostComments',
     async ({ postId }, { rejectWithValue }) => {
         try {
             const res = await fetch(`/api/comment/getPostComments/${postId}`);
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const addLikeComment = createAsyncThunk(
+export const addLikeComment = createAsyncThunk<IComment, { commentId: string | number }>(
     'comment/addLikeComment',
     async ({ commentId }, { rejectWithValue }) => {
         try {
@@ -84,18 +136,18 @@ export const addLikeComment = createAsyncThunk(
             });
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
             return data; // comment / numberOfLikes
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const editComment = createAsyncThunk(
+export const editComment = createAsyncThunk<IComment, EditCommentArgs>(
     'comment/editComment',
     async ({ commentId, editedContent }, { rejectWithValue }) => {
         try {
@@ -110,19 +162,19 @@ export const editComment = createAsyncThunk(
             });
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const deleteComments = createAsyncThunk(
+export const deleteComments = createAsyncThunk<{ commentId: number | string }, { commentIdDelete: string | number }>(
     'comment/deleteComments',
     async ({ commentIdDelete }, { rejectWithValue }) => {
         try {
@@ -131,13 +183,13 @@ export const deleteComments = createAsyncThunk(
             });
 
             if (!res.ok) {
-                return rejectWithValue(response.status);
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
@@ -154,7 +206,7 @@ const commentSlice = createSlice({
             .addCase(getComments.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getComments.fulfilled, (state, action) => {
+            .addCase(getComments.fulfilled, (state, action: PayloadAction<GetCommentsResponse>) => {
                 state.loading = false;
 
                 state.comments = action.payload.comments;
@@ -163,69 +215,71 @@ const commentSlice = createSlice({
             })
             .addCase(getComments.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(getPostComments.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getPostComments.fulfilled, (state, action) => {
+            .addCase(getPostComments.fulfilled, (state, action: PayloadAction<any>) => { // ?
                 state.loading = false;
                 state.comments = action.payload.comments;
             })
             .addCase(getPostComments.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(createComment.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(createComment.fulfilled, (state, action) => {
+            .addCase(createComment.fulfilled, (state, action: PayloadAction<CreateCommentResponse>) => { // ?
                 state.loading = false;
                 state.comments = [action.payload.newComment, ...state.comments];
                 state.status = action.payload.message;
             })
             .addCase(createComment.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(editComment.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(editComment.fulfilled, (state, action) => {
+            .addCase(editComment.fulfilled, (state, action: PayloadAction<IComment>) => {
                 state.loading = false;
-                
-                state.comments.filter(commentItem => commentItem._id === action.payload._id ? commentItem.content = action.payload.content : commentItem) // ?
+
+                state.comments.filter(commentItem => commentItem._id === action.payload._id ? commentItem.content = action.payload.content : commentItem)
             })
             .addCase(editComment.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(addLikeComment.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(addLikeComment.fulfilled, (state, action) => {
+            .addCase(addLikeComment.fulfilled, (state, action: PayloadAction<IComment>) => { // ?
                 state.loading = false;
 
-                const updatedComment = action.payload.comment;
+                // const updatedComment = action.payload.comment;
+                const updatedComment = action.payload;
+                
                 state.comments = state.comments.map(commentItem =>
                     commentItem._id === updatedComment._id
-                        ? { ...commentItem, numberOfLikes: action.payload.numberOfLikes, likes: updatedComment.likes }
+                        ? { ...commentItem, numberOfLikes: action.payload?.numberOfLikes, likes: updatedComment.likes }
                         : commentItem
                 );
             })
             .addCase(addLikeComment.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(deleteComments.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deleteComments.fulfilled, (state, action) => {
+            .addCase(deleteComments.fulfilled, (state, action: PayloadAction<{ commentId: string | number }>) => {
                 state.loading = false;
                 const deletedCommentId = action.payload.commentId;
 
@@ -237,7 +291,7 @@ const commentSlice = createSlice({
             })
             .addCase(deleteComments.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
     }
 });

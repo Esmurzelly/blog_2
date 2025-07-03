@@ -1,6 +1,55 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+interface IPost {
+    _id?: string;
+    userId: string;
+    content: string;
+    title: string;
+    image?: string;
+    category?: string;
+    slug: string;
+}
+
+interface PostState {
+    posts: IPost[],
+    currentPost: IPost | null,
+    totalPosts: number,
+    lastMonthPosts: number,
+    status: string | null,
+    loading: boolean,
+}
+
+interface GetPostsResponse {
+    posts: IPost[];
+    totalPost: number;
+    lastMonthPosts: number;
+}
+
+interface GetCurrentPostResponse {
+    posts: IPost[];
+}
+
+interface GetCurrentPostArgs {
+    postId: string;
+}
+
+interface UpdatePostArgs {
+    form: FormData;
+    formDataId: string | number;
+    currentUserId: string | number;
+}
+
+interface DeletePostArgs {
+    postId: string | number;
+    currentUserId: string | number;
+}
+
+interface RejectError {
+  message: string;
+}
+
+const initialState: PostState = {
     posts: [],
     currentPost: null,
     totalPosts: 0,
@@ -9,7 +58,7 @@ const initialState = {
     loading: false,
 };
 
-export const getPosts = createAsyncThunk(
+export const getPosts = createAsyncThunk<GetPostsResponse, { searchQuery: string }>(
     'posts/getPosts',
     async ({ searchQuery }, { rejectWithValue }) => {
         try {
@@ -17,19 +66,19 @@ export const getPosts = createAsyncThunk(
             const res = await fetch(`/api/post/getposts?${searchQuery}`);
 
             if (!res.ok) {
-                return;
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const getCurrentPost = createAsyncThunk(
+export const getCurrentPost = createAsyncThunk<GetCurrentPostResponse, GetCurrentPostArgs>(
     'posts/getCurrentPost',
     async ({ postId }, { rejectWithValue }) => {
         try {
@@ -38,17 +87,17 @@ export const getCurrentPost = createAsyncThunk(
             const data = await res.json();
 
             if (!res.ok) {
-                return;
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const createPost = createAsyncThunk(
+export const createPost = createAsyncThunk<IPost, { form: FormData }>(
     'posts/createPost',
     async ({ form }, { rejectWithValue }) => {
         try {
@@ -61,17 +110,17 @@ export const createPost = createAsyncThunk(
             const data = await res.json();
 
             if (!res.ok) {
-                return;
+                return rejectWithValue({ message: 'Something went wrong' });
             };
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const updatePost = createAsyncThunk(
+export const updatePost = createAsyncThunk<IPost, UpdatePostArgs>(
     'posts/updatePost',
     async ({ form, formDataId, currentUserId }, { rejectWithValue }) => {
         try {
@@ -83,17 +132,17 @@ export const updatePost = createAsyncThunk(
             const data = await res.json();
 
             if (!res.ok) {
-                return;
+                return rejectWithValue({ message: 'Something went wrong' });
             };
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const deletePost = createAsyncThunk(
+export const deletePost = createAsyncThunk<{ postId: string }, DeletePostArgs>(
     'posts/deletePost',
     async ({ postId, currentUserId }, { rejectWithValue }) => {
         try {
@@ -104,11 +153,11 @@ export const deletePost = createAsyncThunk(
             const data = await res.json();
 
             if (!res.ok) {
-                return;
+                return rejectWithValue({ message: 'Something went wrong' });
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
@@ -123,7 +172,7 @@ const postSlice = createSlice({
             .addCase(getPosts.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getPosts.fulfilled, (state, action) => {
+            .addCase(getPosts.fulfilled, (state, action: PayloadAction<GetPostsResponse>) => {
                 state.loading = false;
 
                 state.posts = action.payload.posts;
@@ -132,49 +181,49 @@ const postSlice = createSlice({
             })
             .addCase(getPosts.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(getCurrentPost.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getCurrentPost.fulfilled, (state, action) => {
+            .addCase(getCurrentPost.fulfilled, (state, action: PayloadAction<GetCurrentPostResponse>) => {
                 state.loading = false;
                 state.currentPost = action.payload.posts[0];
             })
             .addCase(getCurrentPost.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(createPost.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(createPost.fulfilled, (state, action) => {
+            .addCase(createPost.fulfilled, (state, action: PayloadAction<IPost>) => {
                 state.loading = false;
                 state.posts = [...state.posts, action.payload];
             })
             .addCase(createPost.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(updatePost.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(updatePost.fulfilled, (state, action) => {
+            .addCase(updatePost.fulfilled, (state, action: PayloadAction<IPost>) => {
                 state.loading = false;
                 state.currentPost = action.payload;
             })
             .addCase(updatePost.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(deletePost.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deletePost.fulfilled, (state, action) => {
+            .addCase(deletePost.fulfilled, (state, action: PayloadAction<{ postId: string }>) => {
                 state.loading = false;
 
                 const deletedPostId = action.payload.postId;
@@ -187,11 +236,11 @@ const postSlice = createSlice({
             })
             .addCase(deletePost.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong..."
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
     }
 })
 
-export const { } = postSlice.actions;
+// export const { } = postSlice.actions;
 
 export default postSlice.reducer;
