@@ -1,7 +1,12 @@
 import React from 'react'
 import { FaMoon, FaSun } from 'react-icons/fa'
 
-const ChangeThemeButton = ({ onHandleSwitchTheme, theme }) => {
+type Props = {
+    theme: string;
+    onHandleSwitchTheme: () => void
+}
+
+const ChangeThemeButton = ({ onHandleSwitchTheme, theme }: Props) => {
     return (
         <button
             onClick={onHandleSwitchTheme}

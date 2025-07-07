@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux'
@@ -7,21 +7,20 @@ import Loader from './Loader';
 import { getComments, deleteComments } from '../redux/comments/commentSlice';
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import Pagination from './Pagination';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashCommets = () => {
-    const { currentUser } = useSelector(state => state.user);
-    const { comments, totalComments } = useSelector(state => state.comment)
-    const dispatch = useDispatch();
-    const [showMore, setShowMore] = useState(true);
-    const [showLess, setShowLess] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [commentIdDelete, setCommentIdDelete] = useState('');
-    const [startIndex, setStartIndex] = useState(9);
+    const { currentUser } = useSelector((state: RootState) => state.user);
+    const { comments, totalComments } = useSelector((state: RootState) => state.comment)
+    const dispatch = useAppDispatch();
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [commentIdDelete, setCommentIdDelete] = useState<string>('');
+    const [startIndex, setStartIndex] = useState<number>(9);
 
-    const [pageNumber, setPageNumber] = useState(1);
-    const COMMENTS_PER_PAGE = 9;
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const COMMENTS_PER_PAGE: number = 9;
 
-    const fetchCommentsByPage = async (page) => {
+    const fetchCommentsByPage = async (page: number) => {
         const newStartIndex = (page - 1) * COMMENTS_PER_PAGE;
 
         try {
@@ -30,9 +29,7 @@ const DashCommets = () => {
 
             setStartIndex(newStartIndex);
             setPageNumber(page);
-            setShowMore(page < Math.ceil(totalComments / COMMENTS_PER_PAGE));
-            setShowLess(page > 1);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error("Unable to load users");
         }
@@ -55,7 +52,7 @@ const DashCommets = () => {
     };
 
     useEffect(() => {
-        if (currentUser.isAdmin) fetchCommentsByPage(1);
+        if (currentUser && currentUser.isAdmin) fetchCommentsByPage(1);
     }, [currentUser]);
 
     const handleDeleteComments = async () => {
@@ -85,7 +82,7 @@ const DashCommets = () => {
 
     return (
         <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
-            {currentUser.isAdmin && comments.length > 0 ? (
+            {currentUser && currentUser.isAdmin && comments.length > 0 ? (
                 <>
                     <Table hoverable className='shadow-md'>
                         <TableHead>
@@ -100,7 +97,9 @@ const DashCommets = () => {
                         {comments.map((commentItem) => (
                             <TableBody className='divide-y' key={commentItem._id}>
                                 <TableRow className='bg-white dark:bg-gray-700'>
-                                    <TableCell>{new Date(commentItem.updatedAt).toLocaleDateString()}</TableCell>
+                                    <TableCell>{commentItem.updatedAt
+                                        ? new Date(commentItem.updatedAt).toLocaleDateString()
+                                        : 'N/A'}</TableCell>
 
                                     <TableCell>
                                         <p className='font-medium text-gray-900 dark:text-gray-300'>{commentItem.content}</p>

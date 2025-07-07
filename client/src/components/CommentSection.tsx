@@ -1,38 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import defaultAvatar from '../assets/user.png'
+import defaultAvatar from '../assets/defaultAvatar.jpg'
 import { Button, Modal, ModalBody, ModalHeader, Textarea } from 'flowbite-react';
 import { toast } from 'react-toastify';
 import Comment from './Comment';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
+import { RootState, useAppDispatch } from '../redux/store';
 
-const CommentSection = ({ postId }) => {
-    const { currentUser } = useSelector(state => state.user);
-    const { comments, status } = useSelector(state => state.comment);
-    const [comment, setComment] = useState('')
-    const [showModal, setShowModal] = useState(false);
-    const [commentIdDelete, setCommentIdDelete] = useState(null);
+type Props = {
+    postId: string | number
+}
+
+const CommentSection = ({ postId }: Props) => {
+    const { currentUser } = useSelector((state: RootState) => state.user);
+    const { comments, status } = useSelector((state: RootState) => state.comment);
+    const [comment, setComment] = useState<string>('')
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [commentIdDelete, setCommentIdDelete] = useState<string | number | null>(null);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const profilePicture = currentUser?.profilePicture
+        // @ts-ignore
         ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
         : currentUser?.profilePicture.startsWith('https')
             ? currentUser?.profilePicture
             : defaultAvatar;
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: any) => { // ?
         e.preventDefault();
 
         if (comment.length > 200) return;
 
         try {
-            const response = await dispatch(createComment({ contentComment: comment, postId, currentUserId: currentUser._id })).unwrap();
+            if (currentUser) {
+                dispatch(createComment({ contentComment: comment, postId, currentUserId: currentUser._id })).unwrap();
+            }
             toast.success("You created the comment successfuly");
             setComment('')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error(status);
         }
@@ -44,7 +52,7 @@ const CommentSection = ({ postId }) => {
                 const response = await dispatch(getPostComments({ postId })).unwrap();
                 if (response.comments.length === 0) return;
                 toast.success("You got the comments successfuly");
-            } catch (error) {
+            } catch (error: any) {
                 toast.error(error.message);
                 console.log(error.message);
             }
@@ -53,21 +61,21 @@ const CommentSection = ({ postId }) => {
         fetchComments();
     }, [postId]);
 
-    const handleLike = async (commentId) => {
+    const handleLike = async (commentId: string | number) => {
         try {
             if (!currentUser) {
                 navigate('/sign-in');
                 return;
             }
 
-            const response = await dispatch(addLikeComment({ commentId })).unwrap();
-        } catch (error) {
+            dispatch(addLikeComment({ commentId })).unwrap();
+        } catch (error: any) {
             toast.error(error.message);
             console.log(error.message);
         }
     }
 
-    const handleDelete = async (commentId) => {
+    const handleDelete = async (commentId: string | number | null) => {
         setShowModal(false)
 
         try {
@@ -78,15 +86,14 @@ const CommentSection = ({ postId }) => {
 
             const response = await dispatch(deleteComments({ commentIdDelete: commentId })).unwrap();
             toast.success(response.message);
-            setShowModal()
-        } catch (error) {
+            setShowModal(false);
+        } catch (error: any) {
             toast.error(error.message);
             console.log(error.message);
         }
     }
 
     if (!comments || !currentUser) return <div>Loading...</div>
-
 
     return (
         <div className='max-w-2xl mx-auto w-full p-3'>
@@ -109,10 +116,11 @@ const CommentSection = ({ postId }) => {
                 <form onSubmit={handleSubmit} className='border border-teal-500 rounded-md p-3'>
                     <Textarea
                         placeholder='Add a comment...'
+                        // @ts-ignore
                         type='text'
-                        rows={'3'}
-                        maxLength={'200'}
-                        onChange={e => setComment(e.target.value)}
+                        rows={3}
+                        maxLength={200}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
                         value={comment}
                     />
 
@@ -137,6 +145,7 @@ const CommentSection = ({ postId }) => {
                     {comments && comments.map((commentItem) => (
                         <Comment
                             key={commentItem._id}
+                            // @ts-ignore
                             comment={commentItem}
                             onLike={handleLike}
                             onDelete={(commentId) => {

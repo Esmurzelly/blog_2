@@ -1,5 +1,5 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
-import React, {  useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
@@ -7,38 +7,45 @@ import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';
 import Loader from './Loader';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashProfile = () => {
-    const { currentUser, loading } = useSelector(state => state.user);
-    const [imageFile, setImageFile] = useState(null);
+    const { currentUser, loading } = useSelector((state: RootState) => state.user);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({});
-    const [showModal, setShowModal] = useState(false);
-    const filePickerRef = useRef();
-    const dispatch = useDispatch();
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const filePickerRef = useRef(null);
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     const profilePicture = imageFile
         ? URL.createObjectURL(imageFile)
-        : currentUser.profilePicture
+        : currentUser && currentUser.profilePicture
             ? currentUser?.profilePicture.startsWith('https') ? currentUser?.profilePicture
+                //@ts-ignore
                 : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
             : defaultAvatar;
 
 
-    const handleChangeImage = e => {
-        const file = e.target.files[0];
+    const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files && e.target.files[0];
         if (file && file.type.includes('image')) {
             setImageFile(file);
         }
     };
 
-    const handleChange = e => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.id]: e.target.value })
     }
 
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!currentUser) {
+            toast.error("No user found");
+            return;
+        }
 
         try {
             const response = await dispatch(updateUser({ formData, currentUserId: currentUser._id }));
@@ -63,7 +70,7 @@ const DashProfile = () => {
             }
 
             toast.success('You have updated your data successfuly')
-        } catch (error) {
+        } catch (error: any) {
             toast.error(error.message);
         }
     };
@@ -72,6 +79,11 @@ const DashProfile = () => {
         setShowModal(false);
 
         try {
+            if (!currentUser) {
+                toast.error("No user found");
+                return;
+            }
+
             const response = await dispatch(deleteUser({ currentUserId: currentUser._id }));
 
             console.log('response from deleteUser', response)
@@ -82,7 +94,7 @@ const DashProfile = () => {
             }
 
             toast.success("You have deleted your account successfuly");
-        } catch (error) {
+        } catch (error: any) {
             toast.error(error.message);
         }
     };
@@ -99,7 +111,7 @@ const DashProfile = () => {
 
             toast.success("You have signed out successfuly");
             navigate('/sign-in')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message)
             toast.error(error.message)
         }
@@ -131,7 +143,7 @@ const DashProfile = () => {
                     {loading ? "Loading..." : "Update"}
                 </Button>
 
-                {currentUser.isAdmin && <Link to={'/create-post'}>
+                {currentUser && currentUser.isAdmin && <Link to={'/create-post'}>
                     <Button
                         type='button'
                         className='w-full bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'

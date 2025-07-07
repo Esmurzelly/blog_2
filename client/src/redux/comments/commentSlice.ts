@@ -1,14 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
-
-interface IComment {
-    _id?: string;
-    content: string;
-    postId: string | number;
-    userId: string | number;
-    likes: Array<string>;
-    numberOfLikes: number;
-}
+import { IComment } from "../../types/types";
 
 interface CommentState {
     comments: IComment[];
@@ -37,11 +29,12 @@ interface GetCommentsResponse {
 
 interface GetCommentsArgs {
     startIndex: string | number;
-    limit: string | number;
+    limit?: string | number;
 }
 
 interface GetPostCommentsResponse {
-    comments: IComment[]
+    comment: IComment;
+    comments: IComment[];
 }
 
 interface EditCommentArgs {
@@ -52,6 +45,7 @@ interface EditCommentArgs {
 interface RejectError {
   message: string;
 }
+
 
 const initialState: CommentState = {
     comments: [],
@@ -109,7 +103,7 @@ export const getComments = createAsyncThunk<GetCommentsResponse, GetCommentsArgs
     }
 )
 
-export const getPostComments = createAsyncThunk<IComment, { postId: string | number }>(
+export const getPostComments = createAsyncThunk<GetPostCommentsResponse, { postId: string | number }>(
     'comment/getPostComments',
     async ({ postId }, { rejectWithValue }) => {
         try {
@@ -174,7 +168,7 @@ export const editComment = createAsyncThunk<IComment, EditCommentArgs>(
     }
 );
 
-export const deleteComments = createAsyncThunk<{ commentId: number | string }, { commentIdDelete: string | number }>(
+export const deleteComments = createAsyncThunk<{ commentId: number | string, message: string }, { commentIdDelete: string | number | null }>(
     'comment/deleteComments',
     async ({ commentIdDelete }, { rejectWithValue }) => {
         try {
@@ -264,7 +258,7 @@ const commentSlice = createSlice({
 
                 // const updatedComment = action.payload.comment;
                 const updatedComment = action.payload;
-                
+
                 state.comments = state.comments.map(commentItem =>
                     commentItem._id === updatedComment._id
                         ? { ...commentItem, numberOfLikes: action.payload?.numberOfLikes, likes: updatedComment.likes }
@@ -279,7 +273,7 @@ const commentSlice = createSlice({
             .addCase(deleteComments.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deleteComments.fulfilled, (state, action: PayloadAction<{ commentId: string | number }>) => {
+            .addCase(deleteComments.fulfilled, (state, action: PayloadAction<{ commentId: string | number | null }>) => {
                 state.loading = false;
                 const deletedCommentId = action.payload.commentId;
 

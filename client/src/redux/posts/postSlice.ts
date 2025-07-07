@@ -1,15 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
+import { IPost, RejectError } from "../../types/types";
 
-interface IPost {
-    _id?: string;
-    userId: string;
-    content: string;
-    title: string;
-    image?: string;
-    category?: string;
-    slug: string;
-}
+
 
 interface PostState {
     posts: IPost[],
@@ -42,11 +35,7 @@ interface UpdatePostArgs {
 
 interface DeletePostArgs {
     postId: string | number;
-    currentUserId: string | number;
-}
-
-interface RejectError {
-  message: string;
+    currentUserId: string | number | null;
 }
 
 const initialState: PostState = {

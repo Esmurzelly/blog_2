@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
@@ -9,35 +9,32 @@ import Loader from './Loader';
 import { useDispatch } from 'react-redux';
 import { deletePost, getPosts } from '../redux/posts/postSlice';
 import Pagination from './Pagination';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashPosts = () => {
-  const { currentUser } = useSelector(state => state.user);
-  const { posts, totalPosts } = useSelector(state => state.posts);
-  const [showMore, setShowMore] = useState(true);
-  const [showLess, setShowLess] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [postIdDelete, setPostIdDelete] = useState('');
-  const [startIndex, setStartIndex] = useState(0);
-  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: RootState) => state.user);
+  const { posts, totalPosts } = useSelector((state: RootState) => state.posts);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [postIdDelete, setPostIdDelete] = useState<string>('');
+  const [startIndex, setStartIndex] = useState<number>(0);
+  const dispatch = useAppDispatch();
 
-  const [pageNumber, setPageNumber] = useState(1);
-  const POSTS_PER_PAGE = 9;
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const POSTS_PER_PAGE: number = 9;
 
-  const fetchPostsByPage = async (page) => {
+  const fetchPostsByPage = async (page: number) => {
     const newStartIndex = (page - 1) * POSTS_PER_PAGE;
 
     try {
       const urlParams = new URLSearchParams(location.search);
-      urlParams.set('startIndex', newStartIndex);
+      urlParams.set('startIndex', String(newStartIndex));
       const searchQuery = urlParams.toString();
 
-      const response = await dispatch(getPosts({ searchQuery }));
+      dispatch(getPosts({ searchQuery }));
 
       setStartIndex(newStartIndex);
       setPageNumber(page);
-      setShowMore(page < Math.ceil(totalPosts / POSTS_PER_PAGE));
-      setShowLess(page > 1);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
       toast.error("Unable to load users");
     }
@@ -60,17 +57,22 @@ const DashPosts = () => {
   };
 
   useEffect(() => {
-    if (currentUser.isAdmin) fetchPostsByPage(1);
+    if (currentUser && currentUser.isAdmin) fetchPostsByPage(1);
   }, [currentUser]);
 
   const handleDeletePost = async () => {
     setShowModal(false);
 
+    if (!currentUser) {
+      toast.error("No user found");
+      return;
+    }
+
     try {
-      dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }))
+      dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }));
 
       toast.success("You deleted the posts successfuly");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message);
       toast.error("You can't delete the posts");
     }
@@ -78,7 +80,7 @@ const DashPosts = () => {
 
   return (
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
-      {currentUser.isAdmin && posts.length > 0 ? (
+      {currentUser && currentUser.isAdmin && posts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md'>
             <TableHead>
@@ -95,12 +97,15 @@ const DashPosts = () => {
             {posts.map((post) => (
               <TableBody className='divide-y'>
                 <TableRow className='bg-white dark:bg-gray-700'>
-                  <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {post.updatedAt ? new Date(post.updatedAt).toLocaleDateString() : 'N/A'}
+                  </TableCell>
 
                   <TableCell>
                     <Link to={`/post/${post._id}`}>
-                      <img className='w-20 h-10 object-cover bg-gray-500' src={post.image.startsWith('http')
+                      <img className='w-20 h-10 object-cover bg-gray-500' src={post.image && post.image.startsWith('http')
                         ? post.image
+                        // @ts-ignore
                         : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post.image}`} alt={post.title} />
                     </Link>
                   </TableCell>
@@ -114,7 +119,7 @@ const DashPosts = () => {
                   <TableCell>
                     <span onClick={() => {
                       setShowModal(true);
-                      setPostIdDelete(post._id)
+                      setPostIdDelete(post._id ?? '')
                     }} className='font-medium text-red-500 cursor-pointer'>
                       Delete
                     </span>

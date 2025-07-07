@@ -1,7 +1,9 @@
+import React from 'react';
+
 import { lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Layout from './components/Layout'
+import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const Home = lazy(() => import(/* webpackChunkName: "Home" */ './pages/Home'));

@@ -3,19 +3,28 @@ import { useSelector, useDispatch } from 'react-redux';
 import { editComment } from '../redux/comments/commentSlice';
 import { getUser } from '../redux/user/userSlice';
 import { toast } from 'react-toastify';
-import defaultAvatar from '../assets/user.png'
+import defaultAvatar from '../assets/defaultAvatar.jpg';
 import moment from 'moment';
 import { RiThumbUpLine } from "react-icons/ri";
 import { Button, Textarea } from 'flowbite-react';
+import { IComment, IUser } from '../types/types';
+import { RootState, useAppDispatch } from '../redux/store';
 
-const Comment = ({ comment, onLike, onDelete }) => {
-    const [user, setUser] = useState({});
-    const { currentUser } = useSelector(state => state.user);
-    const dispatch = useDispatch();
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedContent, setEditedContent] = useState(comment.content);
+type Props = {
+    comment: IComment
+    onLike: (commentId: string | number) => void;
+    onDelete: (commentId: string | number) => void;
+}
+
+const Comment = ({ comment, onLike, onDelete }: Props) => {
+    const [user, setUser] = useState<IUser>();
+    const { currentUser } = useSelector((state: RootState) => state.user);
+    const dispatch = useAppDispatch();
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [editedContent, setEditedContent] = useState<string>(comment.content);
 
     const profilePicture = user?.profilePicture
+        // @ts-ignore
         ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${user.profilePicture}`
         : user?.profilePicture?.startsWith('https')
             ? user?.profilePicture
@@ -26,9 +35,7 @@ const Comment = ({ comment, onLike, onDelete }) => {
             try {
                 const response = await dispatch(getUser({ commentUserId: comment.userId })).unwrap();
                 setUser(response.user)
-
-                console.log('response from getCurUs client', response);
-            } catch (error) {
+            } catch (error: any) {
                 console.log(error.message);
                 toast.error(error.message);
             }
@@ -46,7 +53,7 @@ const Comment = ({ comment, onLike, onDelete }) => {
         try {
             const response = await dispatch(editComment({ commentId: comment._id, editedContent }));
             setIsEditing(false);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error(error.message);
         }
@@ -69,10 +76,11 @@ const Comment = ({ comment, onLike, onDelete }) => {
                     <>
                         <Textarea
                             className='mb-2'
+                            // @ts-ignore
                             type='text'
-                            rows={'3'}
+                            rows={3}
                             value={editedContent}
-                            onChange={e => setEditedContent(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditedContent(e.target.value)}
                         />
 
                         <div className="flex justify-end gap-2 text-xs">

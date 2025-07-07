@@ -1,6 +1,61 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { IUser, RejectError } from "../../types/types";
+import { RootState } from "../store";
 
-const initialState = {
+interface UserState {
+    currentUser: IUser | null,
+    users: IUser[] | null,
+    totalUsers: number,
+    lastMonthUsers: number,
+    status: string | null | undefined,
+    loading: boolean,
+}
+
+interface CreateUserArgs {
+    username: string;
+    email: string;
+    password: string;
+}
+
+interface SignInUserArgs {
+    email: string;
+    password: string;
+}
+
+interface SignInGoogleArgs {
+    name: string;
+    email: string;
+    googlePhotoUrl: string;
+}
+
+interface GetUsersArgs {
+    startIndex: number | undefined;
+    limit?: number | undefined;
+}
+
+interface UpdateUserArgs {
+    formData: FormData,
+    currentUserId: string | number;
+}
+
+interface RegisterUserResponse {
+    newUser: IUser;
+    message: string | null
+}
+
+interface GetUserResponse {
+    user: IUser
+}
+
+interface GetUsersResponse {
+    users: IUser[] | null,
+    totalUsers: number,
+    lastMonthUsers: number,
+}
+
+
+
+const initialState: UserState = {
     currentUser: null,
     users: [],
     totalUsers: 0,
@@ -9,7 +64,7 @@ const initialState = {
     loading: false,
 };
 
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<RegisterUserResponse, CreateUserArgs>(
     'user/registerUser',
     async ({ username, email, password }, { rejectWithValue }) => {
         try {
@@ -27,13 +82,13 @@ export const registerUser = createAsyncThunk(
             }
 
             return data
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const signInUser = createAsyncThunk(
+export const signInUser = createAsyncThunk<IUser, SignInUserArgs>(
     'user/signInUser',
     async ({ email, password }, { rejectWithValue }) => {
         try {
@@ -53,13 +108,13 @@ export const signInUser = createAsyncThunk(
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 )
 
-export const signInGoogle = createAsyncThunk(
+export const signInGoogle = createAsyncThunk<IUser, SignInGoogleArgs>(
     'user/signInGoogle',
     async ({ name, email, googlePhotoUrl }, { rejectWithValue }) => {
         try {
@@ -77,13 +132,13 @@ export const signInGoogle = createAsyncThunk(
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const getUser = createAsyncThunk(
+export const getUser = createAsyncThunk<GetUserResponse, { commentUserId: string | number }>(
     'user/getUser',
     async ({ commentUserId }, { rejectWithValue }) => {
         try {
@@ -96,14 +151,14 @@ export const getUser = createAsyncThunk(
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
 
         }
     }
 );
 
-export const getUsers = createAsyncThunk(
+export const getUsers = createAsyncThunk<GetUsersResponse, GetUsersArgs>(
     'user/getUsers',
     async ({ startIndex = 0, limit = 9 }, { rejectWithValue }) => {
         try {
@@ -116,13 +171,13 @@ export const getUsers = createAsyncThunk(
             const data = await res.json();
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 )
 
-export const updateUser = createAsyncThunk(
+export const updateUser = createAsyncThunk<IUser, UpdateUserArgs>(
     'user/updateUser',
     async ({ formData, currentUserId }, { rejectWithValue }) => {
         try {
@@ -138,13 +193,13 @@ export const updateUser = createAsyncThunk(
                 return rejectWithValue(data);
             }
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const updateUserPhoto = createAsyncThunk(
+export const updateUserPhoto = createAsyncThunk<IUser, { imageFormData: FormData }>(
     'user/updateUserPhoto',
     async ({ imageFormData }, { rejectWithValue }) => {
         try {
@@ -160,13 +215,13 @@ export const updateUserPhoto = createAsyncThunk(
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
 );
 
-export const deleteUser = createAsyncThunk(
+export const deleteUser = createAsyncThunk<{ deletedUserId: string | number, message: string }, { currentUserId: string | number }>(
     'user/deleteUser',
     async ({ currentUserId }, { rejectWithValue }) => {
         try {
@@ -181,8 +236,8 @@ export const deleteUser = createAsyncThunk(
                 return rejectWithValue(data);
             }
 
-            return data; // ?
-        } catch (error) {
+            return data;
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
@@ -200,11 +255,11 @@ export const signOutUser = createAsyncThunk(
             const data = res.json();
 
             if (!res.ok) {
-                console.log(data.message);
+                return rejectWithValue(data);
             }
 
             return data;
-        } catch (error) {
+        } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
     }
@@ -225,7 +280,7 @@ const userSlice = createSlice({
             .addCase(registerUser.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(registerUser.fulfilled, (state, action) => {
+            .addCase(registerUser.fulfilled, (state, action: PayloadAction<RegisterUserResponse>) => {
                 state.loading = false;
 
                 state.currentUser = action.payload.newUser;
@@ -233,13 +288,13 @@ const userSlice = createSlice({
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(signInUser.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(signInUser.fulfilled, (state, action) => {
+            .addCase(signInUser.fulfilled, (state, action: PayloadAction<IUser>) => {
                 state.loading = false;
 
                 state.currentUser = action.payload;
@@ -247,48 +302,48 @@ const userSlice = createSlice({
             })
             .addCase(signInUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Sign in failed";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(signInGoogle.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(signInGoogle.fulfilled, (state, action) => {
+            .addCase(signInGoogle.fulfilled, (state, action: PayloadAction<IUser>) => {
                 state.loading = false;
                 state.currentUser = action.payload;
                 state.status = action.payload?.message || "Signed in successfully";
             })
             .addCase(signInGoogle.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Sign in failed";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(getUser.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getUser.fulfilled, (state, action) => {
+            .addCase(getUser.fulfilled, (state, action: PayloadAction<GetUserResponse>) => {
                 state.loading = false;
                 state.currentUser = action.payload.user;
                 // state.status = action.payload?.message || "Signed in successfully";
             })
             .addCase(getUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Sign in failed";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(getUsers.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getUsers.fulfilled, (state, action) => {
+            .addCase(getUsers.fulfilled, (state, action: PayloadAction<GetUsersResponse>) => {
                 state.loading = false;
-                
+
                 state.users = action.payload.users;
                 state.totalUsers = action.payload.totalUsers;
                 state.lastMonthUsers = action.payload.lastMonthUsers;
             })
             .addCase(getUsers.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Sign in failed";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(updateUser.pending, (state) => {
@@ -301,7 +356,7 @@ const userSlice = createSlice({
             })
             .addCase(updateUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(updateUserPhoto.pending, (state) => {
@@ -314,27 +369,29 @@ const userSlice = createSlice({
             })
             .addCase(updateUserPhoto.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(deleteUser.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deleteUser.fulfilled, (state, action) => {
+            .addCase(deleteUser.fulfilled, (state, action: PayloadAction<{ deletedUserId: string | number, message: string | null | undefined }>) => {
                 state.loading = false;
-                
+
                 const deletedUserId = action.payload.deletedUserId;
 
-                if(state.currentUser._id === deletedUserId)  {
+                if (state.currentUser?._id === deletedUserId) {
                     state.currentUser = null;
                 } else {
-                    state.users = state.users.filter(user => user._id !== deletedUserId)
+                    if (state.users) {
+                        state.users = state.users.filter(user => user._id !== deletedUserId);
+                    }
                 }
                 state.status = action.payload?.message || "User is deleted successfuly";
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
 
             .addCase(signOutUser.pending, (state) => {
@@ -347,12 +404,12 @@ const userSlice = createSlice({
             })
             .addCase(signOutUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = action.payload?.message || "Something went wrong";
+                state.status = (action.payload as RejectError)?.message || "Something went wrong..."
             })
     }
 });
 
-export const checkIsAuth = state => Boolean(state.user.currentUser);
+export const checkIsAuth = (state: RootState) => Boolean(state.user.currentUser);
 
 export const { signOutSuccess } = userSlice.actions;
 

@@ -1,5 +1,5 @@
 import { Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { HiAnnotation, HiArrowNarrowUp, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom';
@@ -9,18 +9,19 @@ import Loader from './Loader';
 import { getUsers } from '../redux/user/userSlice';
 import { getComments } from '../redux/comments/commentSlice';
 import { getPosts } from '../redux/posts/postSlice';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashboadComponent = () => {
-    const { currentUser, users, totalUsers, lastMonthUsers, loading: userLoading } = useSelector(state => state.user);
-    const { comments, totalComments, lastMonthComments, loading: commentLoading } = useSelector(state => state.comment);
-    const { posts, totalPosts, lastMonthPosts, loading: postsLoading } = useSelector(state => state.posts);
+    const { currentUser, users, totalUsers, lastMonthUsers, loading: userLoading } = useSelector((state: RootState) => state.user);
+    const { comments, totalComments, lastMonthComments, loading: commentLoading } = useSelector((state: RootState) => state.comment);
+    const { posts, totalPosts, lastMonthPosts, loading: postsLoading } = useSelector((state: RootState) => state.posts);
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await dispatch(getUsers({ startIndex: 0 }));
+                dispatch(getUsers({ startIndex: 0 }));
             } catch (error) {
                 toast.error("Can't find users");
             }
@@ -28,7 +29,7 @@ const DashboadComponent = () => {
 
         const fetchComments = async () => {
             try {
-                const response = await dispatch(getComments({ startIndex: 0 }));
+                dispatch(getComments({ startIndex: 0 }));
             } catch (error) {
                 toast.error("Can't find comments");
             }
@@ -37,7 +38,7 @@ const DashboadComponent = () => {
         const fetchPosts = async () => {
             const urlParams = new URLSearchParams(location.search);
             const searchQuery = urlParams.toString();
-            urlParams.set('startIndex', 0);
+            urlParams.set('startIndex', '0');
 
             try {
                 dispatch(getPosts({ searchQuery }));
@@ -46,7 +47,7 @@ const DashboadComponent = () => {
             }
         }
 
-        if (currentUser.isAdmin) {
+        if (currentUser && currentUser.isAdmin) {
             fetchUsers();
             fetchComments();
             fetchPosts();
@@ -62,7 +63,10 @@ const DashboadComponent = () => {
         !lastMonthUsers ||
         !lastMonthPosts ||
         !lastMonthComments ||
-        !currentUser
+        !currentUser ||
+        userLoading ||
+        commentLoading ||
+        postsLoading
     ) return <Loader />
 
     return (
@@ -146,6 +150,7 @@ const DashboadComponent = () => {
                                     <TableCell>
                                         <img src={user.profilePicture
                                             ? user?.profilePicture.startsWith('https') ? user?.profilePicture
+                                                //@ts-ignore
                                                 : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${user.profilePicture}`
                                             : defaultAvatar}
                                             alt='user'
@@ -208,6 +213,7 @@ const DashboadComponent = () => {
                                         <img
                                             src={post.image
                                                 ? post?.image.startsWith('https') ? post?.image
+                                                    //@ts-ignore
                                                     : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post.image}`
                                                 : defaultAvatar}
                                             alt='user'
