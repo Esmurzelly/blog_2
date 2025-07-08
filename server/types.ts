@@ -6,6 +6,8 @@ export interface IUser {
     password: string,
     profilePicture: string,
     isAdmin: boolean,
+    createdAt: Date,
+    updatedAt: Date,
 }
 
 export interface IComment {
@@ -14,6 +16,9 @@ export interface IComment {
     userId: string,
     likes: Array<string>,
     numberOfLikes: number,
+    createdAt?: string;
+    updatedAt?: string;
+    user?: IUser;
 }
 
 export interface IPost {

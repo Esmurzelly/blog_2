@@ -1,23 +1,32 @@
-import React, { useEffect, useState } from 'react'
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
+import React, { useState } from 'react'
+import { Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInUser } from '../redux/user/userSlice'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import OAuth from '../components/OAuth'
 import Loader from '../components/Loader'
 import { toast } from 'react-toastify'
+import { RootState, useAppDispatch } from '../redux/store'
+
+interface IForm {
+  email: string;
+  password: string;
+}
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({});
-  const { loading, status } = useSelector(state => state.user);
-  const dispatch = useDispatch();
+  const [formData, setFormData] = useState<IForm>({
+    email: '',
+    password: '',
+  });
+  const { loading, status } = useSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
@@ -25,20 +34,14 @@ const SignIn = () => {
     }
 
     try {
-      const response = await dispatch(signInUser(formData));
-
-      if (response.payload.success === false) {
-        toast.error(response.payload.message);
-        return;
-      }
-
+      dispatch(signInUser(formData)).unwrap();
       navigate('/');
     } catch (error) {
       console.log(error)
     }
   }
 
-  if(loading) return <Loader />
+  if (loading) return <Loader />
 
   return (
     <div className="min-h-screen mt-20">

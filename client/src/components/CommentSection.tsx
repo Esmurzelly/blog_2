@@ -9,11 +9,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
 import { RootState, useAppDispatch } from '../redux/store';
 
-type Props = {
-    postId: string | number
-}
-
-const CommentSection = ({ postId }: Props) => {
+const CommentSection = ({ postId }: { postId: string | number | undefined }) => {
     const { currentUser } = useSelector((state: RootState) => state.user);
     const { comments, status } = useSelector((state: RootState) => state.comment);
     const [comment, setComment] = useState<string>('')
@@ -29,7 +25,7 @@ const CommentSection = ({ postId }: Props) => {
             ? currentUser?.profilePicture
             : defaultAvatar;
 
-    const handleSubmit = async (e: any) => { // ?
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (comment.length > 200) return;
@@ -144,7 +140,7 @@ const CommentSection = ({ postId }: Props) => {
 
                     {comments && comments.map((commentItem) => (
                         <Comment
-                            key={commentItem._id}
+                            key={commentItem?._id}
                             // @ts-ignore
                             comment={commentItem}
                             onLike={handleLike}

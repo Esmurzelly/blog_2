@@ -8,64 +8,72 @@ import { useDispatch, useSelector } from 'react-redux';
 import defaultAvatar from '../assets/user.png'
 import Loader from '../components/Loader';
 import { updatePost, getCurrentPost } from '../redux/posts/postSlice';
+import { IPost } from '../types/types';
+import { RootState, useAppDispatch } from '../redux/store';
+
 
 const UpdatePost = () => {
-    const [image, setImage] = useState(null);
-    const [formData, setFormData] = useState({});
+    const [image, setImage] = useState<File | null>(null);
+    const [formData, setFormData] = useState<IPost>({
+        content: '',
+        title: '',
+        userId: '',
+        category: '',
+    });
     const { postId } = useParams();
-    const { currentUser } = useSelector(state => state.user);
-    const { currentPost } = useSelector(state => state.posts);
-    const dispatch = useDispatch();
+    const { currentUser } = useSelector((state: RootState) => state.user);
+    const { currentPost } = useSelector((state: RootState) => state.posts);
+    const dispatch = useAppDispatch();
 
     const navigate = useNavigate();
 
     useEffect(() => {
         try {
             const fetchPost = async () => {
-                const response = await dispatch(getCurrentPost({ postId })).unwrap(); // ?
+                const response = await dispatch(getCurrentPost({ postId })).unwrap();
 
                 setFormData({ ...formData, ...response.posts[0] })
                 toast.success('You got the post successfuly');
             };
 
             fetchPost();
-        } catch (error) {
+        } catch (error: any) {
             toast.error(error.message);
         }
     }, []);
 
-    const handleChangeImage = e => {
-        const file = e.target.files[0];
+    const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files && e.target.files[0];
 
         if (file && file.type.includes('image')) {
             setImage(file);
         }
     }
 
-    const handleChange = e => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.id]: e.target.value })
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         try {
             const form = new FormData();
             form.append('title', formData.title);
             form.append('content', formData.content);
-            form.append('category', formData.category);
+            if (formData.category) form.append('category', formData.category);
 
             if (image) {
                 form.append('image', image);
             } else {
-                form.append('image', formData.image);
+                form.append('image', formData.image ? formData.image : 'https://simplybuiltsites.com/wp-content/uploads/how-to-write-a-blog-post.png');
             }
 
-            const response = await dispatch(updatePost({ form, formDataId: formData._id, currentUserId: currentUser._id }));
+            const response = await dispatch(updatePost({ form, formDataId: formData._id, currentUserId: currentUser && currentUser._id }));
 
             toast.success("Post is updated")
             navigate(`/post/${formData._id}`);
-        } catch (error) {
+        } catch (error: any) {
             toast.error(error)
         }
     }
@@ -88,10 +96,15 @@ const UpdatePost = () => {
                 </div>
 
                 <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
-                    <FileInput type='file' accept='image/*' onChange={handleChangeImage} />
+                    <FileInput accept='image/*' onChange={handleChangeImage} />
                 </div>
                 {(!image && formData.image) && (
-                    <img src={formData.image.includes('http') ? formData.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${formData.image}`} alt="" />
+                    <img src={formData.image.includes('http')
+                        ? formData.image
+                        // @ts-ignore
+                        : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${formData.image}`}
+                        alt=""
+                    />
                 )}
 
                 {image && <img src={URL.createObjectURL(image)} alt="" />}
@@ -101,12 +114,11 @@ const UpdatePost = () => {
                     theme='snow'
                     placeholder='Write something...'
                     className='h-72 mb-12'
-                    required
                     onChange={(value) => setFormData({ ...formData, content: value })}
                     value={formData.content}
                 />
 
-                <Button type='submit ' className='p-5 bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'>
+                <Button type='submit' className='p-5 bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'>
                     Update post
                 </Button>
             </form>

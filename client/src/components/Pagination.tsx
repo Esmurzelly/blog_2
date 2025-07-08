@@ -1,7 +1,17 @@
 import React from 'react'
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 
-const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNumber, onFetchData }) => {
+type Props = {
+    totalItem: number;
+    onStart: () => void;
+    onEnd: () => void;
+    onShowMore: () => void;
+    onShowLess: () => void;
+    pageNumber: number;
+    onFetchData: (arg: number) => void;
+}
+
+const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNumber, onFetchData }: Props) => {
   const ITEMS_PER_PAGE = 9;
     return (
         <div className="flex justify-center items-center mt-4 gap-2 p-10">

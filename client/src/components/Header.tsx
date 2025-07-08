@@ -1,25 +1,27 @@
-import { useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import defaultAvatar from '../assets/user.png'
 import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
 import { toast } from 'react-toastify'
 import ChangeThemeButton from './ChangeThemeButton'
+import { RootState, useAppDispatch } from '../redux/store'
 
 const Header = () => {
   const path = useLocation().pathname;
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser } = useSelector(state => state.user);
-  const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [theme, setTheme] = useState(() => {
-    return typeof window !== 'undefined' ? localStorage.getItem("theme") || "light" : "light";
-  })
+  const { currentUser } = useSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return typeof window !== 'undefined' ? (localStorage.getItem("theme") as 'light' | 'dark') || "light" : "light";
+  });
 
   const profilePicture = currentUser?.profilePicture
+    // @ts-ignore
     ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
     : defaultAvatar;
 
@@ -52,12 +54,12 @@ const Header = () => {
 
       toast.success("You have signed out successfuly");
       navigate('/sign-in')
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message)
     }
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const urlParams = new URLSearchParams(location.search);

@@ -2,27 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
-import { registerUser } from '../redux/user/userSlice'
+import { checkIsAuth, registerUser } from '../redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { RootState, useAppDispatch } from '../redux/store';
+
+interface IForm {
+  username: string;
+  email: string;
+  password: string;
+}
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [formData, setFormData] = useState<IForm>({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { status, checkIsAuth, loading } = useSelector(state => state.user);
+  const dispatch = useAppDispatch();
+  const { status, loading } = useSelector((state: RootState) => state.user);
+  const isAuth = useSelector(checkIsAuth);
 
   useEffect(() => {
     if (status) toast(status);
-    if(checkIsAuth) navigate('/')
-  }, [status, checkIsAuth, navigate]);
+    if (isAuth) navigate('/')
+  }, [status, isAuth, navigate]);
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.username || !formData.email || !formData.password) {
@@ -33,7 +45,7 @@ const SignUp = () => {
       setErrorMessage(null);
       dispatch(registerUser(formData));
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       toast(error)
     }

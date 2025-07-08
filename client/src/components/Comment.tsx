@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { editComment } from '../redux/comments/commentSlice';
 import { getUser } from '../redux/user/userSlice';
 import { toast } from 'react-toastify';
@@ -98,7 +98,7 @@ const Comment = ({ comment, onLike, onDelete }: Props) => {
                                 type='button'
                                 onClick={() => onLike(comment._id)}
                                 className={`hover:text-blue-500 cursor-pointer 
-                            ${currentUser && comment.likes.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'}`
+                            ${currentUser && comment?.likes?.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'}`
                                 }
                             >
                                 <RiThumbUpLine className='text-sm' />

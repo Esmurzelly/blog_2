@@ -1,13 +1,17 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { IPost } from '../types/types'
 
-const PostCard = ({ post }) => {
+const PostCard = ({post}: {post: IPost}) => {
     return (
         <div className='group relative w-full 2xl:w-[350px] dark:text-gray-300 border border-teal-500 hover:border-2 h-[400px] overflow-hidden rounded-lg sm:w-[430px] transition-all mx-auto'>
             <Link to={`/post/${post._id}`}>
                 <img
                     className='h-[260px] w-full object-cover group-hover:h-[200px] transition-all duration-300 z-20'
-                    src={post?.image && post?.image.includes('http') ? post?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post?.image}`}
+                    src={post?.image && post?.image.includes('http') 
+                        ? post?.image
+                        // @ts-ignore 
+                        : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${post?.image}`}
                     alt="image"
                 />
             </Link>

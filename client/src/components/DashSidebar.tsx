@@ -2,30 +2,26 @@ import React, { useEffect, useState } from 'react'
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from 'flowbite-react'
 import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiAnnotation } from 'react-icons/hi'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { signOutSuccess, signOutUser } from '../redux/user/userSlice';
 import { toast } from 'react-toastify';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashSidebar = () => {
-    const { currentUser } = useSelector(state => state.user);
+    const { currentUser } = useSelector((state: RootState) => state.user);
     const location = useLocation();
     const [tab, setTab] = useState('');
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     const handleSignout = async () => {
         try {
-            const response = await dispatch(signOutUser());
+            const response = await dispatch(signOutUser()).unwrap();
             dispatch(signOutSuccess());
-
-            if (response.payload.success === false) {
-                toast.error(response.payload.message);
-                return;
-            }
 
             toast.success("You have signed out successfuly");
             navigate('/sign-in')
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message)
             toast.error(error.message)
         }
@@ -43,9 +39,9 @@ const DashSidebar = () => {
             <SidebarItems>
                 <SidebarItemGroup className='flex flex-col gap-1'>
                     <Link to={'/dashboard?tab=profile'}>
-                        <SidebarItem active={tab === 'profile'} icon={HiUser} label={currentUser.isAdmin ? "Admin" : "User"} labelColor='red' as={'div'}>Profile</SidebarItem>
+                        <SidebarItem active={tab === 'profile'} icon={HiUser} label={currentUser?.isAdmin ? "Admin" : "User"} labelColor='red' as={'div'}>Profile</SidebarItem>
                     </Link>
-                    {currentUser.isAdmin && (
+                    {currentUser?.isAdmin && (
                         <>
                             <Link to={'/dashboard?tab=posts'}>
                                 <SidebarItem active={tab === 'posts'} icon={HiDocumentText} as={'div'}>Posts</SidebarItem>

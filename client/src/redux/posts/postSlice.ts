@@ -24,13 +24,13 @@ interface GetCurrentPostResponse {
 }
 
 interface GetCurrentPostArgs {
-    postId: string;
+    postId: string | undefined;
 }
 
 interface UpdatePostArgs {
     form: FormData;
-    formDataId: string | number;
-    currentUserId: string | number;
+    formDataId: string | number | undefined;
+    currentUserId: string | number | null;
 }
 
 interface DeletePostArgs {

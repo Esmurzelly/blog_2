@@ -6,20 +6,21 @@ import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
 import Loader from '../components/Loader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getCurrentPost, getPosts } from '../redux/posts/postSlice';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const PostPage = () => {
     const { postId } = useParams();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const { currentPost, posts, loading, status } = useSelector(state => state.posts);
+    const { currentPost, posts, loading, status } = useSelector((state: RootState) => state.posts);
 
     useEffect(() => {
         const fetchPost = async () => {
             try {
                 dispatch(getCurrentPost({ postId }));
-            } catch (error) {
+            } catch (error: any) {
                 toast.error(error || status);
                 console.log(error || status)
             }
@@ -34,7 +35,7 @@ const PostPage = () => {
                 dispatch(getPosts({ searchQuery }));
             }
             fetchRecentPosts();
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error(error.message);
         }
@@ -53,17 +54,20 @@ const PostPage = () => {
             </Link>
 
             <img
-                src={currentPost?.image.includes('http') ? currentPost?.image : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${currentPost?.image}`}
-                alt={currentPost && currentPost?.title}
+                src={currentPost?.image && currentPost?.image.includes('http') 
+                    ? currentPost?.image 
+                    // @ts-ignore
+                    : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/postImage/${currentPost?.image}`}
+                alt={currentPost && currentPost?.title || ''}
                 className='mt-10 p-3 max-h-[600px] w-full mx-auto object-cover'
             />
 
             <div className="flex items-center justify-between p-3 border-b border-slate-500 text-xs mx-auto w-full max-w-2xl">
-                <span>{currentPost && new Date(currentPost?.createdAt).toLocaleDateString()}</span>
+                <span>{currentPost && currentPost?.createdAt && new Date(currentPost?.createdAt).toLocaleDateString()}</span>
                 <span className='italic'>{currentPost && (currentPost?.content.length / 1000).toFixed(0)} mins read</span>
             </div>
 
-            <div className="p-3 max-w-2xl mx-auto w-full post-content wrap-break-word" dangerouslySetInnerHTML={{ __html: currentPost && currentPost.content }}></div>
+            <div className="p-3 max-w-2xl mx-auto w-full post-content wrap-break-word" dangerouslySetInnerHTML={{ __html: currentPost?.content ?? '' }}></div>
 
             <div className="max-w-4xl mx-auto w-full">
                 <CallToAction />

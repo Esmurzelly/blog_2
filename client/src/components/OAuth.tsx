@@ -4,13 +4,19 @@ import { AiFillGoogleCircle } from 'react-icons/ai'
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from '../firebase'
 import { signInGoogle } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAppDispatch } from '../redux/store';
+
+interface ResultsFromGoogleObj {
+    name: string;
+    email: string;
+    googlePhotoUrl: string;
+}
 
 const OAuth = () => {
     const auth = getAuth(app);
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     const handleGoogleClick = async () => {
@@ -19,19 +25,14 @@ const OAuth = () => {
 
         try {
             const resultsFromGoogle = await signInWithPopup(auth, provider);
-            const resultsFromGoogleObj = {
-                name: resultsFromGoogle.user.displayName,
-                email: resultsFromGoogle.user.email,
-                googlePhotoUrl: resultsFromGoogle.user.photoURL,
+
+            const resultsFromGoogleObj: ResultsFromGoogleObj = {
+                name: resultsFromGoogle.user.displayName ?? '',
+                email: resultsFromGoogle.user.email ?? '',
+                googlePhotoUrl: resultsFromGoogle.user.photoURL ?? '',
             }
 
-            const response = await dispatch(signInGoogle(resultsFromGoogleObj))
-
-            if (response.payload.success === false) {
-                toast.error(response.payload.message);
-                return;
-            }
-
+            dispatch(signInGoogle(resultsFromGoogleObj)).unwrap();
             toast.success('You signed in successfuly')
             navigate('/');
         } catch (error) {

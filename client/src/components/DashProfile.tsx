@@ -14,7 +14,7 @@ const DashProfile = () => {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({});
     const [showModal, setShowModal] = useState<boolean>(false);
-    const filePickerRef = useRef(null);
+    const filePickerRef = useRef<HTMLInputElement>(null);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
@@ -29,6 +29,7 @@ const DashProfile = () => {
 
     const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files && e.target.files[0];
+        
         if (file && file.type.includes('image')) {
             setImageFile(file);
         }
@@ -48,24 +49,13 @@ const DashProfile = () => {
         }
 
         try {
-            const response = await dispatch(updateUser({ formData, currentUserId: currentUser._id }));
-
-            if (response.payload.success === false) {
-                toast.error(response.payload.message);
-                return;
-            }
+            dispatch(updateUser({ formData, currentUserId: currentUser._id })).unwrap();
 
             if (imageFile) {
                 const imageFormData = new FormData();
                 imageFormData.append('file', imageFile);
 
-                const response = await dispatch(updateUserPhoto({ imageFormData }));
-
-                if (response.payload.success === false) {
-                    toast.error(response.payload.message);
-                    return;
-                }
-
+                dispatch(updateUserPhoto({ imageFormData })).unwrap;
                 setImageFile(null);
             }
 
@@ -84,15 +74,7 @@ const DashProfile = () => {
                 return;
             }
 
-            const response = await dispatch(deleteUser({ currentUserId: currentUser._id }));
-
-            console.log('response from deleteUser', response)
-
-            if (response.payload.success === false) {
-                toast.error(response.payload.message);
-                return;
-            }
-
+            dispatch(deleteUser({ currentUserId: currentUser._id })).unwrap();
             toast.success("You have deleted your account successfuly");
         } catch (error: any) {
             toast.error(error.message);
@@ -101,13 +83,8 @@ const DashProfile = () => {
 
     const handleSignout = async () => {
         try {
-            const response = await dispatch(signOutUser());
+            dispatch(signOutUser()).unwrap();
             dispatch(signOutSuccess());
-
-            if (response.payload.success === false) {
-                toast.error(response.payload.message);
-                return;
-            }
 
             toast.success("You have signed out successfuly");
             navigate('/sign-in')
@@ -126,7 +103,7 @@ const DashProfile = () => {
                 <input type="file" accept='image/*' hidden onChange={handleChangeImage} ref={filePickerRef} />
                 <div
                     className="w-32 h-32 self-center cursor-pointer shadow-md rounded-full overflow-hidden"
-                    onClick={() => filePickerRef.current.click()}
+                    onClick={() => filePickerRef.current?.click()}
                 >
                     <img
                         src={profilePicture}
@@ -135,8 +112,8 @@ const DashProfile = () => {
                     />
                 </div>
 
-                <TextInput onChange={handleChange} className='w-full' type='text' id='username' placeholder='username' defaultValue={currentUser.username} autoComplete='username' />
-                <TextInput onChange={handleChange} className='w-full' type='email' id='email' placeholder='email' defaultValue={currentUser.email} autoComplete='email' />
+                <TextInput onChange={handleChange} className='w-full' type='text' id='username' placeholder='username' defaultValue={currentUser?.username} autoComplete='username' />
+                <TextInput onChange={handleChange} className='w-full' type='email' id='email' placeholder='email' defaultValue={currentUser?.email} autoComplete='email' />
                 <TextInput onChange={handleChange} className='w-full' type='password' id='password' placeholder='password' autoComplete='current-password' />
 
                 <Button disabled={loading} type='submit' className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer'>

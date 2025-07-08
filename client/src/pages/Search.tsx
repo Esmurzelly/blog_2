@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
@@ -7,42 +7,45 @@ import { getPosts } from '../redux/posts/postSlice';
 import Pagination from '../components/Pagination';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
+import { RootState, useAppDispatch } from '../redux/store';
+
+type ISidebar = {
+    searchTerm: string,
+    sort: string,
+    category: string
+}
 
 const Search = () => {
-    const [sidebarData, setSidebarData] = useState({
+    const [sidebarData, setSidebarData] = useState<ISidebar>({
         searchTerm: '',
         sort: 'desc',
         category: ''
     });
 
-    const { posts, totalPosts, loading } = useSelector(state => state.posts);
-    const [showMore, setShowMore] = useState(true);
-    const [showLess, setShowLess] = useState(false);
+    const { posts, totalPosts, loading } = useSelector((state: RootState) => state.posts);
 
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const [startIndex, setStartIndex] = useState(9);
+    const [startIndex, setStartIndex] = useState<number>(9);
 
-    const [pageNumber, setPageNumber] = useState(1);
-    const POSTS_PER_PAGE = 9;
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const POSTS_PER_PAGE: number = 9;
 
-    const fetchPostsByPage = async (page) => {
+    const fetchPostsByPage = async (page: number) => {
         const newStartIndex = (page - 1) * POSTS_PER_PAGE;
 
         try {
             const urlParams = new URLSearchParams(location.search);
-            urlParams.set('startIndex', newStartIndex);
+            urlParams.set('startIndex', String(newStartIndex));
             const searchQuery = urlParams.toString();
 
             dispatch(getPosts({ searchQuery }));
 
             setStartIndex(newStartIndex);
             setPageNumber(page);
-            setShowMore(page < Math.ceil(totalPosts / POSTS_PER_PAGE));
-            setShowLess(page > 1);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error("Unable to load users");
         }
@@ -83,7 +86,7 @@ const Search = () => {
         fetchPostsByPage(1);
     }, [location.search])
 
-    const handleChange = e => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         if (e.target.id === 'searchTerm') setSidebarData({ ...sidebarData, searchTerm: e.target.value });
 
         if (e.target.id === 'sort') {
@@ -97,7 +100,7 @@ const Search = () => {
         }
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const urlParams = new URLSearchParams(location.search);
@@ -119,7 +122,7 @@ const Search = () => {
         navigate(`/search?${searchQuery}`);
     }
 
-    const handleClearFilter = e => {
+    const handleClearFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         setSidebarData({

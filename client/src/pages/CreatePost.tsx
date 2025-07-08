@@ -5,27 +5,38 @@ import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { createPost } from '../redux/posts/postSlice';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../redux/store';
+
+interface IForm {
+  title: string;
+  category: string;
+  content: string;
+  image?: string;
+}
 
 const CreatePost = () => {
-  const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [image, setImage] = useState<File | null>(null);
+  const [formData, setFormData] = useState<IForm>({
+    title: '',
+    category: 'uncategorized',
+    content: '',
+  });
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const handleChangeImage = e => {
-    const file = e.target.files[0];
+  const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
 
     if (file && file.type.includes('image')) {
       setImage(file);
     }
   }
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -35,14 +46,14 @@ const CreatePost = () => {
       form.append('content', formData.content);
       if (image) form.append('image', image);
 
-      const response = await dispatch(createPost({ form }));
-
-      if (response.payload && response.payload.slug) {
-        navigate(`/post/${response.payload._id}`);
-      } else {
-        toast.error('Post created but slug missing.');
+      if (!formData.content.trim()) {
+        toast.error('Content is required');
+        return;
       }
-    } catch (error) {
+
+      const response = await dispatch(createPost({ form })).unwrap();
+      navigate(`/post/${response._id}`);
+    } catch (error: any) {
       toast.error(error)
     }
   }
@@ -63,7 +74,7 @@ const CreatePost = () => {
         </div>
 
         <div className="border-4 border-teal-500 border-dotted p-3">
-          <FileInput type='file' accept='image/*' onChange={handleChangeImage} />
+          <FileInput accept='image/*' onChange={handleChangeImage} />
         </div>
         {image && <img className='w-24' src={URL.createObjectURL(image)} alt="post image" />}
 
@@ -72,11 +83,10 @@ const CreatePost = () => {
           theme='snow'
           placeholder='Write something...'
           className='h-72 mb-12'
-          required
           onChange={(value) => setFormData({ ...formData, content: value })}
         />
 
-        <Button type='submit ' className='p-5 bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'>Publish</Button>
+        <Button type='submit' className='p-5 bg-gradient-to-r from-purple-500 to-pink-500 cursor-pointer'>Publish</Button>
       </form>
     </div>
   )

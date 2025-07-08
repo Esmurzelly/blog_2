@@ -13,7 +13,7 @@ interface CommentState {
 
 interface CreateCommentArgs {
     contentComment: string;
-    postId: string | number;
+    postId: string | number | undefined;
     currentUserId: string | number;
 }
 interface CreateCommentResponse {
@@ -40,6 +40,12 @@ interface GetPostCommentsResponse {
 interface EditCommentArgs {
     commentId: string | number;
     editedContent: string
+}
+
+interface UpdateLikeComment {
+    comment: IComment;
+    numberOfLikes: number;
+    likes: Array<string>
 }
 
 interface RejectError {
@@ -103,7 +109,7 @@ export const getComments = createAsyncThunk<GetCommentsResponse, GetCommentsArgs
     }
 )
 
-export const getPostComments = createAsyncThunk<GetPostCommentsResponse, { postId: string | number }>(
+export const getPostComments = createAsyncThunk<GetPostCommentsResponse, { postId: string | number | undefined }>(
     'comment/getPostComments',
     async ({ postId }, { rejectWithValue }) => {
         try {
@@ -121,7 +127,7 @@ export const getPostComments = createAsyncThunk<GetPostCommentsResponse, { postI
     }
 );
 
-export const addLikeComment = createAsyncThunk<IComment, { commentId: string | number }>(
+export const addLikeComment = createAsyncThunk<UpdateLikeComment, { commentId: string | number }>(
     'comment/addLikeComment',
     async ({ commentId }, { rejectWithValue }) => {
         try {
@@ -253,17 +259,21 @@ const commentSlice = createSlice({
             .addCase(addLikeComment.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(addLikeComment.fulfilled, (state, action: PayloadAction<IComment>) => { // ?
+            .addCase(addLikeComment.fulfilled, (state, action: PayloadAction<UpdateLikeComment>) => {
                 state.loading = false;
 
-                // const updatedComment = action.payload.comment;
                 const updatedComment = action.payload;
+                // @ts-ignore
+                const commentItem = action.payload.comment;
+                console.log('state.comments', state.comments);
+                const index = state.comments.findIndex(c => c._id === commentItem._id);
 
-                state.comments = state.comments.map(commentItem =>
-                    commentItem._id === updatedComment._id
-                        ? { ...commentItem, numberOfLikes: action.payload?.numberOfLikes, likes: updatedComment.likes }
-                        : commentItem
-                );
+                console.log('index', index);
+
+                if(index !== -1) {
+                    state.comments[index].numberOfLikes = updatedComment.numberOfLikes;
+                    state.comments[index].likes = updatedComment.likes;
+                }
             })
             .addCase(addLikeComment.rejected, (state, action) => {
                 state.loading = false;

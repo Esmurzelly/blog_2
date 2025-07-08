@@ -1,14 +1,3 @@
-export interface IComment {
-    _id: string;
-    content: string;
-    postId: string | number;
-    userId: string | number;
-    likes: Array<string>;
-    numberOfLikes: number;
-    createdAt?: Date
-    updatedAt?: Date
-}
-
 export interface IUser {
     _id: string;
     username: string;
@@ -21,6 +10,18 @@ export interface IUser {
     updatedAt?: Date;
 }
 
+export interface IComment {
+    _id: string;
+    content: string;
+    postId: string | number;
+    userId: string | number;
+    likes: Array<string>;
+    numberOfLikes: number;
+    createdAt?: Date
+    updatedAt?: Date
+    user?: IUser;
+}
+
 export interface IPost {
     _id?: string;
     userId: string;
@@ -28,7 +29,7 @@ export interface IPost {
     title: string;
     image?: string;
     category?: string;
-    slug: string;
+    slug?: string;
     createdAt?: Date
     updatedAt?: Date
 }

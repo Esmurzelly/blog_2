@@ -34,7 +34,7 @@ interface GetUsersArgs {
 }
 
 interface UpdateUserArgs {
-    formData: FormData,
+    formData: Record<string, any>,
     currentUserId: string | number;
 }
 
@@ -53,6 +53,11 @@ interface GetUsersResponse {
     lastMonthUsers: number,
 }
 
+interface UpdateUserResponse {
+    currentUser: IUser;
+    message?: string
+    error?: string
+}
 
 
 const initialState: UserState = {
@@ -177,7 +182,7 @@ export const getUsers = createAsyncThunk<GetUsersResponse, GetUsersArgs>(
     }
 )
 
-export const updateUser = createAsyncThunk<IUser, UpdateUserArgs>(
+export const updateUser = createAsyncThunk<UpdateUserResponse, UpdateUserArgs>(
     'user/updateUser',
     async ({ formData, currentUserId }, { rejectWithValue }) => {
         try {
@@ -349,9 +354,10 @@ const userSlice = createSlice({
             .addCase(updateUser.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(updateUser.fulfilled, (state, action) => {
+            .addCase(updateUser.fulfilled, (state, action: PayloadAction<UpdateUserResponse>) => {
                 state.loading = false;
-                state.currentUser = action.payload;
+
+                state.currentUser = action.payload.currentUser;
                 state.status = action.payload?.message || "Update is successful";
             })
             .addCase(updateUser.rejected, (state, action) => {

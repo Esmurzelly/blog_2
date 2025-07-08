@@ -6,33 +6,28 @@ import { toast } from 'react-toastify';
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Loader from './Loader';
 import { getUsers, deleteUser } from '../redux/user/userSlice';
-import { FaAnglesLeft, FaAnglesRight, FaAngleRight, FaAngleLeft } from 'react-icons/fa6';
 import Pagination from './Pagination';
+import { RootState, useAppDispatch } from '../redux/store';
 
 const DashUsers = () => {
-    const { currentUser, users, totalUsers } = useSelector(state => state.user);
-    const [showMore, setShowMore] = useState(true);
-    const [showLess, setShowLess] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [userIdDelete, setUserIdDelete] = useState('');
-    const dispatch = useDispatch();
-    const [startIndex, setStartIndex] = useState(0);
+    const { currentUser, users, totalUsers } = useSelector((state: RootState) => state.user);
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [userIdDelete, setUserIdDelete] = useState<string>('');
+    const dispatch = useAppDispatch();
+    const [startIndex, setStartIndex] = useState<number>(0);
 
-    const [pageNumber, setPageNumber] = useState(1);
-    const USERS_PER_PAGE = 9;
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const USERS_PER_PAGE: number = 9;
 
-    const fetchUsersByPage = async (page) => {
+    const fetchUsersByPage = async (page: number) => {
         const newStartIndex = (page - 1) * USERS_PER_PAGE;
 
         try {
-            const response = await dispatch(getUsers({ startIndex: newStartIndex, limit: USERS_PER_PAGE })).unwrap();
-            const newUsers = response.users || [];
+            dispatch(getUsers({ startIndex: newStartIndex, limit: USERS_PER_PAGE })).unwrap();
 
             setStartIndex(newStartIndex);
             setPageNumber(page);
-            setShowMore(page < Math.ceil(totalUsers / USERS_PER_PAGE));
-            setShowLess(page > 1);
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error("Unable to load users");
         }
@@ -56,7 +51,7 @@ const DashUsers = () => {
 
 
     useEffect(() => {
-        if (currentUser.isAdmin) fetchUsersByPage(1);
+        if (currentUser?.isAdmin) fetchUsersByPage(1);
     }, [currentUser]);
 
     const handleDeleteUser = async () => {
@@ -65,13 +60,13 @@ const DashUsers = () => {
 
             setShowModal(false);
             toast.success("The user has been deleted");
-        } catch (error) {
+        } catch (error: any) {
             console.log(error.message);
             toast.error("You can't delete the user");
         }
     }
 
-    if (!users) return <Loader />
+    if (!users || !currentUser) return <Loader />
 
     return (
         <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
@@ -90,11 +85,14 @@ const DashUsers = () => {
                         {users.map((user) => (
                             <TableBody className='divide-y' key={user._id}>
                                 <TableRow className='bg-white dark:bg-gray-700'>
-                                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                                    <TableCell>
+                                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                                    </TableCell>
 
                                     <TableCell>
                                         <img className='w-10 h-10 object-cover bg-gray-500 rounded-full' src={user.profilePicture.startsWith('http')
                                             ? user.profilePicture
+                                            // @ts-ignore
                                             : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${user.profilePicture}`} alt={user.username} />
                                     </TableCell>
 

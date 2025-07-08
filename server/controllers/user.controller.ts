@@ -99,7 +99,9 @@ export const updateUser = async (
 
         // @ts-ignore
         const { password, ...rest } = updatedUser._doc;
-        res.status(200).json(rest);
+        res.status(200).json({
+            currentUser: rest
+        });
     } catch (error) {
         next(error)
     }
