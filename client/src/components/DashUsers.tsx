@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector, useDispatch } from 'react-redux'
@@ -14,50 +14,51 @@ const DashUsers = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [userIdDelete, setUserIdDelete] = useState<string>('');
     const dispatch = useAppDispatch();
-    const [startIndex, setStartIndex] = useState<number>(0);
 
     const [pageNumber, setPageNumber] = useState<number>(1);
     const USERS_PER_PAGE: number = 9;
 
-    const fetchUsersByPage = async (page: number) => {
+    const fetchUsersByPage = useCallback(async (page: number) => {
         const newStartIndex = (page - 1) * USERS_PER_PAGE;
 
         try {
-            dispatch(getUsers({ startIndex: newStartIndex, limit: USERS_PER_PAGE })).unwrap();
-
-            setStartIndex(newStartIndex);
+            await dispatch(getUsers({ startIndex: newStartIndex, limit: USERS_PER_PAGE })).unwrap();
             setPageNumber(page);
         } catch (error: any) {
             console.log(error.message);
             toast.error("Unable to load users");
         }
-    };
+    }, [dispatch])
 
-    const handleShowMore = () => {
+    const handleShowMore = useCallback(() => {
         fetchUsersByPage(pageNumber + 1);
-    };
+    }, [fetchUsersByPage, pageNumber])
 
-    const handleShowBack = () => {
+    const handleShowBack = useCallback(() => {
         fetchUsersByPage(pageNumber - 1);
-    };
+    }, [fetchUsersByPage, pageNumber])
 
-    const handleGoToStart = () => {
+    const handleGoToStart = useCallback(() => {
         fetchUsersByPage(1);
-    };
+    }, [fetchUsersByPage])
 
-    const handleGoToEnd = () => {
+    const handleGoToEnd = useCallback(() => {
         fetchUsersByPage(Math.ceil(totalUsers / USERS_PER_PAGE));
-    };
+    }, [fetchUsersByPage, totalUsers])
 
 
     useEffect(() => {
         if (currentUser?.isAdmin) fetchUsersByPage(1);
-    }, [currentUser]);
+    }, [currentUser?.isAdmin, fetchUsersByPage]);
 
     const handleDeleteUser = async () => {
         try {
-            dispatch(deleteUser({ currentUserId: userIdDelete }));
+            if (userIdDelete === currentUser?._id) {
+                toast.error("You cannot delete your own account.");
+                return;
+            }
 
+            await dispatch(deleteUser({ currentUserId: userIdDelete })).unwrap();
             setShowModal(false);
             toast.success("The user has been deleted");
         } catch (error: any) {
@@ -70,27 +71,29 @@ const DashUsers = () => {
 
     return (
         <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
-            {currentUser.isAdmin && users.length > 0 ? (
+            {currentUser && currentUser.isAdmin && users.length > 0 ? (
                 <>
                     <Table hoverable className='shadow-md'>
                         <TableHead>
-                            <TableHeadCell>Date created</TableHeadCell>
-                            <TableHeadCell>User image</TableHeadCell>
-                            <TableHeadCell>Username</TableHeadCell>
-                            <TableHeadCell>Email</TableHeadCell>
-                            <TableHeadCell>Admin</TableHeadCell>
-                            <TableHeadCell>Delete</TableHeadCell>
+                            <TableRow>
+                                <TableHeadCell>Date created</TableHeadCell>
+                                <TableHeadCell>User image</TableHeadCell>
+                                <TableHeadCell>Username</TableHeadCell>
+                                <TableHeadCell>Email</TableHeadCell>
+                                <TableHeadCell>Admin</TableHeadCell>
+                                <TableHeadCell>Delete</TableHeadCell>
+                            </TableRow>
                         </TableHead>
 
-                        {users.map((user) => (
-                            <TableBody className='divide-y' key={user._id}>
-                                <TableRow className='bg-white dark:bg-gray-700'>
+                        <TableBody className='divide-y'>
+                            {users.map((user) => (
+                                <TableRow key={user._id} className='bg-white dark:bg-gray-700'>
                                     <TableCell>
                                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
                                     </TableCell>
 
                                     <TableCell>
-                                        <img className='w-10 h-10 object-cover bg-gray-500 rounded-full' src={user.profilePicture.startsWith('http')
+                                        <img className='w-10 h-10 object-cover bg-gray-500 rounded-full' src={user.profilePicture?.startsWith('http')
                                             ? user.profilePicture
                                             // @ts-ignore
                                             : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${user.profilePicture}`} alt={user.username} />
@@ -115,8 +118,8 @@ const DashUsers = () => {
                                         </span>
                                     </TableCell>
                                 </TableRow>
-                            </TableBody>
-                        ))}
+                            ))}
+                        </TableBody>
                     </Table>
 
                     <Pagination
@@ -130,7 +133,7 @@ const DashUsers = () => {
                     />
                 </>
             ) : (
-                <Loader />
+                <p className='text-center text-gray-500 mt-4'>No users found</p>
             )}
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

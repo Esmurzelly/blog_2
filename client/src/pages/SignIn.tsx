@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInUser } from '../redux/user/userSlice'
@@ -18,28 +18,38 @@ const SignIn = () => {
     email: '',
     password: '',
   });
-  const { loading, status } = useSelector((state: RootState) => state.user);
+  const { loading, currentUser } = useSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/dashboard');
+    }
+  }, [currentUser, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value.trim() });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
       toast.error("Sing in failed. Please fill all fields.");
+      return;
     }
 
     try {
-      dispatch(signInUser(formData)).unwrap();
+      await dispatch(signInUser(formData)).unwrap();
       navigate('/');
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      console.log(error);
+      toast.error('Wrong data')
+      return;
     }
-  }
+  }, [formData, dispatch, navigate])
 
   if (loading) return <Loader />
 
@@ -64,7 +74,7 @@ const SignIn = () => {
               <Label className="text-black" htmlFor="email">
                 <p className='mb-2'>Your email</p>
               </Label>
-              <TextInput onChange={handleChange} id='email' type='email' placeholder='adam@gmail.com' />
+              <TextInput autoComplete='email' required onChange={handleChange} id='email' type='email' placeholder='adam@gmail.com' />
             </div>
 
             <div>

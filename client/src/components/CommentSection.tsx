@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import defaultAvatar from '../assets/defaultAvatar.jpg'
 import { Button, Modal, ModalBody, ModalHeader, Textarea } from 'flowbite-react';
 import { toast } from 'react-toastify';
-import Comment from './Comment';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
 import { RootState, useAppDispatch } from '../redux/store';
+import CommentList from './CommentList';
+import CommentForm from './CommentForm';
 
 const CommentSection = ({ postId }: { postId: string | number | undefined }) => {
     const { currentUser } = useSelector((state: RootState) => state.user);
@@ -40,14 +41,13 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
             console.log(error.message);
             toast.error(status);
         }
-    };
+    }
 
     useEffect(() => {
         const fetchComments = async () => {
             try {
                 const response = await dispatch(getPostComments({ postId })).unwrap();
                 if (response.comments.length === 0) return;
-                toast.success("You got the comments successfuly");
             } catch (error: any) {
                 toast.error(error.message);
                 console.log(error.message);
@@ -57,7 +57,7 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
         fetchComments();
     }, [postId]);
 
-    const handleLike = async (commentId: string | number) => {
+    const handleLike = useCallback(async (commentId: string | number) => {
         try {
             if (!currentUser) {
                 navigate('/sign-in');
@@ -69,9 +69,9 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
             toast.error(error.message);
             console.log(error.message);
         }
-    }
+    }, [currentUser, dispatch, navigate]);
 
-    const handleDelete = async (commentId: string | number | null) => {
+    const handleDelete = useCallback(async (commentId: string | number | null) => {
         setShowModal(false)
 
         try {
@@ -87,7 +87,8 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
             toast.error(error.message);
             console.log(error.message);
         }
-    }
+    }, [currentUser, dispatch, navigate]);
+
 
     if (!comments || !currentUser) return <div>Loading...</div>
 
@@ -109,48 +110,57 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
             )}
 
             {currentUser && (
-                <form onSubmit={handleSubmit} className='border border-teal-500 rounded-md p-3'>
-                    <Textarea
-                        placeholder='Add a comment...'
-                        // @ts-ignore
-                        type='text'
-                        rows={3}
-                        maxLength={200}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-                        value={comment}
-                    />
+                <CommentForm 
+                    onSubmit={handleSubmit}
+                    commentContent={comment}
+                    setComment = {setComment}
+                />
+                // <form onSubmit={handleSubmit} className='border border-teal-500 rounded-md p-3'>
+                //     <Textarea
+                //         placeholder='Add a comment...'
+                //         // @ts-ignore
+                //         type='text'
+                //         rows={3}
+                //         maxLength={200}
+                //         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
+                //         value={comment}
+                //     />
 
-                    <div className="flex justify-between items-center mt-5">
-                        <p className='text-gray-500 text-xs'>{200 - comment.length} characters remaining</p>
-                        <Button outline className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer text-white!' type='submit'>Submit</Button>
-                    </div>
-                </form>
+                //     <div className="flex justify-between items-center mt-5">
+                //         <p className='text-gray-500 text-xs'>{200 - comment.length} characters remaining</p>
+                //         <Button outline className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer text-white!' type='submit'>Submit</Button>
+                //     </div>
+                // </form>
             )}
 
             {comments.length === 0 ? (
                 <p className='text-sm my-5'>No comments yet</p>
             ) : (
-                <>
-                    <div className='text-sm my-5 flex items-center gap-1'>
-                        <p>Comments</p>
-                        <div className="border border-gray-400 py-1 px-2 rounded-sm">
-                            <p>{comments.length}</p>
-                        </div>
-                    </div>
+                <CommentList
+                    comments={comments}
+                    onLike={handleLike}
+                    onDelete={handleDelete}
+                />
+                // <>
+                //     <div className='text-sm my-5 flex items-center gap-1'>
+                //         <p>Comments</p>
+                //         <div className="border border-gray-400 py-1 px-2 rounded-sm">
+                //             <p>{comments.length}</p>
+                //         </div>
+                //     </div>
 
-                    {comments && comments.map((commentItem) => (
-                        <Comment
-                            key={commentItem?._id}
-                            // @ts-ignore
-                            comment={commentItem}
-                            onLike={handleLike}
-                            onDelete={(commentId) => {
-                                setShowModal(true)
-                                setCommentIdDelete(commentId)
-                            }}
-                        />
-                    ))}
-                </>
+                //     {comments && comments.map((commentItem) => (
+                //         <Comment
+                //             key={commentItem?._id}
+                //             comment={commentItem}
+                //             onLike={handleLike}
+                //             onDelete={(commentId) => {
+                //                 setShowModal(true)
+                //                 setCommentIdDelete(commentId)
+                //             }}
+                //         />
+                //     ))}
+                // </>
             )}
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

@@ -1,77 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Loader from './Loader';
 import { getComments, deleteComments } from '../redux/comments/commentSlice';
-import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import Pagination from './Pagination';
 import { RootState, useAppDispatch } from '../redux/store';
 
 const DashCommets = () => {
     const { currentUser } = useSelector((state: RootState) => state.user);
-    const { comments, totalComments } = useSelector((state: RootState) => state.comment)
+    const { comments, totalComments } = useSelector((state: RootState) => state.comment);
     const dispatch = useAppDispatch();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [commentIdDelete, setCommentIdDelete] = useState<string>('');
-    const [startIndex, setStartIndex] = useState<number>(9);
 
     const [pageNumber, setPageNumber] = useState<number>(1);
     const COMMENTS_PER_PAGE: number = 9;
 
-    const fetchCommentsByPage = async (page: number) => {
+    const fetchCommentsByPage = useCallback(async (page: number) => {
         const newStartIndex = (page - 1) * COMMENTS_PER_PAGE;
 
         try {
-            const response = await dispatch(getComments({ startIndex: newStartIndex, limit: COMMENTS_PER_PAGE })).unwrap();
-            const newComments = response.comments || [];
-
-            setStartIndex(newStartIndex);
+            await dispatch(getComments({ startIndex: newStartIndex, limit: COMMENTS_PER_PAGE })).unwrap();
             setPageNumber(page);
         } catch (error: any) {
             console.log(error.message);
             toast.error("Unable to load users");
         }
-    };
+    }, [dispatch]);
 
-    const handleShowMore = () => {
+    const handleShowMore = useCallback(() => {
         fetchCommentsByPage(pageNumber + 1);
-    };
+    }, [fetchCommentsByPage, pageNumber]);
 
-    const handleShowBack = () => {
+    const handleShowBack = useCallback(() => {
         fetchCommentsByPage(pageNumber - 1);
-    };
+    }, [fetchCommentsByPage, pageNumber]);
 
-    const handleGoToStart = () => {
+    const handleGoToStart = useCallback(() => {
         fetchCommentsByPage(1);
-    };
+    }, [fetchCommentsByPage]);
 
-    const handleGoToEnd = () => {
+    const handleGoToEnd = useCallback(() => {
         fetchCommentsByPage(Math.ceil(totalComments / COMMENTS_PER_PAGE));
-    };
+    }, [fetchCommentsByPage, totalComments]);
 
     useEffect(() => {
         if (currentUser && currentUser.isAdmin) fetchCommentsByPage(1);
-    }, [currentUser]);
+    }, [currentUser?.isAdmin, fetchCommentsByPage]);
 
     const handleDeleteComments = async () => {
         try {
             const response = await dispatch(deleteComments({ commentIdDelete })).unwrap();
-
-            // types of checking the error
-            // if (response.type === 'comment/deleteComments/rejected') {
-            //     toast.error(response.payload?.message || 'Failed to delete comment');
-            //     return;
-            // }
-
-            // if (deleteComments.rejected.match(response)) {
-            //     toast.error(response.payload?.message || 'Failed to delete comment');
-            //     return;
-            // }
-
             toast.success(response.message);
             setShowModal(false);
+            setCommentIdDelete('');
         } catch (error) {
             console.log(error)
             toast.error("You can't delete the comment");
@@ -86,17 +70,19 @@ const DashCommets = () => {
                 <>
                     <Table hoverable className='shadow-md'>
                         <TableHead>
-                            <TableHeadCell>Date updated</TableHeadCell>
-                            <TableHeadCell>Comment content</TableHeadCell>
-                            <TableHeadCell>Number of likes</TableHeadCell>
-                            <TableHeadCell>PostId</TableHeadCell>
-                            <TableHeadCell>UserId</TableHeadCell>
-                            <TableHeadCell>Delete</TableHeadCell>
+                            <TableRow>
+                                <TableHeadCell>Date updated</TableHeadCell>
+                                <TableHeadCell>Comment content</TableHeadCell>
+                                <TableHeadCell>Number of likes</TableHeadCell>
+                                <TableHeadCell>PostId</TableHeadCell>
+                                <TableHeadCell>UserId</TableHeadCell>
+                                <TableHeadCell>Delete</TableHeadCell>
+                            </TableRow>
                         </TableHead>
 
-                        {comments.map((commentItem) => (
-                            <TableBody className='divide-y' key={commentItem._id}>
-                                <TableRow className='bg-white dark:bg-gray-700'>
+                        <TableBody className='divide-y'>
+                            {comments.map((commentItem) => (
+                                <TableRow className='bg-white dark:bg-gray-700' key={commentItem._id}>
                                     <TableCell>{commentItem.updatedAt
                                         ? new Date(commentItem.updatedAt).toLocaleDateString()
                                         : 'N/A'}</TableCell>
@@ -126,8 +112,8 @@ const DashCommets = () => {
                                         </span>
                                     </TableCell>
                                 </TableRow>
-                            </TableBody>
-                        ))}
+                            ))}
+                        </TableBody>
                     </Table>
 
                     <Pagination

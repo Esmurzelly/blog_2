@@ -106,8 +106,6 @@ export const signInUser = createAsyncThunk<IUser, SignInUserArgs>(
 
             const data = await res.json();
 
-            console.log('data overall', data);
-
             if (!res.ok || data.success === false) {
                 return rejectWithValue(data);
             }

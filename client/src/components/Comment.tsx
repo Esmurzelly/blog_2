@@ -16,7 +16,7 @@ type Props = {
     onDelete: (commentId: string | number) => void;
 }
 
-const Comment = ({ comment, onLike, onDelete }: Props) => {
+const Comment = React.memo(({ comment, onLike, onDelete }: Props) => {
     const [user, setUser] = useState<IUser>();
     const { currentUser } = useSelector((state: RootState) => state.user);
     const dispatch = useAppDispatch();
@@ -134,6 +134,6 @@ const Comment = ({ comment, onLike, onDelete }: Props) => {
             </div>
         </div>
     )
-}
+})
 
 export default Comment

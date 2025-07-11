@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
 import { checkIsAuth, registerUser } from '../redux/user/userSlice'
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { RootState, useAppDispatch } from '../redux/store';
 
@@ -31,10 +31,11 @@ const SignUp = () => {
   }, [status, isAuth, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    const { id, value } = e.target
+    setFormData({ ...formData, [id]: value.trim() });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.username || !formData.email || !formData.password) {
@@ -43,13 +44,13 @@ const SignUp = () => {
 
     try {
       setErrorMessage(null);
-      dispatch(registerUser(formData));
+      await dispatch(registerUser(formData));
       navigate('/');
     } catch (error: any) {
       console.log(error);
       toast(error)
     }
-  }
+  }, [formData, dispatch, navigate])
 
   return (
     <div className="min-h-screen mt-20">

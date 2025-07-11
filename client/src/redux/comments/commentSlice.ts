@@ -64,6 +64,10 @@ const initialState: CommentState = {
 export const createComment = createAsyncThunk<CreateCommentResponse, CreateCommentArgs>(
     'comment/createComment',
     async ({ contentComment, postId, currentUserId }, { rejectWithValue }) => {
+
+        console.log('contentComment', contentComment);
+        console.log('postId', postId);
+        console.log('currentUserId', currentUserId);
         try {
             const res = await fetch('/api/comment/create', {
                 method: "POST",

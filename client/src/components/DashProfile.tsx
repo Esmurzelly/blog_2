@@ -1,6 +1,6 @@
 import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
-import React, { useRef, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useCallback, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
 import defaultAvatar from '../assets/user.png'
 import { toast } from 'react-toastify';
@@ -9,10 +9,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 import { RootState, useAppDispatch } from '../redux/store';
 
+interface IFomData {
+    username: string | undefined;
+    email: string | undefined;
+    password: string | undefined;
+}
+
 const DashProfile = () => {
     const { currentUser, loading } = useSelector((state: RootState) => state.user);
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState<IFomData>({
+        username: currentUser?.username || '',
+        email: currentUser?.email || '',
+        password: '',
+    });
     const [showModal, setShowModal] = useState<boolean>(false);
     const filePickerRef = useRef<HTMLInputElement>(null);
     const dispatch = useAppDispatch();
@@ -27,20 +37,20 @@ const DashProfile = () => {
             : defaultAvatar;
 
 
-    const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files && e.target.files[0];
-        
+
         if (file && file.type.includes('image')) {
             setImageFile(file);
         }
-    };
+    }, [imageFile])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value })
-    }
+        const { id, value } = e.target
+        setFormData({ ...formData, [id]: value })
+    };
 
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!currentUser) {
@@ -49,21 +59,21 @@ const DashProfile = () => {
         }
 
         try {
-            dispatch(updateUser({ formData, currentUserId: currentUser._id })).unwrap();
+            await dispatch(updateUser({ formData, currentUserId: currentUser._id })).unwrap();
 
             if (imageFile) {
                 const imageFormData = new FormData();
                 imageFormData.append('file', imageFile);
 
-                dispatch(updateUserPhoto({ imageFormData })).unwrap;
+                await dispatch(updateUserPhoto({ imageFormData })).unwrap();
                 setImageFile(null);
             }
 
             toast.success('You have updated your data successfuly')
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error?.message || 'Something went wrong');
         }
-    };
+    }, [dispatch, imageFile, formData, currentUser]);
 
     const handleDeleteUser = async () => {
         setShowModal(false);
@@ -74,23 +84,23 @@ const DashProfile = () => {
                 return;
             }
 
-            dispatch(deleteUser({ currentUserId: currentUser._id })).unwrap();
+            await dispatch(deleteUser({ currentUserId: currentUser._id })).unwrap();
             toast.success("You have deleted your account successfuly");
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error?.message || 'Something went wrong');
         }
     };
 
     const handleSignout = async () => {
         try {
-            dispatch(signOutUser()).unwrap();
+            await dispatch(signOutUser()).unwrap();
             dispatch(signOutSuccess());
 
             toast.success("You have signed out successfuly");
             navigate('/sign-in')
         } catch (error: any) {
-            console.log(error.message)
-            toast.error(error.message)
+            console.log(error.message);
+            toast.error(error?.message || 'Something went wrong');
         }
     }
 
@@ -131,8 +141,8 @@ const DashProfile = () => {
             </form>
 
             <div className="text-red-500 flex justify-between items-center mt-5">
-                <div onClick={() => setShowModal(true)} className="cursor-pointer">Delete account</div>
-                <div onClick={handleSignout} className="cursor-pointer">Sign Out</div>
+                <button onClick={() => setShowModal(true)} className="cursor-pointer">Delete account</button>
+                <button onClick={handleSignout} className="cursor-pointer">Sign Out</button>
             </div>
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Select, TextInput } from 'flowbite-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getPosts } from '../redux/posts/postSlice';
 import Pagination from '../components/Pagination';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
 import { RootState, useAppDispatch } from '../redux/store';
+import SearchForm from '../components/SearchForm';
 
 type ISidebar = {
     searchTerm: string,
@@ -33,7 +34,7 @@ const Search = () => {
     const [pageNumber, setPageNumber] = useState<number>(1);
     const POSTS_PER_PAGE: number = 9;
 
-    const fetchPostsByPage = async (page: number) => {
+    const fetchPostsByPage = useCallback(async (page: number) => {
         const newStartIndex = (page - 1) * POSTS_PER_PAGE;
 
         try {
@@ -47,25 +48,25 @@ const Search = () => {
             setPageNumber(page);
         } catch (error: any) {
             console.log(error.message);
-            toast.error("Unable to load users");
+            toast.error("Unable to load posts");
         }
-    };
+    }, [dispatch, location.search]);
 
-    const handleShowMore = () => {
+    const handleShowMore = useCallback(() => {
         fetchPostsByPage(pageNumber + 1);
-    };
+    }, [fetchPostsByPage, pageNumber]);
 
-    const handleShowBack = () => {
+    const handleShowBack = useCallback(() => {
         fetchPostsByPage(pageNumber - 1);
-    };
+    }, [fetchPostsByPage, pageNumber]);
 
-    const handleGoToStart = () => {
+    const handleGoToStart = useCallback(() => {
         fetchPostsByPage(1);
-    };
+    }, [fetchPostsByPage]);
 
-    const handleGoToEnd = () => {
+    const handleGoToEnd = useCallback(() => {
         fetchPostsByPage(Math.ceil(totalPosts / POSTS_PER_PAGE));
-    };
+    }, [fetchPostsByPage, totalPosts]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -86,7 +87,7 @@ const Search = () => {
         fetchPostsByPage(1);
     }, [location.search])
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         if (e.target.id === 'searchTerm') setSidebarData({ ...sidebarData, searchTerm: e.target.value });
 
         if (e.target.id === 'sort') {
@@ -98,9 +99,9 @@ const Search = () => {
             const category = e.target.value || '';
             setSidebarData({ ...sidebarData, category });
         }
-    }
+    }, [navigate, sidebarData])
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         const urlParams = new URLSearchParams(location.search);
@@ -120,9 +121,9 @@ const Search = () => {
 
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
-    }
+    }, [sidebarData]);
 
-    const handleClearFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClearFilter = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         setSidebarData({
@@ -132,14 +133,23 @@ const Search = () => {
         });
 
         navigate('/search');
-    }
+    }, [sidebarData, setSidebarData])
 
     if (loading) return <Loader />
 
     return (
         <div className='flex flex-col md:flex-row'>
             <div className='p-7 border-b md:border-r md:min-h-screen border-gray-500'>
-                <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
+                <SearchForm
+                    category={sidebarData.category}
+                    searchTerm={sidebarData.searchTerm}
+                    sort={sidebarData.sort || 'desc'}
+                    onClearFilter={handleClearFilter}
+                    onChange={handleChange}
+                    onSubmit={handleSubmit}
+                />
+
+                {/* <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
                     <div className='flex justify-between items-center gap-2'>
                         <label className='whitespace-nowrap font-semibold w-1/2'>Search Term:</label>
                         <TextInput
@@ -179,7 +189,7 @@ const Search = () => {
                     <Button type='button' className='bg-red-700! cursor-pointer' onClick={handleClearFilter}>
                         Clear Filters
                     </Button>
-                </form>
+                </form> */}
             </div>
 
             <div className='w-full'>

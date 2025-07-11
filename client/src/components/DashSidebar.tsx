@@ -16,14 +16,14 @@ const DashSidebar = () => {
 
     const handleSignout = async () => {
         try {
-            const response = await dispatch(signOutUser()).unwrap();
+            await dispatch(signOutUser()).unwrap();
             dispatch(signOutSuccess());
 
             toast.success("You have signed out successfuly");
             navigate('/sign-in')
         } catch (error: any) {
             console.log(error.message)
-            toast.error(error.message)
+            toast.error(error.message || 'Something went wrong')
         }
     }
 

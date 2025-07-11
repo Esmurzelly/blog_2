@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from './Loader';
-import { useDispatch } from 'react-redux';
 import { deletePost, getPosts } from '../redux/posts/postSlice';
 import Pagination from './Pagination';
 import { RootState, useAppDispatch } from '../redux/store';
@@ -16,13 +14,12 @@ const DashPosts = () => {
   const { posts, totalPosts } = useSelector((state: RootState) => state.posts);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [postIdDelete, setPostIdDelete] = useState<string>('');
-  const [startIndex, setStartIndex] = useState<number>(0);
   const dispatch = useAppDispatch();
 
   const [pageNumber, setPageNumber] = useState<number>(1);
   const POSTS_PER_PAGE: number = 9;
 
-  const fetchPostsByPage = async (page: number) => {
+  const fetchPostsByPage = useCallback(async (page: number) => {
     const newStartIndex = (page - 1) * POSTS_PER_PAGE;
 
     try {
@@ -31,34 +28,32 @@ const DashPosts = () => {
       const searchQuery = urlParams.toString();
 
       dispatch(getPosts({ searchQuery }));
-
-      setStartIndex(newStartIndex);
       setPageNumber(page);
     } catch (error: any) {
       console.log(error.message);
       toast.error("Unable to load users");
     }
-  };
+  }, [dispatch])
 
-  const handleShowMore = () => {
+  const handleShowMore = useCallback(() => {
     fetchPostsByPage(pageNumber + 1);
-  };
+  }, [fetchPostsByPage, pageNumber])
 
-  const handleShowBack = () => {
+  const handleShowBack = useCallback(() => {
     fetchPostsByPage(pageNumber - 1);
-  };
+  }, [fetchPostsByPage, pageNumber])
 
-  const handleGoToStart = () => {
+  const handleGoToStart = useCallback(() => {
     fetchPostsByPage(1);
-  };
+  }, [fetchPostsByPage])
 
-  const handleGoToEnd = () => {
+  const handleGoToEnd = useCallback(() => {
     fetchPostsByPage(Math.ceil(totalPosts / POSTS_PER_PAGE));
-  };
+  }, [fetchPostsByPage, totalPosts])
 
   useEffect(() => {
     if (currentUser && currentUser.isAdmin) fetchPostsByPage(1);
-  }, [currentUser]);
+  }, [currentUser?.isAdmin, fetchPostsByPage]);
 
   const handleDeletePost = async () => {
     setShowModal(false);
@@ -69,14 +64,16 @@ const DashPosts = () => {
     }
 
     try {
-      dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id }));
-
+      await dispatch(deletePost({ postId: postIdDelete, currentUserId: currentUser._id })).unwrap();
       toast.success("You deleted the posts successfuly");
+      setPostIdDelete('');
     } catch (error: any) {
       console.log(error.message);
       toast.error("You can't delete the posts");
     }
   }
+
+  if (!posts || posts.length === 0) return <h1>No Posts</h1>
 
   return (
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300'>
@@ -84,19 +81,21 @@ const DashPosts = () => {
         <>
           <Table hoverable className='shadow-md'>
             <TableHead>
-              <TableHeadCell>Date updated</TableHeadCell>
-              <TableHeadCell>Post image</TableHeadCell>
-              <TableHeadCell>Post title</TableHeadCell>
-              <TableHeadCell>Category</TableHeadCell>
-              <TableHeadCell>Delete</TableHeadCell>
-              <TableHeadCell>
-                <span>Edit</span>
-              </TableHeadCell>
+              <TableRow>
+                <TableHeadCell>Date updated</TableHeadCell>
+                <TableHeadCell>Post image</TableHeadCell>
+                <TableHeadCell>Post title</TableHeadCell>
+                <TableHeadCell>Category</TableHeadCell>
+                <TableHeadCell>Delete</TableHeadCell>
+                <TableHeadCell>
+                  <span>Edit</span>
+                </TableHeadCell>
+              </TableRow>
             </TableHead>
 
-            {posts.map((post) => (
-              <TableBody className='divide-y'>
-                <TableRow className='bg-white dark:bg-gray-700'>
+            <TableBody className='divide-y'>
+              {posts.map((post) => (
+                <TableRow className='bg-white dark:bg-gray-700' key={post._id}>
                   <TableCell>
                     {post.updatedAt ? new Date(post.updatedAt).toLocaleDateString() : 'N/A'}
                   </TableCell>
@@ -131,8 +130,8 @@ const DashPosts = () => {
                     </Link>
                   </TableCell>
                 </TableRow>
-              </TableBody>
-            ))}
+              ))}
+            </TableBody>
           </Table>
 
           <Pagination

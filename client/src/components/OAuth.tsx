@@ -32,7 +32,7 @@ const OAuth = () => {
                 googlePhotoUrl: resultsFromGoogle.user.photoURL ?? '',
             }
 
-            dispatch(signInGoogle(resultsFromGoogleObj)).unwrap();
+            await dispatch(signInGoogle(resultsFromGoogleObj)).unwrap();
             toast.success('You signed in successfuly')
             navigate('/');
         } catch (error) {

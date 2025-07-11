@@ -1,5 +1,5 @@
-import React, { FormEvent, useEffect, useState } from 'react'
-import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarBrand, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
+import React, { FormEvent, useCallback, useEffect, useState } from 'react'
+import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
 import { useSelector } from 'react-redux'
@@ -10,8 +10,8 @@ import ChangeThemeButton from './ChangeThemeButton'
 import { RootState, useAppDispatch } from '../redux/store'
 
 const Header = () => {
-  const path = useLocation().pathname;
   const location = useLocation();
+  const path = location.pathname;
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
@@ -44,13 +44,8 @@ const Header = () => {
 
   const handleSignout = async () => {
     try {
-      const response = await dispatch(signOutUser());
+      await dispatch(signOutUser()).unwrap();
       dispatch(signOutSuccess());
-
-      if (response.payload.success === false) {
-        toast.error(response.payload.message);
-        return;
-      }
 
       toast.success("You have signed out successfuly");
       navigate('/sign-in')
@@ -59,14 +54,14 @@ const Header = () => {
     }
   }
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('searchTerm', searchTerm);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
-  }
+  }, [navigate, searchTerm, location.search])
 
   const handleSwitchTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));

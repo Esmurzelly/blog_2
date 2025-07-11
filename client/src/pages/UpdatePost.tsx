@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TextInput, Select, FileInput, Button } from 'flowbite-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import defaultAvatar from '../assets/user.png'
+import { useSelector } from 'react-redux';
 import Loader from '../components/Loader';
 import { updatePost, getCurrentPost } from '../redux/posts/postSlice';
 import { IPost } from '../types/types';
 import { RootState, useAppDispatch } from '../redux/store';
-
 
 const UpdatePost = () => {
     const [image, setImage] = useState<File | null>(null);
@@ -28,18 +26,19 @@ const UpdatePost = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        try {
-            const fetchPost = async () => {
+        const fetchPost = async () => {
+            try {
                 const response = await dispatch(getCurrentPost({ postId })).unwrap();
 
                 setFormData({ ...formData, ...response.posts[0] })
                 toast.success('You got the post successfuly');
-            };
+            } catch (error: any) {
+                toast.error(error.message);
 
-            fetchPost();
-        } catch (error: any) {
-            toast.error(error.message);
+            }
         }
+
+        fetchPost();
     }, []);
 
     const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,11 +47,11 @@ const UpdatePost = () => {
         if (file && file.type.includes('image')) {
             setImage(file);
         }
-    }
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value })
     };
+
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value })
+    }, [formData])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -69,7 +68,7 @@ const UpdatePost = () => {
                 form.append('image', formData.image ? formData.image : 'https://simplybuiltsites.com/wp-content/uploads/how-to-write-a-blog-post.png');
             }
 
-            const response = await dispatch(updatePost({ form, formDataId: formData._id, currentUserId: currentUser && currentUser._id }));
+            await dispatch(updatePost({ form, formDataId: formData._id, currentUserId: currentUser && currentUser._id })).unwrap();
 
             toast.success("Post is updated")
             navigate(`/post/${formData._id}`);

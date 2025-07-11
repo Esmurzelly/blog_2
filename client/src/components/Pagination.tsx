@@ -11,7 +11,7 @@ type Props = {
     onFetchData: (arg: number) => void;
 }
 
-const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNumber, onFetchData }: Props) => {
+const Pagination = React.memo(({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNumber, onFetchData }: Props) => {
   const ITEMS_PER_PAGE = 9;
     return (
         <div className="flex justify-center items-center mt-4 gap-2 p-10">
@@ -39,6 +39,6 @@ const Pagination = ({ totalItem, onStart, onEnd, onShowMore, onShowLess, pageNum
             </div>
         </div>
     )
-}
+});
 
 export default Pagination
