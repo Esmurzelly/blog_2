@@ -1,14 +1,14 @@
-import { Button } from 'flowbite-react';
 import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify';
+import { RootState, useAppDispatch } from '../redux/store';
+import { getCurrentPost, getPosts } from '../redux/posts/postSlice';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
 import Loader from '../components/Loader';
-import { useSelector } from 'react-redux';
-import { getCurrentPost, getPosts } from '../redux/posts/postSlice';
-import { RootState, useAppDispatch } from '../redux/store';
+import { Button } from 'flowbite-react';
+import { toast } from 'react-toastify';
 
 const PostPage = () => {
     const { postId } = useParams();

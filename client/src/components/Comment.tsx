@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
+import { RootState, useAppDispatch } from '../redux/store';
 import { editComment } from '../redux/comments/commentSlice';
 import { getUser } from '../redux/user/userSlice';
-import { toast } from 'react-toastify';
-import defaultAvatar from '../assets/defaultAvatar.jpg';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 import { RiThumbUpLine } from "react-icons/ri";
 import { Button, Textarea } from 'flowbite-react';
+import defaultAvatar from '../assets/defaultAvatar.jpg';
 import { IComment, IUser } from '../types/types';
-import { RootState, useAppDispatch } from '../redux/store';
 
 type Props = {
     comment: IComment
@@ -31,7 +31,7 @@ const Comment = React.memo(({ comment, onLike, onDelete }: Props) => {
             : defaultAvatar;
 
     useEffect(() => {
-        const getCurrentUser = async () => { // lots of requests
+        const getCurrentUser = async () => {
             try {
                 const response = await dispatch(getUser({ commentUserId: comment.userId })).unwrap();
                 setUser(response.user)
@@ -51,7 +51,7 @@ const Comment = React.memo(({ comment, onLike, onDelete }: Props) => {
 
     const handleSave = async () => {
         try {
-            const response = await dispatch(editComment({ commentId: comment._id, editedContent }));
+            await dispatch(editComment({ commentId: comment._id, editedContent })).unwrap();
             setIsEditing(false);
         } catch (error: any) {
             console.log(error.message);

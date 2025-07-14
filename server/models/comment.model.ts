@@ -11,10 +11,10 @@ const commentSchema = new Schema<IComment>({
         required: true,
     },
     userId: {
-        type: String,
-        required: true,
+        type: Schema.Types.ObjectId,
+        ref: "User"
     },
-    likes: { // which user likes the current comment
+    likes: {
         type: [String],
         default: [],
     },

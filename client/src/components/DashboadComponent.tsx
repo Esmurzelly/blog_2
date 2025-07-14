@@ -1,15 +1,15 @@
-import { Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import React, { useEffect } from 'react'
-import { HiAnnotation, HiArrowNarrowUp, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
-import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import defaultAvatar from '../assets/user.png'
-import Loader from './Loader';
+import { useSelector } from 'react-redux'
 import { getUsers } from '../redux/user/userSlice';
 import { getComments } from '../redux/comments/commentSlice';
 import { getPosts } from '../redux/posts/postSlice';
 import { RootState, useAppDispatch } from '../redux/store';
+import Loader from './Loader';
+import { toast } from 'react-toastify';
+import { HiAnnotation, HiArrowNarrowUp, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
+import { Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
+import defaultAvatar from '../assets/user.png'
 
 const DashboadComponent = () => {
     const { currentUser, users, totalUsers, lastMonthUsers, loading: userLoading } = useSelector((state: RootState) => state.user);

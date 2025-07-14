@@ -2,8 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { IPost, RejectError } from "../../types/types";
 
-
-
 interface PostState {
     posts: IPost[],
     currentPost: IPost | null,
@@ -51,7 +49,6 @@ export const getPosts = createAsyncThunk<GetPostsResponse, { searchQuery: string
     'posts/getPosts',
     async ({ searchQuery }, { rejectWithValue }) => {
         try {
-            // const res = await fetch(`/api/post/getposts?${searchQuery}&limit=${limit}&slug=${slug}`);
             const res = await fetch(`/api/post/getposts?${searchQuery}`);
 
             if (!res.ok) {
@@ -229,7 +226,5 @@ const postSlice = createSlice({
             })
     }
 })
-
-// export const { } = postSlice.actions;
 
 export default postSlice.reducer;

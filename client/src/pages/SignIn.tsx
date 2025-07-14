@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Label, Spinner, TextInput } from 'flowbite-react'
+import React, { useCallback, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInUser } from '../redux/user/userSlice'
 import { useSelector } from 'react-redux'
+import { RootState, useAppDispatch } from '../redux/store'
+import { signInUser } from '../redux/user/userSlice'
 import OAuth from '../components/OAuth'
 import Loader from '../components/Loader'
 import { toast } from 'react-toastify'
-import { RootState, useAppDispatch } from '../redux/store'
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { Button, Label, Spinner, TextInput } from 'flowbite-react'
 
 interface IForm {
   email: string;

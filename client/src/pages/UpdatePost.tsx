@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { TextInput, Select, FileInput, Button } from 'flowbite-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Loader from '../components/Loader';
-import { updatePost, getCurrentPost } from '../redux/posts/postSlice';
-import { IPost } from '../types/types';
 import { RootState, useAppDispatch } from '../redux/store';
+import { updatePost, getCurrentPost } from '../redux/posts/postSlice';
+import { TextInput, Select, FileInput, Button } from 'flowbite-react';
+import Loader from '../components/Loader';
+import ReactQuill from 'react-quill-new';
+import { toast } from 'react-toastify';
+import 'react-quill-new/dist/quill.snow.css';
+import { IPost } from '../types/types';
 
 const UpdatePost = () => {
     const [image, setImage] = useState<File | null>(null);

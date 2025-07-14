@@ -52,10 +52,10 @@ export const likeComment = async (req, res, next) => {
 
         if (userIndex === -1) {
             comment.numberOfLikes += 1;
-            comment.likes.push(req.user.id); // adding like
+            comment.likes.push(req.user.id); // add like
         } else {
             comment.numberOfLikes -= 1;
-            comment.likes.splice(userIndex, 1); // removing like
+            comment.likes.splice(userIndex, 1); // remove like
         }
 
         await comment.save();

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom';
-import CallToAction from '../components/CallToAction';
-import PostCard from '../components/PostCard';
-import Loader from '../components/Loader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getPosts } from '../redux/posts/postSlice';
 import { RootState, useAppDispatch } from '../redux/store';
+import Loader from '../components/Loader';
+import PostCard from '../components/PostCard';
+import CallToAction from '../components/CallToAction';
 
 const Home = () => {
   const { posts, loading } = useSelector((state: RootState) => state.posts);

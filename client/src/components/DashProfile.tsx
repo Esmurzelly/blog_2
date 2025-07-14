@@ -1,13 +1,13 @@
-import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react';
 import { useSelector } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom';
+import { RootState, useAppDispatch } from '../redux/store';
 import { signOutSuccess, updateUser, updateUserPhoto, deleteUser, signOutUser } from '../redux/user/userSlice';
-import defaultAvatar from '../assets/user.png'
+import { Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react';
+import Loader from './Loader';
 import { toast } from 'react-toastify';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Link, useNavigate } from 'react-router-dom';
-import Loader from './Loader';
-import { RootState, useAppDispatch } from '../redux/store';
+import defaultAvatar from '../assets/user.png'
 
 interface IFomData {
     username: string | undefined;

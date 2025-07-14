@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from 'flowbite-react'
-import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiAnnotation } from 'react-icons/hi'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { signOutSuccess, signOutUser } from '../redux/user/userSlice';
-import { toast } from 'react-toastify';
 import { RootState, useAppDispatch } from '../redux/store';
+import { signOutSuccess, signOutUser } from '../redux/user/userSlice';
+import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from 'flowbite-react'
+import { toast } from 'react-toastify';
+import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiAnnotation } from 'react-icons/hi'
 
 const DashSidebar = () => {
     const { currentUser } = useSelector((state: RootState) => state.user);

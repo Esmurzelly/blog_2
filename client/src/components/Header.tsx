@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AiOutlineSearch } from 'react-icons/ai'
 import { useSelector } from 'react-redux'
-import defaultAvatar from '../assets/user.png'
-import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
-import { toast } from 'react-toastify'
-import ChangeThemeButton from './ChangeThemeButton'
 import { RootState, useAppDispatch } from '../redux/store'
+import { signOutSuccess, signOutUser } from '../redux/user/userSlice'
+import ChangeThemeButton from './ChangeThemeButton'
+import { toast } from 'react-toastify'
+import { AiOutlineSearch } from 'react-icons/ai'
+import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
+import defaultAvatar from '../assets/user.png'
 
 const Header = () => {
   const location = useLocation();

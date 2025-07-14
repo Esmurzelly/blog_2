@@ -13,7 +13,7 @@ export interface IUser {
 export interface IComment {
     content: string,
     postId: string,
-    userId: string,
+    userId: Types.ObjectId,
     likes: Array<string>,
     numberOfLikes: number,
     createdAt?: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Footer, FooterTitle, FooterLinkGroup, FooterLink, FooterDivider, FooterCopyright, FooterIcon } from 'flowbite-react';
 import { BsFacebook, BsInstagram, BsTwitter, BsGithub, BsDribbble } from 'react-icons/bs'
+import { Footer, FooterTitle, FooterLinkGroup, FooterLink, FooterDivider, FooterCopyright, FooterIcon } from 'flowbite-react';
 
 const FooterComponent = () => {
     return (

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import defaultAvatar from '../assets/defaultAvatar.jpg'
-import { Button, Modal, ModalBody, ModalHeader, Textarea } from 'flowbite-react';
-import { toast } from 'react-toastify';
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
 import { RootState, useAppDispatch } from '../redux/store';
+import { createComment, deleteComments, getPostComments, addLikeComment } from '../redux/comments/commentSlice';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
+import { toast } from 'react-toastify';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
+import defaultAvatar from '../assets/defaultAvatar.jpg'
 
 const CommentSection = ({ postId }: { postId: string | number | undefined }) => {
     const { currentUser } = useSelector((state: RootState) => state.user);
@@ -115,22 +115,6 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
                     commentContent={comment}
                     setComment = {setComment}
                 />
-                // <form onSubmit={handleSubmit} className='border border-teal-500 rounded-md p-3'>
-                //     <Textarea
-                //         placeholder='Add a comment...'
-                //         // @ts-ignore
-                //         type='text'
-                //         rows={3}
-                //         maxLength={200}
-                //         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-                //         value={comment}
-                //     />
-
-                //     <div className="flex justify-between items-center mt-5">
-                //         <p className='text-gray-500 text-xs'>{200 - comment.length} characters remaining</p>
-                //         <Button outline className='bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer text-white!' type='submit'>Submit</Button>
-                //     </div>
-                // </form>
             )}
 
             {comments.length === 0 ? (
@@ -141,26 +125,6 @@ const CommentSection = ({ postId }: { postId: string | number | undefined }) => 
                     onLike={handleLike}
                     onDelete={handleDelete}
                 />
-                // <>
-                //     <div className='text-sm my-5 flex items-center gap-1'>
-                //         <p>Comments</p>
-                //         <div className="border border-gray-400 py-1 px-2 rounded-sm">
-                //             <p>{comments.length}</p>
-                //         </div>
-                //     </div>
-
-                //     {comments && comments.map((commentItem) => (
-                //         <Comment
-                //             key={commentItem?._id}
-                //             comment={commentItem}
-                //             onLike={handleLike}
-                //             onDelete={(commentId) => {
-                //                 setShowModal(true)
-                //                 setCommentIdDelete(commentId)
-                //             }}
-                //         />
-                //     ))}
-                // </>
             )}
 
             <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>

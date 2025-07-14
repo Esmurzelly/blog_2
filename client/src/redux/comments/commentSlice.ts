@@ -144,7 +144,7 @@ export const addLikeComment = createAsyncThunk<UpdateLikeComment, { commentId: s
             }
 
             const data = await res.json();
-            return data; // comment / numberOfLikes
+            return data;
         } catch (error: any) {
             return rejectWithValue({ message: error.message || 'Something went wrong' })
         }
@@ -225,7 +225,7 @@ const commentSlice = createSlice({
             .addCase(getPostComments.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(getPostComments.fulfilled, (state, action: PayloadAction<any>) => { // ?
+            .addCase(getPostComments.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 state.comments = action.payload.comments;
             })
@@ -237,7 +237,7 @@ const commentSlice = createSlice({
             .addCase(createComment.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(createComment.fulfilled, (state, action: PayloadAction<CreateCommentResponse>) => { // ?
+            .addCase(createComment.fulfilled, (state, action: PayloadAction<CreateCommentResponse>) => {
                 state.loading = false;
                 state.comments = [action.payload.newComment, ...state.comments];
                 state.status = action.payload.message;

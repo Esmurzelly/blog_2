@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import Loader from './Loader';
-import { deletePost, getPosts } from '../redux/posts/postSlice';
-import Pagination from './Pagination';
+import { useSelector } from 'react-redux'
 import { RootState, useAppDispatch } from '../redux/store';
+import { deletePost, getPosts } from '../redux/posts/postSlice';
+import Loader from './Loader';
+import Pagination from './Pagination';
+import { toast } from 'react-toastify';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 
 const DashPosts = () => {
   const { currentUser } = useSelector((state: RootState) => state.user);

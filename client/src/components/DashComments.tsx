@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import Loader from './Loader';
 import { getComments, deleteComments } from '../redux/comments/commentSlice';
-import Pagination from './Pagination';
 import { RootState, useAppDispatch } from '../redux/store';
+import Loader from './Loader';
+import Pagination from './Pagination';
+import { toast } from 'react-toastify';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Button, Modal, ModalBody, ModalHeader, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 
 const DashCommets = () => {
     const { currentUser } = useSelector((state: RootState) => state.user);

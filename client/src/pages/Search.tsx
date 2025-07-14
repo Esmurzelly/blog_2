@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Select, TextInput } from 'flowbite-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import PostCard from '../components/PostCard';
 import { useSelector } from 'react-redux';
 import { getPosts } from '../redux/posts/postSlice';
-import Pagination from '../components/Pagination';
-import { toast } from 'react-toastify';
-import Loader from '../components/Loader';
 import { RootState, useAppDispatch } from '../redux/store';
+import Loader from '../components/Loader';
+import PostCard from '../components/PostCard';
+import Pagination from '../components/Pagination';
 import SearchForm from '../components/SearchForm';
+import { toast } from 'react-toastify';
 
 type ISidebar = {
     searchTerm: string,
@@ -148,48 +147,6 @@ const Search = () => {
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                 />
-
-                {/* <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
-                    <div className='flex justify-between items-center gap-2'>
-                        <label className='whitespace-nowrap font-semibold w-1/2'>Search Term:</label>
-                        <TextInput
-                            className='w-1/2'
-                            placeholder='Search...'
-                            id='searchTerm'
-                            type='text'
-                            value={sidebarData.searchTerm}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                    <div className='flex justify-between items-center gap-2'>
-                        <label className='font-semibold w-1/2'>Sort:</label>
-                        <Select className='w-1/2' value={sidebarData.sort} id='sort' onChange={handleChange}>
-                            <option value='desc'>Latest</option>
-                            <option value='asc'>Oldest</option>
-                        </Select>
-                    </div>
-
-                    <div className='flex justify-between items-center gap-2'>
-                        <label className='font-semibold w-1/2'>Category:</label>
-                        <Select className='w-1/2' value={sidebarData.category} id='category' onChange={handleChange}>
-                            <option value=''>All Categories</option>
-                            <option value='uncategorized'>Uncategorized</option>
-                            <option value='reactjs'>React.js</option>
-                            <option value='nextjs'>Next.js</option>
-                            <option value='javascript'>JavaScript</option>
-                            <option value='nodejs'>NodeJS</option>
-                        </Select>
-                    </div>
-
-                    <Button type='button' className='cursor-pointer' onClick={handleSubmit}>
-                        Apply Filters
-                    </Button>
-
-                    <Button type='button' className='bg-red-700! cursor-pointer' onClick={handleClearFilter}>
-                        Clear Filters
-                    </Button>
-                </form> */}
             </div>
 
             <div className='w-full'>

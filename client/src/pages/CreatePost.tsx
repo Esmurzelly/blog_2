@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { TextInput, Select, FileInput, Button } from 'flowbite-react';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../redux/store';
+import { createPost } from '../redux/posts/postSlice';
+import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { createPost } from '../redux/posts/postSlice';
-import { useAppDispatch } from '../redux/store';
+import { TextInput, Select, FileInput, Button } from 'flowbite-react';
 
-interface IForm {
+interface IFormPost {
   title: string;
   category: string;
   content: string;
@@ -16,7 +16,7 @@ interface IForm {
 
 const CreatePost = () => {
   const [image, setImage] = useState<File | null>(null);
-  const [formData, setFormData] = useState<IForm>({
+  const [formData, setFormData] = useState<IFormPost>({
     title: '',
     category: 'uncategorized',
     content: '',

@@ -327,7 +327,6 @@ const userSlice = createSlice({
             .addCase(getUser.fulfilled, (state, action: PayloadAction<GetUserResponse>) => {
                 state.loading = false;
                 state.currentUser = action.payload.user;
-                // state.status = action.payload?.message || "Signed in successfully";
             })
             .addCase(getUser.rejected, (state, action) => {
                 state.loading = false;

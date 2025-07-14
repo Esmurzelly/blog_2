@@ -7,10 +7,10 @@ import { UploadedFile } from "express-fileupload";
 import { ParsedQs } from 'qs'
 
 interface IRequestWithUserAndFiles extends Request<
-    Record<string, any>, // params
-    any,                 // resBody
-    any,                 // reqBody
-    ParsedQs             // query
+    Record<string, any>,
+    any,
+    any,
+    ParsedQs
 > {
     user: IUserId;
     files?: {
@@ -43,7 +43,7 @@ interface IUpdatePostBody {
     title?: string;
     content?: string;
     category?: string;
-    image?: string; // добавляем image как опциональное поле
+    image?: string;
 }
 
 
@@ -83,8 +83,6 @@ export const create = async (
                 userId: req.user.id,
                 image: postImageName,
             });
-
-            // newPostWithImage.image = postImageName;
 
             await newPostWithImage.save();
 

@@ -1,5 +1,5 @@
-import { Button } from 'flowbite-react'
 import React from 'react'
+import { Button } from 'flowbite-react'
 
 const CallToAction = () => {
   return (
