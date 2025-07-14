@@ -22,7 +22,7 @@ const PostPage = () => {
                 dispatch(getCurrentPost({ postId }));
             } catch (error: any) {
                 toast.error(error || status);
-                console.log(error || status)
+                console.log(error || status);
             }
         };
         fetchPost();

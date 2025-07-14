@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from 'flowbite-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineSearch } from 'react-icons/ai'
@@ -20,9 +20,10 @@ const Header = () => {
     return typeof window !== 'undefined' ? (localStorage.getItem("theme") as 'light' | 'dark') || "light" : "light";
   });
 
-  const profilePicture = currentUser?.profilePicture
-    // @ts-ignore
-    ? `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
+  const profilePicture = currentUser && currentUser.profilePicture
+    ? currentUser?.profilePicture.startsWith('https') ? currentUser?.profilePicture
+      //@ts-ignore
+      : `${import.meta.env.VITE_PROFILE_IMAGE_URL}/static/userAvatar/${currentUser.profilePicture}`
     : defaultAvatar;
 
   useEffect(() => {
@@ -54,7 +55,7 @@ const Header = () => {
     }
   }
 
-  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const urlParams = new URLSearchParams(location.search);

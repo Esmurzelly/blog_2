@@ -41,9 +41,12 @@ const Home = () => {
           your knowledge and skills.
         </p>
 
-        <Link to={'/search'} className='text-xs sm:text-sm text-teal-500 font-bold hover:underline'>
-          View all posts
-        </Link>
+        <div className='w-full flex'>
+          <Link to={'/search'} className='text-xs sm:text-sm text-teal-500 font-bold hover:underline'>
+            View all posts
+          </Link>
+        </div>
+
 
         <div className='p-3 bg-amber-100'>
           <CallToAction />

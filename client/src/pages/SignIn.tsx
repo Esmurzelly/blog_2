@@ -7,6 +7,7 @@ import OAuth from '../components/OAuth'
 import Loader from '../components/Loader'
 import { toast } from 'react-toastify'
 import { RootState, useAppDispatch } from '../redux/store'
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface IForm {
   email: string;
@@ -14,10 +15,13 @@ interface IForm {
 }
 
 const SignIn = () => {
-  const [formData, setFormData] = useState<IForm>({
-    email: '',
-    password: '',
+  const { register, handleSubmit, formState: { errors } } = useForm<IForm>({
+    defaultValues: {
+      email: '',
+      password: '',
+    }
   });
+
   const { loading, currentUser } = useSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -28,28 +32,21 @@ const SignIn = () => {
     }
   }, [currentUser, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value.trim() });
-  };
-
-  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!formData.email || !formData.password) {
+  const onSubmit: SubmitHandler<IForm> = useCallback(async (data) => {
+    if (!data.email || !data.password) {
       toast.error("Sing in failed. Please fill all fields.");
       return;
     }
 
     try {
-      await dispatch(signInUser(formData)).unwrap();
+      await dispatch(signInUser(data)).unwrap();
       navigate('/');
     } catch (error: any) {
       console.log(error);
       toast.error('Wrong data')
       return;
     }
-  }, [formData, dispatch, navigate])
+  }, [dispatch, navigate]);
 
   if (loading) return <Loader />
 
@@ -69,19 +66,26 @@ const SignIn = () => {
         </div>
 
         <div className="flex-1">
-          <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
             <div>
               <Label className="text-black" htmlFor="email">
                 <p className='mb-2'>Your email</p>
               </Label>
-              <TextInput autoComplete='email' required onChange={handleChange} id='email' type='email' placeholder='adam@gmail.com' />
+              <TextInput {...register('email', { required: true, minLength: 8, maxLength: 30 })} autoComplete='email' required id='email' type='email' placeholder='adam@gmail.com' />
+              {errors.email?.type === 'email' && <p role='alert'>This field is required</p>}
+              {errors.email?.type === 'minLength' && <p role='alert'>Enter more than 8 symbols</p>}
+              {errors.email?.type === 'maxLength' && <p role='alert'>Enter less than 30 symbols</p>}
             </div>
 
             <div>
               <Label className="text-black" htmlFor="password">
                 <p className='mb-2'>Your password</p>
               </Label>
-              <TextInput onChange={handleChange} id='password' type='password' placeholder='******' />
+              <TextInput {...register('password', { required: true, minLength: 5, maxLength: 30, pattern: /^[a-zA-Z0-9]+$/ })} id='password' type='password' placeholder='******' />
+              {errors.password?.type === 'password' && <p role='alert'>This field is required</p>}
+              {errors.password?.type === 'minLength' && <p role='alert'>Enter more than 8 symbols</p>}
+              {errors.password?.type === 'maxLength' && <p role='alert'>Enter less than 30 symbols</p>}
+              {errors.password?.type === 'pattern' && <p role='alert'>Password must contain only letters and numbers</p>}
             </div>
 
             <Button disabled={loading} type='submit' className='cursor-pointer bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500'>

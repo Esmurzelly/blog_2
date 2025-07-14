@@ -6,6 +6,8 @@ import { checkIsAuth, registerUser } from '../redux/user/userSlice'
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { RootState, useAppDispatch } from '../redux/store';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { RxUpdate } from "react-icons/rx";
 
 interface IForm {
   username: string;
@@ -14,12 +16,14 @@ interface IForm {
 }
 
 const SignUp = () => {
-  const [formData, setFormData] = useState<IForm>({
-    username: '',
-    email: '',
-    password: '',
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<IForm>({
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+    }
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { status, loading } = useSelector((state: RootState) => state.user);
@@ -30,27 +34,28 @@ const SignUp = () => {
     if (isAuth) navigate('/')
   }, [status, isAuth, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
-    setFormData({ ...formData, [id]: value.trim() });
-  };
+  const generateUserName = () => {
+    const names = ["Dehan", "Musfiq", "Rahim", "Sohel", "MOhit", "Adam", "Wilda", "Jayson", "Grace", "Stella",
+      "Molly", "Fredrick", "Barrett", "Marcos", "Isaac"];
+    const randInt = Math.floor(Math.random() * names.length);
+    const randStr = Math.floor(Math.random() * 10000);
+    setValue('username', names[randInt]);
+    setValue('email', `${names[randInt].toLowerCase()}${randStr}@gmail.com`)
+  }
 
-  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!formData.username || !formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all fields.");
-    }
+  const onSubmit: SubmitHandler<IForm> = useCallback(async (data) => {
+    if (!data.username || !data.email || !data.password) {
+      return toast.error('Please fill out all fields.');
+    };
 
     try {
-      setErrorMessage(null);
-      await dispatch(registerUser(formData));
+      await dispatch(registerUser(data));
       navigate('/');
     } catch (error: any) {
       console.log(error);
       toast(error)
     }
-  }, [formData, dispatch, navigate])
+  }, [dispatch, navigate]);
 
   return (
     <div className="min-h-screen mt-20">
@@ -68,26 +73,40 @@ const SignUp = () => {
         </div>
 
         <div className="flex-1">
-          <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
             <div>
               <Label className="text-black" htmlFor="username">
                 <p className='mb-2'>Your username</p>
               </Label>
-              <TextInput onChange={handleChange} id='username' type='text' placeholder='adam' />
+
+              <div className="flex items-center w-full relative">
+                <TextInput {...register("username", { required: true, minLength: 4, maxLength: 30 })} className='flex-1' id='username' type='text' placeholder='adam' />
+                <RxUpdate className='w-10 h-10 p-1 absolute right-0 bg-teal-500 rounded-xs cursor-pointer' onClick={generateUserName} />
+              </div>
+              {errors.username?.type === 'required' && <p role='alert'>This field is required</p>}
+              {errors.username?.type === 'minLength' && <p role='alert'>Enter more than 4 symbols</p>}
+              {errors.username?.type === 'maxLength' && <p role='alert'>Enter less than 30 symbols</p>}
             </div>
 
             <div>
               <Label className="text-black" htmlFor="email">
                 <p className='mb-2'>Your email</p>
               </Label>
-              <TextInput onChange={handleChange} id='email' type='email' placeholder='adam@gmail.com' />
+              <TextInput {...register("email", { required: true, minLength: 8, maxLength: 30 })} id='email' type='email' placeholder='adam@gmail.com' />
+              {errors.email?.type === 'email' && <p role='alert'>This field is required</p>}
+              {errors.email?.type === 'minLength' && <p role='alert'>Enter more than 8 symbols</p>}
+              {errors.email?.type === 'maxLength' && <p role='alert'>Enter less than 30 symbols</p>}
             </div>
 
             <div>
               <Label className="text-black" htmlFor="password">
                 <p className='mb-2'>Your password</p>
               </Label>
-              <TextInput onChange={handleChange} id='password' type='password' placeholder='******' />
+              <TextInput {...register("password", { required: true, minLength: 5, maxLength: 30, pattern: /^[a-zA-Z0-9]+$/ })} id='password' type='password' placeholder='******' />
+              {errors.password?.type === 'password' && <p role='alert'>This field is required</p>}
+              {errors.password?.type === 'minLength' && <p role='alert'>Enter more than 5 symbols</p>}
+              {errors.password?.type === 'maxLength' && <p role='alert'>Enter less than 30 symbols</p>}
+              {errors.password?.type === 'pattern' && <p role='alert'>Password must contain only letters and numbers</p>}
             </div>
 
             <Button disabled={loading} type='submit' className='cursor-pointer bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500'>
@@ -107,12 +126,6 @@ const SignUp = () => {
             <Link to={'/sign-in'} className='text-blue-500 cursor-pointer'>Sign In</Link>
           </div>
         </div>
-
-        {
-          errorMessage && (
-            <Alert className='mt-5' color='failure'>{errorMessage}</Alert>
-          )
-        }
       </div>
     </div>
   )
